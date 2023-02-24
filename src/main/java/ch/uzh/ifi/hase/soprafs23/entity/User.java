@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import org.hibernate.annotations.CreationTimestamp;
+import java.time.LocalDate;
 
 /**
  * Internal User Representation
@@ -25,17 +27,23 @@ public class User implements Serializable {
   @GeneratedValue
   private Long id;
 
-  @Column(nullable = false)
-  private String name;
+  @CreationTimestamp
+  private LocalDate timestamp;
 
   @Column(nullable = false, unique = true)
   private String username;
+  
+  @Column(nullable = false)
+  private String password;
 
   @Column(nullable = false, unique = true)
   private String token;
 
   @Column(nullable = false)
   private UserStatus status;
+
+  @Column(nullable = true)
+  private LocalDate birthDate;
 
   public Long getId() {
     return id;
@@ -45,12 +53,12 @@ public class User implements Serializable {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
+  public LocalDate getTimestamp() {
+    return timestamp;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setTimestamp(LocalDate timestamp) {
+    this.timestamp = timestamp;
   }
 
   public String getUsername() {
@@ -59,6 +67,14 @@ public class User implements Serializable {
 
   public void setUsername(String username) {
     this.username = username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
   }
 
   public String getToken() {
@@ -76,4 +92,12 @@ public class User implements Serializable {
   public void setStatus(UserStatus status) {
     this.status = status;
   }
+
+  public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+  public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
 }

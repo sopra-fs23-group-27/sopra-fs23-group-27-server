@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
 import ch.uzh.ifi.hase.soprafs23.entity.User;
+import ch.uzh.ifi.hase.soprafs23.exceptions.SopraServiceException;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.AuthenticationPostDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
@@ -42,6 +44,7 @@ public class UserController {
     return userGetDTOs;
   }
 
+
   @PostMapping("/users")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
@@ -53,5 +56,20 @@ public class UserController {
     User createdUser = userService.createUser(userInput);
     // convert internal representation of user back to API
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+  }
+
+  // create a POST mapping to check if the login data of the current user
+  // matches the data of a user in the database
+  @PostMapping("/login")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public AuthenticationPostDTO loginUser(@RequestBody UserPostDTO userPostDTO) throws SopraServiceException {
+    // get token from user login
+    String token = userService.loginUser(userPostDTO.getUsername(), userPostDTO.getPassword());
+    AuthenticationPostDTO authenticationPostDTO = new AuthenticationPostDTO();
+    authenticationPostDTO.setToken(token);
+    authenticationPostDTO.setUsername(userPostDTO.getUsername());
+    // return token
+    return authenticationPostDTO;
   }
 }
