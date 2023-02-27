@@ -60,6 +60,11 @@ public class UserController {
     UserGetDTO userGetDTO = new UserGetDTO();
     User user = userService.getUser(id);
 
+    // check if user with requested user id exists
+    if (user == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("No user with this id exists!"));
+    }
+
     // convert user to the API representation
     userGetDTO = (DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
 
@@ -73,9 +78,13 @@ public class UserController {
   @ResponseBody
   public UserGetDTO logUserOut(@PathVariable(value = "id") Long id) {
     User toBeloggedOutUser = userRepository.findById(id).get();
+
+    // throw exception if user does not exist
     if (toBeloggedOutUser == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("User does not exist"));
     }
+
+    // logout currently logged in user
     User loggedOutUser = userService.logoutUser(toBeloggedOutUser);
 
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(loggedOutUser);
@@ -85,22 +94,32 @@ public class UserController {
   @PutMapping("/users/{id}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public UserGetDTO modifyUser(@PathVariable Long id, @RequestBody UserPutDTO userPutDTO) throws SopraServiceException {
+  public void modifyUser(@PathVariable Long id, @RequestBody UserPutDTO userPutDTO) {
     // convert API user to internal representation
     User userInput = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
 
-    // catch wrong input data exception
-    try {
-      userInput.getBirthDate();
-    } catch (Exception e) {
-      System.out.println("Invalid birth date");
+    // throw exception if username is already taken
+    if (userRepository.findByUsername(userInput.getUsername()) != null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Username already taken!"));
+    }
+
+    // throw exception if user does not exist
+    User user = userRepository.findById(id).get();
+    if (user == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("No user with this id exists!"));
+    }
+
+    // throw exception if UserPutDTO provides no info
+    if (userInput == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+          String.format("Please provide valid information to edit the user!"));
     }
 
     // modify user
-    User modifiedUser = userService.modifyUser(id, userInput);
+    userService.modifyUser(id, userInput);
 
-    // convert internal representation of user back to API
-    return DTOMapper.INSTANCE.convertEntityToUserGetDTO(modifiedUser);
+    // Response to PUT request has no content
+    throw new ResponseStatusException(HttpStatus.NO_CONTENT);
   }
 
   @PostMapping("/users")
@@ -122,14 +141,21 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public AuthenticationPostDTO loginUser(@RequestBody UserPostDTO userPostDTO) throws SopraServiceException {
+    // fetch user to be logged in from the internal representation
     User toBeloggedInUser = userRepository.findByUsername(userPostDTO.getUsername());
-    
+
+    // throw exception if user does not exist
+    if (toBeloggedInUser == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User does not exist"));
+    }
+
     // get token from user login
     String token = userService.loginUser(userPostDTO.getUsername(), userPostDTO.getPassword());
     AuthenticationPostDTO authenticationPostDTO = new AuthenticationPostDTO();
     authenticationPostDTO.setId(toBeloggedInUser.getId());
     authenticationPostDTO.setToken(token);
     authenticationPostDTO.setUsername(userPostDTO.getUsername());
+
     // return token
     return authenticationPostDTO;
   }

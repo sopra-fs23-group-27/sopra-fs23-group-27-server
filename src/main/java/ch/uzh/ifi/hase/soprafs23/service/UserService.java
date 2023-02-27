@@ -44,21 +44,12 @@ public class UserService {
     return this.userRepository.findById(id).get();
   }
 
-  // helper function to modify a user based on provided username and birthDate
-  public User modifyUser(Long id, User user) throws SopraServiceException {
+   // helper function to modify a user based on provided username and birthDate
+   public User modifyUser(Long id, User user) {
     User modifiedUser = userRepository.findById(id).get();
 
-    // throw exception if no data is provided
-    if (user.getUsername() == null && user.getBirthDate() == null) {
-      throw new SopraServiceException("Please provide a new username and/or a new birth date!");
-    }
-
-    // throw exception if username is already taken
-    if (user.getUsername() != null) {
-      User userByUsername = userRepository.findByUsername(user.getUsername());
-      if (userByUsername != null) {
-        throw new SopraServiceException("Username already taken! Please choose another one.");
-      }
+    if (modifiedUser == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("A user with this userId was not found!"));
     }
 
     // modify data if entered as argument (i.e. not null)
@@ -68,7 +59,10 @@ public class UserService {
     if (user.getBirthDate() != null) {
       modifiedUser.setBirthDate(user.getBirthDate());
     }
-
+    // throw exception if no data is provided
+    if (user.getUsername() == null && user.getBirthDate() == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Please provide a new username and/or a new password!"));
+    }
     return modifiedUser;
   }
 
