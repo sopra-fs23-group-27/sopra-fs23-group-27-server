@@ -81,7 +81,7 @@ public class UserController {
 
     // throw exception if user does not exist
     if (toBeloggedOutUser == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("User does not exist"));
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User does not exist"));
     }
 
     // logout currently logged in user
@@ -92,7 +92,7 @@ public class UserController {
 
   // create a PUT mapping to change data from a specific user
   @PutMapping("/users/{id}")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public void modifyUser(@PathVariable Long id, @RequestBody UserPutDTO userPutDTO) {
     // convert API user to internal representation
@@ -100,7 +100,7 @@ public class UserController {
 
     // throw exception if username is already taken
     if (userRepository.findByUsername(userInput.getUsername()) != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Username already taken!"));
+      throw new ResponseStatusException(HttpStatus.CONFLICT, String.format("Username already taken!"));
     }
 
     // throw exception if user does not exist
@@ -117,9 +117,6 @@ public class UserController {
 
     // modify user
     userService.modifyUser(id, userInput);
-
-    // Response to PUT request has no content
-    throw new ResponseStatusException(HttpStatus.NO_CONTENT);
   }
 
   @PostMapping("/users")
