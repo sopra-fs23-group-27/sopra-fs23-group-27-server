@@ -56,7 +56,7 @@ public class UserControllerTest {
 
     //////////////// REST INTERFACE ///////////////////
 
-    //////////////// MAPPING 1 ////////////////////////
+    //////////////// MAPPING 1 - POST (no error) ////////////////////////
     @Test
     public void createUser_validInput_userCreated() throws Exception {
         // given
@@ -90,7 +90,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.birthDate", is(user.getBirthDate().toString())));
     }
 
-    //////////////// MAPPING 2 ////////////////////////
+    //////////////// MAPPING 2 - POST (error) ////////////////////////
     @Test
     public void createUser_invalidInput_userCreated() throws Exception {
         // given
@@ -118,7 +118,7 @@ public class UserControllerTest {
                 .andExpect(status().isConflict());
     }
 
-    //////////////// MAPPING 3 ////////////////////////
+    //////////////// MAPPING 3 - GET (no error) ////////////////////////
     @Test
     public void givenUser_whenGetUser_thenReturnJsonArray() throws Exception {
         // given
@@ -142,7 +142,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
     }
 
-    //////////////// MAPPING 4 ////////////////////////
+    //////////////// MAPPING 4 - GET (error) ////////////////////////
     @Test
     public void noUser_whenGetUser_thenReturnJsonArray() throws Exception {
         // given
@@ -164,7 +164,7 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
 
-    //////////////// MAPPING 5 ////////////////////////
+    //////////////// MAPPING 5 - PUT (no error) ////////////////////////
     @Test
     public void updateUser_validInput_userUpdated() throws Exception {
         // given
@@ -207,7 +207,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$").doesNotExist());
     }
 
-    //////////////// MAPPING 6 ////////////////////////
+    //////////////// MAPPING 6 - PUT (error) ////////////////////////
     @Test
     public void updateUser_invalidInput_userUpdated() throws Exception {
         // given

@@ -2,8 +2,9 @@ package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs23.entity.User;
-import ch.uzh.ifi.hase.soprafs23.exceptions.SopraServiceException;
 import ch.uzh.ifi.hase.soprafs23.repository.UserRepository;
+
+import org.apache.catalina.connector.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,15 +102,15 @@ public class UserService {
 
 
   // helper function to login a user based on provided username and password
-  public String loginUser(String username, String password) throws SopraServiceException {
+  public String loginUser(String username, String password) {
     User user = userRepository.findByUsername(username);
     String loginToken;
 
     // check if user exists in DB and matches provided login data
     if (user == null) {
-      throw new SopraServiceException("User does not exist! Please make sure to register first.");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("User does not exist! Please make sure to register first."));
     } else if (!(user.getPassword().equals(password))) {
-      throw new SopraServiceException("Invalid password!");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Invalid password!"));
     } else {
       user.setStatus(UserStatus.ONLINE);
       loginToken = UUID.randomUUID().toString();
