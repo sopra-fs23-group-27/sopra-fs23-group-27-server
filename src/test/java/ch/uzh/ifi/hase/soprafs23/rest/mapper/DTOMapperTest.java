@@ -1,9 +1,9 @@
 package ch.uzh.ifi.hase.soprafs23.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs23.entity.User;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
+import ch.uzh.ifi.hase.soprafs23.entity.Player;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerGetDTO;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPostDTO;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,36 +15,36 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class DTOMapperTest {
     @Test
-    public void testCreateUser_fromUserPostDTO_toUser_success() {
-        // create UserPostDTO
-        UserPostDTO userPostDTO = new UserPostDTO();
-        userPostDTO.setPassword("password");
-        userPostDTO.setUsername("username");
+    public void testCreatePlayer_fromPlayerPostDTO_toPlayer_success() {
+        // create PlayerPostDTO
+        PlayerPostDTO playerPostDTO = new PlayerPostDTO();
+        playerPostDTO.setPassword("password");
+        playerPostDTO.setPlayername("playername");
 
-        // MAP -> Create user
-        User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+        // MAP -> Create player
+        Player player = DTOMapper.INSTANCE.convertPlayerPostDTOtoEntity(playerPostDTO);
 
         // check content
-        assertEquals(userPostDTO.getPassword(), user.getPassword());
-        assertEquals(userPostDTO.getUsername(), user.getUsername());
+        assertEquals(playerPostDTO.getPassword(), player.getPassword());
+        assertEquals(playerPostDTO.getPlayername(), player.getPlayername());
     }
 
     @Test
-    public void testGetUser_fromUser_toUserGetDTO_success() {
-        // create User
-        User user = new User();
-        user.setPassword("password");
-        user.setUsername("firstname@lastname");
-        user.setStatus(UserStatus.OFFLINE);
-        user.setToken("1");
+    public void testGetPlayer_fromPlayer_toPlayerGetDTO_success() {
+        // create Player
+        Player player = new Player();
+        player.setPassword("password");
+        player.setPlayername("firstname@lastname");
+        player.setStatus(PlayerStatus.OFFLINE);
+        player.setToken("1");
 
-        // MAP -> Create UserGetDTO
-        UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+        // MAP -> Create PlayerGetDTO
+        PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
 
         // check content
-        assertEquals(user.getId(), userGetDTO.getId());
-        assertEquals(user.getCreationDate(), userGetDTO.getCreationDate());
-        assertEquals(user.getUsername(), userGetDTO.getUsername());
-        assertEquals(user.getStatus(), userGetDTO.getStatus());
+        assertEquals(player.getId(), playerGetDTO.getId());
+        assertEquals(player.getCreationDate(), playerGetDTO.getCreationDate());
+        assertEquals(player.getPlayername(), playerGetDTO.getPlayername());
+        assertEquals(player.getStatus(), playerGetDTO.getStatus());
     }
 }

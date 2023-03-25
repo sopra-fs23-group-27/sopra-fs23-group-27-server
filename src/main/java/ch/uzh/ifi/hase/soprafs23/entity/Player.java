@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
-import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -8,9 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Internal User Representation
- * This class composes the internal representation of the user and defines how
- * the user is stored in the database.
+ * Internal Player Representation
+ * This class composes the internal representation of the player and defines how
+ * the player is stored in the database.
  * Every variable will be mapped into a database field with the @Column
  * annotation
  * - nullable = false -> this cannot be left empty
@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
  * the primary key
  */
 @Entity
-@Table(name = "USER")
-public class User implements Serializable {
+@Table(name = "PLAYER")
+public class Player implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -31,13 +31,13 @@ public class User implements Serializable {
     private String password;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    private String playername;
 
     @Column(nullable = false, unique = true)
     private String token;
 
     @Column(nullable = false)
-    private UserStatus status;
+    private PlayerStatus status;
 
     @Column(nullable = true)
     private LocalDate birthday;
@@ -61,12 +61,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public String getPlayername() {
+        return playername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setPlayername(String playername) {
+        this.playername = playername;
     }
 
     public String getToken() {
@@ -77,11 +77,11 @@ public class User implements Serializable {
         this.token = token;
     }
 
-    public UserStatus getStatus() {
+    public PlayerStatus getStatus() {
         return status;
     }
 
-    public void setStatus(UserStatus status) {
+    public void setStatus(PlayerStatus status) {
         this.status = status;
     }
 

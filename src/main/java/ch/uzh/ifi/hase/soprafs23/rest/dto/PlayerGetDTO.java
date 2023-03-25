@@ -1,18 +1,18 @@
 package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class UserGetDTO {
+public class PlayerGetDTO {
 
     private Long id;
     private LocalDateTime creationDate;
     private LocalDate birthday;
-    private String username;
-    private UserStatus status;
+    private String playername;
+    private PlayerStatus status;
 
     public Long getId() {
         return id;
@@ -39,19 +39,19 @@ public class UserGetDTO {
         this.birthday = birthday;
     }
 
-    public String getUsername() {
-        return username;
+    public String getPlayername() {
+        return playername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setPlayername(String playername) {
+        this.playername = playername;
     }
 
-    public UserStatus getStatus() {
+    public PlayerStatus getStatus() {
         return status;
     }
 
-    public void setStatus(UserStatus status) {
+    public void setStatus(PlayerStatus status) {
         this.status = status;
     }
 }
