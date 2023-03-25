@@ -4,7 +4,7 @@ public class PlayerPostDTO {
 
     private String password;
 
-    private String playername;
+    private String playerName;
 
     public String getPassword() {
         return password;
@@ -14,11 +14,11 @@ public class PlayerPostDTO {
         this.password = password;
     }
 
-    public String getPlayername() {
-        return playername;
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public void setPlayername(String playername) {
-        this.playername = playername;
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 }

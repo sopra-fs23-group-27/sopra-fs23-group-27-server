@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPostDTO;
@@ -19,14 +18,14 @@ public class DTOMapperTest {
         // create PlayerPostDTO
         PlayerPostDTO playerPostDTO = new PlayerPostDTO();
         playerPostDTO.setPassword("password");
-        playerPostDTO.setPlayername("playername");
+        playerPostDTO.setPlayerName("playerName");
 
         // MAP -> Create player
         Player player = DTOMapper.INSTANCE.convertPlayerPostDTOtoEntity(playerPostDTO);
 
         // check content
         assertEquals(playerPostDTO.getPassword(), player.getPassword());
-        assertEquals(playerPostDTO.getPlayername(), player.getPlayername());
+        assertEquals(playerPostDTO.getPlayerName(), player.getPlayerName());
     }
 
     @Test
@@ -34,8 +33,7 @@ public class DTOMapperTest {
         // create Player
         Player player = new Player();
         player.setPassword("password");
-        player.setPlayername("firstname@lastname");
-        player.setStatus(PlayerStatus.OFFLINE);
+        player.setPlayerName("firstname@lastname");
         player.setToken("1");
 
         // MAP -> Create PlayerGetDTO
@@ -43,8 +41,6 @@ public class DTOMapperTest {
 
         // check content
         assertEquals(player.getId(), playerGetDTO.getId());
-        assertEquals(player.getCreationDate(), playerGetDTO.getCreationDate());
-        assertEquals(player.getPlayername(), playerGetDTO.getPlayername());
-        assertEquals(player.getStatus(), playerGetDTO.getStatus());
+        assertEquals(player.getPlayerName(), playerGetDTO.getPlayerName());
     }
 }

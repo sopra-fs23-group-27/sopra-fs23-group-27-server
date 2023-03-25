@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
-import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPostDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
@@ -49,9 +48,7 @@ public class PlayerControllerTest {
         // given
         Player player = new Player();
         player.setPassword("password");
-        player.setPlayername("firstname@lastname");
-        player.setStatus(PlayerStatus.OFFLINE);
-        player.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 59, 59));
+        player.setPlayerName("firstname@lastname");
 
         // this mocks the PlayerService -> we define above what the playerService should
         // return when getPlayerById() is called
@@ -64,9 +61,7 @@ public class PlayerControllerTest {
 
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.creation_date", is(player.getCreationDate().toString())))
-                .andExpect(jsonPath("$.playername", is(player.getPlayername())))
-                .andExpect(jsonPath("$.status", is(player.getStatus().toString())));
+                .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
     }
 
     ////////// MAPPING 1 //////////
@@ -76,10 +71,8 @@ public class PlayerControllerTest {
         Player player = new Player();
         player.setId(1L);
         player.setPassword("password");
-        player.setPlayername("testPlayername");
+        player.setPlayerName("testPlayerName");
         player.setToken("1");
-        player.setStatus(PlayerStatus.ONLINE);
-        player.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 59, 59));
 
 
         // valid token
@@ -87,7 +80,7 @@ public class PlayerControllerTest {
 
         PlayerPostDTO playerPostDTO = new PlayerPostDTO();
         playerPostDTO.setPassword("password");
-        playerPostDTO.setPlayername("testPlayername");
+        playerPostDTO.setPlayerName("testPlayerName");
 
         given(playerService.createPlayer(Mockito.any())).willReturn(player);
 
@@ -101,9 +94,7 @@ public class PlayerControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Authorization", validToken))
                 .andExpect(jsonPath("$.id", is(player.getId().intValue())))
-                .andExpect(jsonPath("$.creation_date", is(player.getCreationDate().toString())))
-                .andExpect(jsonPath("$.playername", is(player.getPlayername())))
-                .andExpect(jsonPath("$.status", is(player.getStatus().toString())));
+                .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
     }
 
 
@@ -111,14 +102,14 @@ public class PlayerControllerTest {
     @Test
     public void createPlayer_invalidInput_409thrown() throws Exception {
         // given
-        String errorMessage = "Error: The playername provided is already taken and cannot be used. " +
-                "Please select another playername!";
+        String errorMessage = "Error: The playerName provided is already taken and cannot be used. " +
+                "Please select another playerName!";
 
         ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
 
         PlayerPostDTO playerPostDTO = new PlayerPostDTO();
         playerPostDTO.setPassword("password");
-        playerPostDTO.setPlayername("testPlayername");
+        playerPostDTO.setPlayerName("testPlayerName");
 
         // when the mock object (playerService) is called for createPlayer() method with any parameters,
         // then it will return the object "conflictException"
@@ -143,11 +134,8 @@ public class PlayerControllerTest {
         Player player = new Player();
         player.setId(1L);
         player.setPassword("password");
-        player.setPlayername("testPlayername");
+        player.setPlayerName("testPlayerName");
         player.setToken("1");
-        player.setStatus(PlayerStatus.ONLINE);
-        player.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 59, 59));
-        player.setBirthday(LocalDate.of(1999, 12, 31));
 
         // valid playerId
         Long validPlayerId = player.getId();
@@ -167,10 +155,7 @@ public class PlayerControllerTest {
         mockMvc.perform(getRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(player.getId().intValue())))
-                .andExpect(jsonPath("$.playername", is(player.getPlayername())))
-                .andExpect(jsonPath("$.status", is(player.getStatus().toString())))
-                .andExpect(jsonPath("$.creation_date", is(player.getCreationDate().toString())))
-                .andExpect(jsonPath("$.birthday", is(player.getBirthday().toString())));
+                .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
     }
 
 
@@ -206,19 +191,16 @@ public class PlayerControllerTest {
         Player player = new Player();
         player.setId(1L);
         player.setPassword("password");
-        player.setPlayername("testPlayername");
+        player.setPlayerName("testPlayerName");
         player.setToken("someToken");
-        player.setStatus(PlayerStatus.ONLINE);
-        player.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 59, 59));
-        player.setBirthday(LocalDate.of(1999, 12, 31));
 
-        // some random playername update
+        // some random playerName update
         PlayerPutDTO playerPutDTO = new PlayerPutDTO();
-        playerPutDTO.setPlayername("someNewPlayername");
+        playerPutDTO.setPlayerName("someNewPlayerName");
 
         // valid playerId
         long validPlayerId = player.getId();
-        String newToken = "newTokenWithUpdatedPlayername";
+        String newToken = "newTokenWithUpdatedPlayerName";
         player.setToken(newToken);
 
 
@@ -245,9 +227,9 @@ public class PlayerControllerTest {
     @Test
     public void updatePlayerProfile_invalidPlayerId_404thrown() throws Exception {
         // given
-        // some random playername update
+        // some random playerName update
         PlayerPutDTO playerPutDTO = new PlayerPutDTO();
-        playerPutDTO.setPlayername("someNewPlayername");
+        playerPutDTO.setPlayerName("someNewPlayerName");
 
         // some random invalid playerId
         long invalidPlayerId = 99;
@@ -280,15 +262,12 @@ public class PlayerControllerTest {
         Player player = new Player();
         player.setId(1L);
         player.setPassword("password");
-        player.setPlayername("testPlayername");
+        player.setPlayerName("testPlayerName");
         player.setToken("1");
-        player.setStatus(PlayerStatus.ONLINE);
-        player.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 59, 59));
-        player.setBirthday(LocalDate.of(1999, 12, 31));
 
-        // some random playername update
+        // some random playerName update
         PlayerPutDTO playerPutDTO = new PlayerPutDTO();
-        playerPutDTO.setPlayername("someNewPlayername");
+        playerPutDTO.setPlayerName("someNewPlayerName");
 
         // valid playerId
         long validPlayerId = player.getId();
@@ -313,7 +292,7 @@ public class PlayerControllerTest {
     /**
      * Helper Method to convert playerPostDTO into a JSON string such that the input
      * can be processed
-     * Input will look like this: {"password": "password", "playername": "testPlayername"}
+     * Input will look like this: {"password": "password", "playerName": "testPlayerName"}
      *
      * @param object
      * @return string

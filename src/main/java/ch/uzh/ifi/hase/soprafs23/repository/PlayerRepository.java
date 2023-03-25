@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository("playerRepository")
 public interface PlayerRepository extends JpaRepository<Player, Long> {
-    Player findByPlayername(String playername);
+    Player findByPlayerName(String playerName);
 
     Player findById(long id);
 

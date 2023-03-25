@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
@@ -53,17 +52,14 @@ public class PlayerService {
     public Player createPlayer(Player newPlayer) {
 
         // create basic authentication token
-        String playername = newPlayer.getPlayername();
+        String playerName = newPlayer.getPlayerName();
         String password = newPlayer.getPassword();
-        String encodeBytes = Base64.getEncoder().encodeToString((playername + ":" + password).getBytes());
+        String encodeBytes = Base64.getEncoder().encodeToString((playerName + ":" + password).getBytes());
 
         newPlayer.setToken("Basic " + encodeBytes);
 
-        newPlayer.setStatus(PlayerStatus.ONLINE);
 
-        // set the current datetime as the creation date
-        newPlayer.setCreationDate(LocalDateTime.now());
-        checkIfPlayernameExists(newPlayer.getPlayername());
+        checkIfPlayerNameExists(newPlayer.getPlayerName());
         // saves the given entity but data is only persisted in the database once
         // flush() is called
         newPlayer = playerRepository.save(newPlayer);
@@ -74,26 +70,25 @@ public class PlayerService {
     }
 
     public Player loginPlayer(Player existingPlayer) {
-        Player playerByPlayername = playerRepository.findByPlayername(existingPlayer.getPlayername());
+        Player playerByPlayerName = playerRepository.findByPlayerName(existingPlayer.getPlayerName());
 
-        if (playerByPlayername == null) { //check if a player with the provided playername exists
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The playername provided does not exist. Please register first.");
+        if (playerByPlayerName == null) { //check if a player with the provided playerName exists
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The playerName provided does not exist. Please register first.");
         }
-        else if (!existingPlayer.getPassword().equals(playerByPlayername.getPassword())) { //given a player with the provided playername exists, check if the provided password is correct
+        else if (!existingPlayer.getPassword().equals(playerByPlayerName.getPassword())) { //given a player with the provided playerName exists, check if the provided password is correct
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password provided is not correct. Please try again.");
         }
 
         // create basic authentication token
-        String playername = playerByPlayername.getPlayername();
-        String password = playerByPlayername.getPassword();
-        String encodeBytes = Base64.getEncoder().encodeToString((playername + ":" + password).getBytes());
-        playerByPlayername.setToken("Basic " + encodeBytes);
+        String playerName = playerByPlayerName.getPlayerName();
+        String password = playerByPlayerName.getPassword();
+        String encodeBytes = Base64.getEncoder().encodeToString((playerName + ":" + password).getBytes());
+        playerByPlayerName.setToken("Basic " + encodeBytes);
 
-        playerByPlayername.setStatus(PlayerStatus.ONLINE);
-        playerByPlayername = playerRepository.save(playerByPlayername);
+        playerByPlayerName = playerRepository.save(playerByPlayerName);
         playerRepository.flush();
 
-        return playerByPlayername;
+        return playerByPlayerName;
     }
 
     public Player logoutPlayer(long playerId, String token) {
@@ -104,14 +99,7 @@ public class PlayerService {
         // check if token is valid
         checkIfPlayerTokenIsValid(token, existingPlayer);
 
-        // check if player is already logged out
-        if (existingPlayer.getStatus() == PlayerStatus.OFFLINE) {
-            String baseErrorMessage = "The player with id %d is already logged out";
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, playerId));
-        }
 
-        // logout player
-        existingPlayer.setStatus(PlayerStatus.OFFLINE);
         existingPlayer = playerRepository.save(existingPlayer);
         playerRepository.flush();
 
@@ -131,28 +119,16 @@ public class PlayerService {
             playerToBeUpdated.setPassword(playerUpdateRequest.getPassword());
         }
 
-        // update birthday if provided birthday is not null
-        if (playerUpdateRequest.getBirthday() != null && !playerUpdateRequest.getBirthday().isBlank()) {
-            try {
-                LocalDate birthdayParsed = LocalDate.parse(playerUpdateRequest.getBirthday());
-                playerToBeUpdated.setBirthday(birthdayParsed);
-            }
-            catch (DateTimeParseException e) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Error: The birthday provided is not in the correct format. Please use the format yyyy-mm-dd.");
-            }
 
+        // update playerName if provided playerName is not null
+        if (playerUpdateRequest.getPlayerName() != null) {
+            checkIfPlayerNameExists(playerUpdateRequest.getPlayerName());
+            playerToBeUpdated.setPlayerName(playerUpdateRequest.getPlayerName());
         }
 
-        // update playername if provided playername is not null
-        if (playerUpdateRequest.getPlayername() != null) {
-            checkIfPlayernameExists(playerUpdateRequest.getPlayername());
-            playerToBeUpdated.setPlayername(playerUpdateRequest.getPlayername());
-        }
-
-        String playername = playerToBeUpdated.getPlayername();
+        String playerName = playerToBeUpdated.getPlayerName();
         String password = playerToBeUpdated.getPassword();
-        String encodeBytes = Base64.getEncoder().encodeToString((playername + ":" + password).getBytes());
+        String encodeBytes = Base64.getEncoder().encodeToString((playerName + ":" + password).getBytes());
 
         playerToBeUpdated.setToken("Basic " + encodeBytes);
 
@@ -163,22 +139,22 @@ public class PlayerService {
 
     /**
      * This is a helper method that will check the uniqueness criteria of the
-     * playername
+     * playerName
      * defined in the Player entity. The method will do nothing if the input is unique
      * and throw an error otherwise.
      *
-     * @param newPlayername
+     * @param newPlayerName
      * @throws org.springframework.web.server.ResponseStatusException
      * @see Player
      */
-    private void checkIfPlayernameExists(String newPlayername) {
-        Player playerByPlayername = playerRepository.findByPlayername(newPlayername);
+    private void checkIfPlayerNameExists(String newPlayerName) {
+        Player playerByPlayerName = playerRepository.findByPlayerName(newPlayerName);
 
         String baseErrorMessage = "Error: The %s provided %s already taken and cannot be used. " +
-                "Please select another playername!";
-        if (playerByPlayername != null) {
+                "Please select another playerName!";
+        if (playerByPlayerName != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    String.format(baseErrorMessage, "playername", "is"));
+                    String.format(baseErrorMessage, "playerName", "is"));
         }
     }
 

@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,12 +38,11 @@ public class PlayerServiceIntegrationTest {
     @Test
     public void createPlayer_validInputs_success() {
         // given
-        assertNull(playerRepository.findByPlayername("testPlayername"));
+        assertNull(playerRepository.findByPlayerName("testPlayerName"));
 
         Player testPlayer = new Player();
         testPlayer.setPassword("password");
-        testPlayer.setPlayername("testPlayername");
-        testPlayer.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 0, 0));
+        testPlayer.setPlayerName("testPlayerName");
 
         // when
         Player createdPlayer = playerService.createPlayer(testPlayer);
@@ -52,27 +50,25 @@ public class PlayerServiceIntegrationTest {
         // then
         assertEquals(testPlayer.getId(), createdPlayer.getId());
         assertEquals(testPlayer.getPassword(), createdPlayer.getPassword());
-        assertEquals(testPlayer.getPlayername(), createdPlayer.getPlayername());
+        assertEquals(testPlayer.getPlayerName(), createdPlayer.getPlayerName());
         assertNotNull(createdPlayer.getToken());
-        assertEquals(PlayerStatus.ONLINE, createdPlayer.getStatus());
     }
 
     @Test
-    public void createPlayer_duplicatePlayername_throwsException() {
-        assertNull(playerRepository.findByPlayername("testPlayername"));
+    public void createPlayer_duplicatePlayerName_throwsException() {
+        assertNull(playerRepository.findByPlayerName("testPlayerName"));
 
         Player testPlayer = new Player();
         testPlayer.setPassword("password");
-        testPlayer.setPlayername("testPlayername");
-        testPlayer.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 0, 0));
+        testPlayer.setPlayerName("testPlayerName");
         Player createdPlayer = playerService.createPlayer(testPlayer);
 
-        // attempt to create second player with same playername
+        // attempt to create second player with same playerName
         Player testPlayer2 = new Player();
 
-        // change the name but forget about the playername
+        // change the name but forget about the playerName
         testPlayer2.setPassword("password");
-        testPlayer2.setPlayername("testPlayername");
+        testPlayer2.setPlayerName("testPlayerName");
 
         // check that an error is thrown
         assertThrows(ResponseStatusException.class, () -> playerService.createPlayer(testPlayer2));

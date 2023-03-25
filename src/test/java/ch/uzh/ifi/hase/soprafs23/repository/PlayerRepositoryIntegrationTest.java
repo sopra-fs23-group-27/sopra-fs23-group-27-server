@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.repository;
 
-import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +25,19 @@ public class PlayerRepositoryIntegrationTest {
         // given
         Player player = new Player();
         player.setPassword("password");
-        player.setPlayername("firstname@lastname");
-        player.setStatus(PlayerStatus.OFFLINE);
+        player.setPlayerName("firstname@lastname");
         player.setToken("1");
-        player.setCreationDate(LocalDateTime.of(2023, 3, 5, 15, 0, 0));
 
         entityManager.persist(player);
         entityManager.flush();
 
         // when
-        Player found = playerRepository.findByPlayername(player.getPlayername());
+        Player found = playerRepository.findByPlayerName(player.getPlayerName());
 
         // then
         assertNotNull(found.getId());
         assertEquals(found.getPassword(), player.getPassword());
-        assertEquals(found.getPlayername(), player.getPlayername());
+        assertEquals(found.getPlayerName(), player.getPlayerName());
         assertEquals(found.getToken(), player.getToken());
-        assertEquals(found.getStatus(), player.getStatus());
     }
 }

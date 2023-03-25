@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
-import ch.uzh.ifi.hase.soprafs23.constant.PlayerStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -27,23 +26,20 @@ public class Player implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
-    private String password;
-
     @Column(nullable = false, unique = true)
-    private String playername;
+    private String playerName;
+
+    @Column
+    private boolean isCreator;
+
+    @Column
+    private String password;
 
     @Column(nullable = false, unique = true)
     private String token;
 
-    @Column(nullable = false)
-    private PlayerStatus status;
-
-    @Column(nullable = true)
-    private LocalDate birthday;
-
-    @Column(nullable = false)
-    private LocalDateTime creationDate;
+    @Column
+    private Long lobbyId;
 
     public Long getId() {
         return id;
@@ -61,12 +57,12 @@ public class Player implements Serializable {
         this.password = password;
     }
 
-    public String getPlayername() {
-        return playername;
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public void setPlayername(String playername) {
-        this.playername = playername;
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 
     public String getToken() {
@@ -77,27 +73,19 @@ public class Player implements Serializable {
         this.token = token;
     }
 
-    public PlayerStatus getStatus() {
-        return status;
+    public boolean isCreator() {
+        return isCreator;
     }
 
-    public void setStatus(PlayerStatus status) {
-        this.status = status;
+    public void setCreator(boolean creator) {
+        isCreator = creator;
     }
 
-    public LocalDate getBirthday() {
-        return birthday;
+    public Long getLobbyId() {
+        return lobbyId;
     }
 
-    public void setBirthday(LocalDate birthday) {
-        this.birthday = birthday;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
+    public void setLobbyId(Long lobbyId) {
+        this.lobbyId = lobbyId;
     }
 }

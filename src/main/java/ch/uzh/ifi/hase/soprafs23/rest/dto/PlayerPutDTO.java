@@ -2,8 +2,7 @@ package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
 public class PlayerPutDTO {
     private String password;
-    private String playername;
-    private String birthday;
+    private String playerName;
 
     public String getPassword() {
         return password;
@@ -13,19 +12,12 @@ public class PlayerPutDTO {
         this.password = password;
     }
 
-    public String getPlayername() {
-        return playername;
+    public String getPlayerName() {
+        return playerName;
     }
 
-    public void setPlayername(String playername) {
-        this.playername = playername;
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 
-    public String getBirthday() {
-        return birthday;
-    }
-
-    public void setBirthday(String birthday) {
-        this.birthday = birthday;
-    }
 }

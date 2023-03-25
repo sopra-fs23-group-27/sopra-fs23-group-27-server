@@ -23,18 +23,12 @@ public interface DTOMapper {
     DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
     @Mapping(source = "password", target = "password")
-    @Mapping(source = "playername", target = "playername")
-    @Mapping(target = "birthday", ignore = true)
-    @Mapping(target = "creationDate", ignore = true)
-    @Mapping(target = "status", ignore = true)
+    @Mapping(source = "playerName", target = "playerName")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "token", ignore = true)
     Player convertPlayerPostDTOtoEntity(PlayerPostDTO playerPostDTO);
 
     @Mapping(source = "id", target = "id")
-    @Mapping(source = "playername", target = "playername")
-    @Mapping(source = "status", target = "status")
-    @Mapping(source = "birthday", target = "birthday")
-    @Mapping(source = "creationDate", target = "creationDate")
+    @Mapping(source = "playerName", target = "playerName")
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 }
