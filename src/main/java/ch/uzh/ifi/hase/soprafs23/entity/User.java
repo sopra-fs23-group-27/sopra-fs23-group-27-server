@@ -4,8 +4,8 @@ import ch.uzh.ifi.hase.soprafs23.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Internal User Representation
@@ -21,83 +21,83 @@ import java.time.LocalDate;
 @Table(name = "USER")
 public class User implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue
-  private Long id;
+    @Id
+    @GeneratedValue
+    private Long id;
 
-  @CreationTimestamp
-  private LocalDate timestamp;
+    @Column(nullable = false)
+    private String password;
 
-  @Column(nullable = false, unique = true)
-  private String username;
-  
-  @Column(nullable = false)
-  private String password;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-  @Column(nullable = false, unique = true)
-  private String token;
+    @Column(nullable = false, unique = true)
+    private String token;
 
-  @Column(nullable = false)
-  private UserStatus status;
+    @Column(nullable = false)
+    private UserStatus status;
 
-  @Column(nullable = true)
-  private LocalDate birthDate;
+    @Column(nullable = true)
+    private LocalDate birthday;
 
-  public Long getId() {
-    return id;
-  }
+    @Column(nullable = false)
+    private LocalDateTime creationDate;
 
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public LocalDate getTimestamp() {
-    return timestamp;
-  }
-
-  public void setTimestamp(LocalDate timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public String getToken() {
-    return token;
-  }
-
-  public void setToken(String token) {
-    this.token = token;
-  }
-
-  public UserStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(UserStatus status) {
-    this.status = status;
-  }
-
-  public LocalDate getBirthDate() {
-        return birthDate;
+    public Long getId() {
+        return id;
     }
 
-  public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }

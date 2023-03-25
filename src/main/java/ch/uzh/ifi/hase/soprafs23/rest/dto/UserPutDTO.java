@@ -3,8 +3,17 @@ package ch.uzh.ifi.hase.soprafs23.rest.dto;
 import java.time.LocalDate;
 
 public class UserPutDTO {
+    private String password;
     private String username;
-    private LocalDate birthDate;
+    private String birthday;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getUsername() {
         return username;
@@ -14,11 +23,11 @@ public class UserPutDTO {
         this.username = username;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
+    public String getBirthday() {
+        return birthday;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 }
