@@ -12,7 +12,7 @@ public class Lobby implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long lobbyId;
 
     private String lobbyName;
     private boolean isPublic;
@@ -27,12 +27,12 @@ public class Lobby implements Serializable {
     private String privateLobbyKey;
 
 
-    public long getId() {
-        return id;
+    public Long getLobbyId() {
+        return lobbyId;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setLobbyId(Long id) {
+        this.lobbyId = id;
     }
 
     public String getLobbyName() {

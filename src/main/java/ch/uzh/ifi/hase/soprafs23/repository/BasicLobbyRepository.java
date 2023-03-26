@@ -13,4 +13,10 @@ public interface BasicLobbyRepository extends JpaRepository<BasicLobby, Long> {
 
     @Query("from BasicLobby")
     public List<BasicLobby> findAll();
+
+    @Query("from BasicLobby")
+    public BasicLobby findBasicLobbyByLobbyName(String lobbyName);
+
+    @Query("from BasicLobby")
+    public BasicLobby findBasicLobbyById(Long id);
 }
