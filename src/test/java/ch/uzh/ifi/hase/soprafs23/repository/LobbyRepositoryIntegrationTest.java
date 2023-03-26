@@ -10,8 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class LobbyRepositoryIntegrationTest {
@@ -34,7 +33,7 @@ public class LobbyRepositoryIntegrationTest {
 
         basicLobby.setLobbyName(lobbyName);
         basicLobby.setNumOptions(numOptions);
-        basicLobby.setPublic(isPublic);
+        basicLobby.setIsPublic(isPublic);
         basicLobby.setJoinedPlayerNames(joinedPlayerNames);
 
         entityManager.persist(basicLobby);
@@ -51,8 +50,9 @@ public class LobbyRepositoryIntegrationTest {
         assertNotNull(found.getLobbyId());
         assertEquals(found.getLobbyId(), lobbyId);
         assertEquals(found.getLobbyName(), basicLobby.getLobbyName());
-        assertEquals(found.isPublic(), basicLobby.isPublic());
+        assertEquals(found.getIsPublic(), basicLobby.getIsPublic());
         assertEquals(found.getJoinedPlayerNames(), basicLobby.getJoinedPlayerNames());
+        assertTrue(found.isJoinable());
 
     }
 
@@ -68,7 +68,7 @@ public class LobbyRepositoryIntegrationTest {
 
         basicLobby.setLobbyName(lobbyName);
         basicLobby.setNumOptions(numOptions);
-        basicLobby.setPublic(isPublic);
+        basicLobby.setIsPublic(isPublic);
         basicLobby.setJoinedPlayerNames(joinedPlayerNames);
 
         entityManager.persist(basicLobby);
@@ -85,8 +85,9 @@ public class LobbyRepositoryIntegrationTest {
         assertNotNull(found.getLobbyId());
         assertEquals(found.getLobbyId(), lobbyId);
         assertEquals(found.getLobbyName(), basicLobby.getLobbyName());
-        assertEquals(found.isPublic(), basicLobby.isPublic());
+        assertEquals(found.getIsPublic(), basicLobby.getIsPublic());
         assertEquals(found.getJoinedPlayerNames(), basicLobby.getJoinedPlayerNames());
+        assertTrue(found.isJoinable());
 
     }
 
@@ -100,7 +101,7 @@ public class LobbyRepositoryIntegrationTest {
         List<String> joinedPlayerNames = List.of("testPlayerName1", "testPlayerName2", "testPlayerName3");
 
         basicLobby.setLobbyName(lobbyName);
-        basicLobby.setPublic(isPublic);
+        basicLobby.setIsPublic(isPublic);
         basicLobby.setJoinedPlayerNames(joinedPlayerNames);
 
         entityManager.persist(basicLobby);
@@ -116,7 +117,7 @@ public class LobbyRepositoryIntegrationTest {
         List<String> joinedPlayerNames2 = List.of("testPlayerName1", "testPlayerName2", "testPlayerName3");
 
         advancedLobby.setLobbyName(lobbyName2);
-        advancedLobby.setPublic(isPublic2);
+        advancedLobby.setIsPublic(isPublic2);
         advancedLobby.setJoinedPlayerNames(joinedPlayerNames2);
 
         entityManager.persist(advancedLobby);
@@ -136,27 +137,30 @@ public class LobbyRepositoryIntegrationTest {
         assertEquals(allBasicFound.size(), 1);
         assertEquals(allAdvancedFound.size(), 1);
 
+        assertTrue(allFound.get(0).isJoinable());
+        assertTrue(allFound.get(1).isJoinable());
+
 
         assertNotNull(allFound.get(0).getLobbyId());
         assertEquals(allFound.get(0).getLobbyId(), lobbyId);
         assertEquals(allFound.get(0).getLobbyName(), basicLobby.getLobbyName());
-        assertEquals(allFound.get(0).isPublic(), basicLobby.isPublic());
+        assertEquals(allFound.get(0).getIsPublic(), basicLobby.getIsPublic());
         assertEquals(allFound.get(0).getJoinedPlayerNames(), basicLobby.getJoinedPlayerNames());
 
         assertNotNull(allFound.get(1).getLobbyId());
         assertEquals(allFound.get(1).getLobbyId(), lobbyId2);
         assertEquals(allFound.get(1).getLobbyName(), advancedLobby.getLobbyName());
-        assertEquals(allFound.get(1).isPublic(), advancedLobby.isPublic());
+        assertEquals(allFound.get(1).getIsPublic(), advancedLobby.getIsPublic());
         assertEquals(allFound.get(1).getJoinedPlayerNames(), advancedLobby.getJoinedPlayerNames());
 
         assertEquals(allBasicFound.get(0).getLobbyId(), lobbyId);
         assertEquals(allBasicFound.get(0).getLobbyName(), basicLobby.getLobbyName());
-        assertEquals(allBasicFound.get(0).isPublic(), basicLobby.isPublic());
+        assertEquals(allBasicFound.get(0).getIsPublic(), basicLobby.getIsPublic());
         assertEquals(allBasicFound.get(0).getJoinedPlayerNames(), basicLobby.getJoinedPlayerNames());
 
         assertEquals(allAdvancedFound.get(0).getLobbyId(), lobbyId2);
         assertEquals(allAdvancedFound.get(0).getLobbyName(), advancedLobby.getLobbyName());
-        assertEquals(allAdvancedFound.get(0).isPublic(), advancedLobby.isPublic());
+        assertEquals(allAdvancedFound.get(0).getIsPublic(), advancedLobby.getIsPublic());
         assertEquals(allAdvancedFound.get(0).getJoinedPlayerNames(), advancedLobby.getJoinedPlayerNames());
 
 

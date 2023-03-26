@@ -32,7 +32,7 @@ public class BasicLobbyRepositoryIntegrationTest {
 
         basicLobby.setLobbyName(lobbyName);
         basicLobby.setNumOptions(numOptions);
-        basicLobby.setPublic(isPublic);
+        basicLobby.setIsPublic(isPublic);
         basicLobby.setJoinedPlayerNames(joinedPlayerNames);
 
         entityManager.persist(basicLobby);
@@ -50,7 +50,7 @@ public class BasicLobbyRepositoryIntegrationTest {
         assertEquals(found.getLobbyId(), lobbyId);
         assertEquals(found.getLobbyName(), basicLobby.getLobbyName());
         assertEquals(found.getNumOptions(), basicLobby.getNumOptions());
-        assertEquals(found.isPublic(), basicLobby.isPublic());
+        assertEquals(found.getIsPublic(), basicLobby.getIsPublic());
         assertEquals(found.getJoinedPlayerNames(), basicLobby.getJoinedPlayerNames());
 
     }
@@ -67,7 +67,7 @@ public class BasicLobbyRepositoryIntegrationTest {
 
         basicLobby.setLobbyName(lobbyName);
         basicLobby.setNumOptions(numOptions);
-        basicLobby.setPublic(isPublic);
+        basicLobby.setIsPublic(isPublic);
         basicLobby.setJoinedPlayerNames(joinedPlayerNames);
 
         entityManager.persist(basicLobby);
@@ -85,7 +85,7 @@ public class BasicLobbyRepositoryIntegrationTest {
         assertEquals(found.getLobbyId(), lobbyId);
         assertEquals(found.getLobbyName(), basicLobby.getLobbyName());
         assertEquals(found.getNumOptions(), basicLobby.getNumOptions());
-        assertEquals(found.isPublic(), basicLobby.isPublic());
+        assertEquals(found.getIsPublic(), basicLobby.getIsPublic());
         assertEquals(found.getJoinedPlayerNames(), basicLobby.getJoinedPlayerNames());
 
     }

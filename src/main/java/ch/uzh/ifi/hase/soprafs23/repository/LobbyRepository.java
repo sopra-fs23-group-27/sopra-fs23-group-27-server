@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+@Repository("lobbyRepository")
 public interface LobbyRepository extends JpaRepository<Lobby, Long> {
 
     // Queries related to ALL lobbies

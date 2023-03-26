@@ -2,13 +2,14 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Inheritance
 @DiscriminatorColumn(name = "LOBBY_TYPE")
 @Table(name = "LOBBY")
-public class Lobby implements Serializable {
+public abstract class Lobby implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +26,11 @@ public class Lobby implements Serializable {
     private boolean isJoinable;
     private Long currentGameId;
     private String privateLobbyKey;
+
+    public Lobby() {
+        this.isJoinable = true;
+        this.joinedPlayerNames = new ArrayList<>();
+    }
 
 
     public Long getLobbyId() {
@@ -43,11 +49,11 @@ public class Lobby implements Serializable {
         this.lobbyName = lobbyName;
     }
 
-    public boolean isPublic() {
+    public boolean getIsPublic() {
         return isPublic;
     }
 
-    public void setPublic(boolean aPublic) {
+    public void setIsPublic(boolean aPublic) {
         isPublic = aPublic;
     }
 
