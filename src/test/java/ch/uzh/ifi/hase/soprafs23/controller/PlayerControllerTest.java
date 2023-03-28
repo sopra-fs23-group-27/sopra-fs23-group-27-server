@@ -163,7 +163,7 @@ public class PlayerControllerTest {
     @Test
     public void getPlayerProfile_invalidPlayerId_404thrown() throws Exception {
         // given
-        long invalidPlayerId = 99; //some random invalid playerId
+        long invalidPlayerId = 0; //some random invalid playerId
         String errorMessage = "Error: The player with playerId " + invalidPlayerId + " does not exist.";
 
         ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);

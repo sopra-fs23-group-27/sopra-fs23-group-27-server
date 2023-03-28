@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Tests if the mapping between the internal and the external/API representation
  * works.
  */
-public class DTOMapperTest {
+public class PlayerDTOMapperTest {
     @Test
     public void testCreatePlayer_fromPlayerPostDTO_toPlayer_success() {
         // create PlayerPostDTO
