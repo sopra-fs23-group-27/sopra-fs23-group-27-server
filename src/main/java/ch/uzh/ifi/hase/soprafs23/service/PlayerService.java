@@ -33,6 +33,8 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
 
+    private final PlayerStats PlayerStats;
+
     @Autowired
     public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
@@ -58,7 +60,6 @@ public class PlayerService {
 
         newPlayer.setToken("Basic " + encodeBytes);
 
-
         checkIfPlayerNameExists(newPlayer.getPlayerName());
         // saves the given entity but data is only persisted in the database once
         // flush() is called
@@ -72,11 +73,16 @@ public class PlayerService {
     public Player loginPlayer(Player existingPlayer) {
         Player playerByPlayerName = playerRepository.findByPlayerName(existingPlayer.getPlayerName());
 
-        if (playerByPlayerName == null) { //check if a player with the provided playerName exists
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The playerName provided does not exist. Please register first.");
-        }
-        else if (!existingPlayer.getPassword().equals(playerByPlayerName.getPassword())) { //given a player with the provided playerName exists, check if the provided password is correct
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The password provided is not correct. Please try again.");
+        if (playerByPlayerName == null) { // check if a player with the provided playerName exists
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "The playerName provided does not exist. Please register first.");
+        } else if (!existingPlayer.getPassword().equals(playerByPlayerName.getPassword())) { // given a player with the
+                                                                                             // provided playerName
+                                                                                             // exists, check if the
+                                                                                             // provided password is
+                                                                                             // correct
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "The password provided is not correct. Please try again.");
         }
 
         // create basic authentication token
@@ -99,16 +105,14 @@ public class PlayerService {
         // check if token is valid
         checkIfPlayerTokenIsValid(token, existingPlayer);
 
-
         existingPlayer = playerRepository.save(existingPlayer);
         playerRepository.flush();
 
         return existingPlayer;
     }
 
-
     public Player updatePlayer(long playerId, PlayerPutDTO playerUpdateRequest, String token) {
-        //checkIfPlayerIdExists(playerId);
+        // checkIfPlayerIdExists(playerId);
         Player playerToBeUpdated = playerRepository.findById(playerId);
 
         // check if token is valid
@@ -118,7 +122,6 @@ public class PlayerService {
         if (playerUpdateRequest.getPassword() != null) {
             playerToBeUpdated.setPassword(playerUpdateRequest.getPassword());
         }
-
 
         // update playerName if provided playerName is not null
         if (playerUpdateRequest.getPlayerName() != null) {
@@ -140,7 +143,8 @@ public class PlayerService {
     /**
      * This is a helper method that will check the uniqueness criteria of the
      * playerName
-     * defined in the Player entity. The method will do nothing if the input is unique
+     * defined in the Player entity. The method will do nothing if the input is
+     * unique
      * and throw an error otherwise.
      *
      * @param newPlayerName
@@ -161,10 +165,10 @@ public class PlayerService {
     public void checkIfPlayerIdExists(long playerId) {
         Player playerById = playerRepository.findById(playerId);
         if (playerById == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Error: The player with playerId " + playerId + " does not exist.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Error: The player with playerId " + playerId + " does not exist.");
         }
     }
-
 
     private void checkIfPlayerTokenIsValid(String token, Player existingPlayer) {
         if (!token.equals(existingPlayer.getToken())) {
