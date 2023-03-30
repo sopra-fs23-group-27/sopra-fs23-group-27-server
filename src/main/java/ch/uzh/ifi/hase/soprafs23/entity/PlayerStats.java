@@ -9,6 +9,10 @@ public class PlayerStats {
 
     // Modify if needed. Likely there is also the PlayerId needed to be stored here
 
+    @Id
+    @Column(name = "id", nullable = false)
+    private Long id;
+
     @Column
     private int totalCorrectGuesses;
 
@@ -20,6 +24,14 @@ public class PlayerStats {
 
     @Column
     private int numWrongGuesses;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public int getTotalCorrectGuesses() {
         return totalCorrectGuesses;
