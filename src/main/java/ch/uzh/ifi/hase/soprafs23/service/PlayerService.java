@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
+import ch.uzh.ifi.hase.soprafs23.entity.PlayerStats;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class PlayerService {
     @Autowired
     public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
+        this.PlayerStats = new PlayerStats(); // Can be changed
     }
 
     public List<Player> getPlayers(String token) {
