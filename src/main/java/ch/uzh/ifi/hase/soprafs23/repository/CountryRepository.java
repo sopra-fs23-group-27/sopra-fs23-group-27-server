@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.repository;
 
-
 import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +11,8 @@ import java.util.List;
 
 @Repository
 public interface CountryRepository extends JpaRepository<Country, Long> {
-//    Country findByCountryCode(String countryCode);
-//    ArrayList<Country> getAllCountryCode(); // please check
+
+    public Country findByCountryCode(String countryCode);
+
+    public ArrayList<Country> findAll();
 }

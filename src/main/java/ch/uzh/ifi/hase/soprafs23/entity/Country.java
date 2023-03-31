@@ -8,8 +8,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name ="COUNTRY")
+@Table(name = "COUNTRY")
 public class Country {
+
     @Id
     @Column(nullable = false)
     private String countryCode;
