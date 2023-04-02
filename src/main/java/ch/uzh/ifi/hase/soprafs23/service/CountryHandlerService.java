@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -14,41 +15,72 @@ public class CountryHandlerService {
 
     private final CountryRepository countryRepository;
 
-    private ArrayList<String> allCountryCodes;
+    private final CountryService countryService;
+
+    private ArrayList<String> allCountryCodes = new ArrayList<String>();
 
     private final Logger log = LoggerFactory.getLogger(CountryHandlerService.class);
 
-    public CountryHandlerService(CountryRepository countryRepository) {
+    public CountryHandlerService(CountryRepository countryRepository, CountryService countryService) {
         this.countryRepository = countryRepository;
-
-        this.allCountryCodes = new ArrayList<String>();
+        this.countryService = countryService;
 
         sourceAllCountryCodes();
 
-        log.info(getRandomCountryCodes(10).toString());
+        try {
+            // use this function in the Controller
+            ArrayList<String> sourced = sourceCountryInfo(5);
+            log.info(sourced.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
-    /*
-     * private void sourceCountryInfo() {
-     * getRandomCountryCodes(10).forEach(countryCode -> {
-     * countryService.sourceAPI(countryCode);
-     * }
-     * }
-     */
-    // Shift + Alt + A
+    private ArrayList<String> sourceCountryInfo(Integer numCountries) {
+
+        // get n random countries from the database
+        ArrayList<String> randomCountries = getRandomCountryCodes(numCountries);
+
+        // equivalent to for loop
+        // for each country, load data from the API into the database
+        randomCountries.forEach(countryCode -> {
+            try {
+                countryService.sourceAPI(countryCode);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (RuntimeException e) {
+                log.info("The country with the code " + countryCode + " is not available.");
+                e.printStackTrace();
+            } catch (Exception e) {
+                log.info("The country with the code " + countryCode + " could not be sourced due to other reasons.");
+                e.printStackTrace();
+            }
+        });
+
+        // finally, return the list with the countries that are saved into the database.
+        return randomCountries;
+    }
 
     private void sourceAllCountryCodes() {
+        // loads all Iso2 codes from the database directly into the variable
+        // "allCountryCodes"
 
         countryRepository.findAll().forEach(country -> {
             allCountryCodes.add(country.getCountryCode());
         });
+
+        if (allCountryCodes.size() == 0) {
+            throw new RuntimeException("No countries found in the database.");
+        }
     }
 
     private ArrayList<String> getRandomCountryCodes(int numCountries) {
 
         if (numCountries > allCountryCodes.size()) {
             throw new IllegalArgumentException(
-                    "numCountries must be smaller than the number of countries in the database.");
+                    "numCountries must be smaller than the number of countries in the database, i.e. "
+                            + allCountryCodes.size() + ".");
         }
 
         if (numCountries <= 0) {
@@ -61,11 +93,12 @@ public class CountryHandlerService {
         // get first numCountries elements
         ArrayList<String> randomCountryCodes = new ArrayList<String>(allCountryCodes.subList(0, numCountries));
 
+        log.info(randomCountryCodes.toString());
+
         return randomCountryCodes;
     }
 
     // public ArrayList<String> updateCountry(String countryCode){
-    // TODO:
     // findallcountries / get all isocodes
     // shuffle
     // select n first countryCodes
