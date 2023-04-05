@@ -27,17 +27,19 @@ public class CountryHandlerService {
 
         sourceAllCountryCodes();
 
-        try {
-            // use this function in the Controller
-            ArrayList<String> sourced = sourceCountryInfo(5);
-            log.info(sourced.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        /*
+         * try {
+         * // use this function in the Controller
+         * ArrayList<String> sourced = sourceCountryInfo(10);
+         * log.info(sourced.toString());
+         * } catch (Exception e) {
+         * e.printStackTrace();
+         * }
+         */
 
     }
 
-    private ArrayList<String> sourceCountryInfo(Integer numCountries) {
+    public ArrayList<String> sourceCountryInfo(Integer numCountries) {
 
         // get n random countries from the database
         ArrayList<String> randomCountries = getRandomCountryCodes(numCountries);
