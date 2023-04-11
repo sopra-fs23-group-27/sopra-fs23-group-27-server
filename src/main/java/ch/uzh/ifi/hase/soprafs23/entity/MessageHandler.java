@@ -2,10 +2,10 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.MessageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-        import org.springframework.messaging.simp.SimpMessagingTemplate;
-        import org.springframework.scheduling.annotation.EnableScheduling;
-        import org.springframework.scheduling.annotation.Scheduled;
-        import org.springframework.stereotype.Component;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 @Component
 @EnableScheduling

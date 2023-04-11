@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 
-import ch.uzh.ifi.hase.soprafs23.entity.Country;
-
 public class Game {
 
     // This class is the Game object as in the UML diagram
@@ -22,17 +20,21 @@ public class Game {
     private final CountryHandlerService countryHandlerService;
     private final CountryRepository countryRepository;
 
+    private ScoreBoard scoreBoard;
+
     private ArrayList<String> allCountryCodes;
     private Country currentCountry;
     private String correctGuess;
     private Integer round;
 
-    public Game(
-            CountryHandlerService countryHandlerService,
-            CountryRepository countryRepository) {
+    public Game(CountryHandlerService countryHandlerService, CountryRepository countryRepository) {
+
         this.countryHandlerService = countryHandlerService;
         this.countryRepository = countryRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
+
+        // initialize ScoreBoard
+        this.scoreBoard = new ScoreBoard();
 
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
@@ -40,11 +42,33 @@ public class Game {
 
         // update the current country with the first country in the randomly loaded
         // countries
-        updateCorrectGuess(this.allCountryCodes.get(this.round));
+        startRound();
         log.info(allCountryCodes.toString());
         log.info(this.correctGuess);
         log.info(this.round.toString());
 
+    }
+
+    public void startRound() {
+        String currentCountryCode = this.allCountryCodes.get(this.round);
+        updateCorrectGuess(currentCountryCode);
+        // init procedure for a new round
+    }
+
+    public void endRound() {
+        // end procedure for a round
+
+        // for each player that has not guessed the country correctly,
+        // set the current guess to false
+        // for (String playerName : this.Lobby.getPlayers()) {
+        // (if this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == null) {
+        // this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, false);
+        // this.scoreBoard.totalTimeUntilCorrectGuess(playerName, #fullTimeofRound);
+        // }
+        resetCorrectGuess();
+
+        // prepare the counter for the next round
+        this.round++;
     }
 
     public void updateCorrectGuess(String countryCode) {
@@ -65,11 +89,9 @@ public class Game {
         this.correctGuess = this.correctGuess.toLowerCase();
         this.correctGuess = this.correctGuess.replaceAll("\\s+", "");
 
-        // prepare the counter for the next round
-        this.round++;
     }
 
-    public Boolean validateGuess(String guess) {
+    public Boolean validateGuess(String PlayerName, String guess) {
         // prepare the guess
         // remove all whitespaces and make it lowercase
         guess = guess.toLowerCase();
@@ -77,10 +99,16 @@ public class Game {
 
         if (guess.equals(this.correctGuess)) {
             // TODO: Mark the players entry in the scoreboard as correct
+            this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true);
             return true;
         } else {
             return false;
         }
+    }
+
+    private void resetCorrectGuess() {
+        this.correctGuess = null;
+        this.currentCountry = null;
     }
 
 }
