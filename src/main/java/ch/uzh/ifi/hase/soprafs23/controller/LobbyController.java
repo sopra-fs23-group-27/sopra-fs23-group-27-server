@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
-
 import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
@@ -19,7 +18,6 @@ public class LobbyController {
     LobbyController(LobbyService lobbyService) {
         this.lobbyService = lobbyService;
     }
-
 
     @PostMapping("/lobbies/basic")
     public ResponseEntity createLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO) {
