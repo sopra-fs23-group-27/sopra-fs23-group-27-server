@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 public class ScoreBoard {
 
+    private ArrayList<String> playerNames;
+
     private HashMap<String, Boolean> currentCorrectGuess;
     private HashMap<String, Integer> totalCorrectGuesses;
     private HashMap<String, Integer> totalCorrectGuessesInARow;
@@ -15,7 +17,10 @@ public class ScoreBoard {
     private HashMap<String, Integer> currentNumberOfWrongGuesses;
     private HashMap<String, Integer> totalNumberOfWrongGuesses;
 
-    public ScoreBoard() {
+    public ScoreBoard(ArrayList<String> playerNames) {
+
+        this.playerNames = playerNames;
+
         this.currentCorrectGuess = new HashMap<String, Boolean>();
         this.totalCorrectGuesses = new HashMap<String, Integer>();
         this.totalCorrectGuessesInARow = new HashMap<String, Integer>();
@@ -25,6 +30,8 @@ public class ScoreBoard {
 
         this.currentNumberOfWrongGuesses = new HashMap<String, Integer>();
         this.totalNumberOfWrongGuesses = new HashMap<String, Integer>();
+
+        initTotalScores();
     }
 
     // -------------------------- SETTERS ------------------------- //
@@ -49,31 +56,32 @@ public class ScoreBoard {
     // these getters are used to find the players that are not registered in the
     // HashMaps
 
-    public ArrayList<String> getPlayersRegisteredInCurrentCorrectGuess() {
-
-        ArrayList<String> registeredPlayers = new ArrayList<String>();
-        for (String playerName : this.currentCorrectGuess.keySet()) {
-            registeredPlayers.add(playerName);
-        }
-        return registeredPlayers;
+    public Boolean getCurrentCorrectGuessPerPlayer(String playerName) {
+        return this.currentCorrectGuess.getOrDefault(playerName, null);
     }
 
-    public ArrayList<String> getPlayersRegisteredInCurrentTimeUntilCorrectGuess() {
-
-        ArrayList<String> registeredPlayers = new ArrayList<String>();
-        for (String playerName : this.currentTimeUntilCorrectGuess.keySet()) {
-            registeredPlayers.add(playerName);
-        }
-        return registeredPlayers;
+    public Integer getCurrentTimeUntilCorrectGuessPerPlayer(String playerName) {
+        return this.currentTimeUntilCorrectGuess.getOrDefault(playerName, null);
     }
 
-    public ArrayList<String> getPlayersRegisteredInCurrentNumberOfWrongGuesses() {
+    public Integer getCurrentNumberOfWrongGuessesPerPlayer(String playerName) {
+        return this.currentNumberOfWrongGuesses.getOrDefault(playerName, null);
+    }
 
-        ArrayList<String> registeredPlayers = new ArrayList<String>();
-        for (String playerName : this.currentNumberOfWrongGuesses.keySet()) {
-            registeredPlayers.add(playerName);
-        }
-        return registeredPlayers;
+    public Integer getTotalCorrectGuessesPerPlayer(String playerName) {
+        return this.totalCorrectGuesses.getOrDefault(playerName, null);
+    }
+
+    public Integer getTotalCorrectGuessesInARowPerPlayer(String playerName) {
+        return this.totalCorrectGuessesInARow.getOrDefault(playerName, null);
+    }
+
+    public Integer getTotalTimeUntilCorrectGuessPerPlayer(String playerName) {
+        return this.totalTimeUntilCorrectGuess.getOrDefault(playerName, null);
+    }
+
+    public Integer getTotalNumberOfWrongGuessesPerPlayer(String playerName) {
+        return this.totalNumberOfWrongGuesses.getOrDefault(playerName, null);
     }
 
     // ---------------------------------------------------------------------------------
@@ -89,7 +97,7 @@ public class ScoreBoard {
         this.totalNumberOfWrongGuesses = new HashMap<String, Integer>();
     }
 
-    private void updateTotalScores() {
+    public void updateTotalScores() {
 
         // UPDATE: totalCorrectGuesses
         for (String playerName : this.currentCorrectGuess.keySet()) {
@@ -116,6 +124,20 @@ public class ScoreBoard {
             this.totalNumberOfWrongGuesses.put(playerName,
                     this.totalNumberOfWrongGuesses.get(playerName) + this.currentNumberOfWrongGuesses.get(playerName));
         }
+    }
+
+    public void initTotalScores() {
+        // This function initializes all HashMaps that store the total scores.
+        // This can be used if the game is restarted with the same settings
+        // That is, if the admin chooses to play the same game again
+
+        for (String playerName : this.playerNames) {
+            this.totalCorrectGuesses.put(playerName, 0);
+            this.totalCorrectGuessesInARow.put(playerName, 0);
+            this.totalTimeUntilCorrectGuess.put(playerName, 0);
+            this.totalNumberOfWrongGuesses.put(playerName, 0);
+        }
+
     }
 
     private void resetAllCurrentScores() {

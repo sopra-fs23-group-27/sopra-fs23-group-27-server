@@ -15,6 +15,7 @@ public class GameService {
             CountryRepository countryRepository) {
 
         // To use methods from the Game repository, use it as follows:
-        GameRepository.addGame("1", new Game(countryHandlerService, countryRepository));
+        // GameRepository.addGame("1", new Game(countryHandlerService,
+        // countryRepository));
     }
 }

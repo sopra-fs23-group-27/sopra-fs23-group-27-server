@@ -27,25 +27,40 @@ public class Game {
     private String correctGuess;
     private Integer round;
 
+    private ArrayList<String> playerNames;
+
     public Game(CountryHandlerService countryHandlerService, CountryRepository countryRepository) {
 
         this.countryHandlerService = countryHandlerService;
         this.countryRepository = countryRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
 
-        // initialize ScoreBoard
-        this.scoreBoard = new ScoreBoard();
-
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
         this.round = 0;
 
-        // update the current country with the first country in the randomly loaded
-        // countries
-        startRound();
-        log.info(allCountryCodes.toString());
-        log.info(this.correctGuess);
-        log.info(this.round.toString());
+        // TESTING
+        // ArrayList<String> playerNames = new ArrayList<String>();
+        // playerNames.add("Player1");
+        // playerNames.add("Player2");
+        // playerNames.add("Player3");
+        // playerNames.add("Player4");
+        // this.playerNames = playerNames;
+
+        // initialize ScoreBoard (UNCOMMENT THIS LINE AS SOON AS THE LOBBY PROVIDES A
+        // LIST OF PLAYER NAMES FOR THE GAME)
+        // this.scoreBoard = new ScoreBoard(this.playerNames);
+
+        // startRound();
+        // log.info(allCountryCodes.toString());
+        // log.info(this.correctGuess);
+        // log.info(this.round.toString());
+
+        // endRound();
+
+        // log.info(this.round.toString());
+        // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
+        // log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
 
     }
 
@@ -60,11 +75,20 @@ public class Game {
 
         // for each player that has not guessed the country correctly,
         // set the current guess to false
-        // for (String playerName : this.Lobby.getPlayers()) {
-        // (if this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == null) {
-        // this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, false);
-        // this.scoreBoard.totalTimeUntilCorrectGuess(playerName, #fullTimeofRound);
-        // }
+        // for each player that has not given a single guess, set the number of wrong
+        // guesses to 0
+        // REPLACE WITH: for (String playerName : this.Lobby.getPlayers()) {
+        for (String playerName : this.playerNames) {
+            if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == null) {
+                this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, false);
+                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, 100); // replace with maximum time
+            }
+            if (this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) == null) {
+                this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(playerName, 0);
+            }
+        }
+
+        // this.scoreBoard.updateTotalScores();
         resetCorrectGuess();
 
         // prepare the counter for the next round
@@ -98,10 +122,16 @@ public class Game {
         guess = guess.replaceAll("\\s+", "");
 
         if (guess.equals(this.correctGuess)) {
-            // TODO: Mark the players entry in the scoreboard as correct
+            // TODO: Enter here the correct guess time
+            // this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(PlayerName, 100);
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true);
             return true;
         } else {
+
+            // increment the number of wrong guesses by 1
+            this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
+                    PlayerName,
+                    this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(PlayerName) + 1);
             return false;
         }
     }
