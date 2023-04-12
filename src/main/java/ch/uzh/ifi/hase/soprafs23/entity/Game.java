@@ -68,10 +68,16 @@ public class Game {
         String currentCountryCode = this.allCountryCodes.get(this.round);
         updateCorrectGuess(currentCountryCode);
         // init procedure for a new round
+
+        // start the timer
+        // call endRound if the timer runs out
+
     }
 
     public void endRound() {
         // end procedure for a round
+
+        // stop the timer
 
         // for each player that has not guessed the country correctly,
         // set the current guess to false
@@ -90,6 +96,8 @@ public class Game {
 
         // this.scoreBoard.updateTotalScores();
         resetCorrectGuess();
+
+        // reset the timer
 
         // prepare the counter for the next round
         this.round++;
