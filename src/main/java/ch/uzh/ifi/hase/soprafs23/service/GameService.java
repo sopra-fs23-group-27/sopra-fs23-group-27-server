@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.Game;
@@ -12,10 +12,10 @@ public class GameService {
 
     public GameService(
             CountryHandlerService countryHandlerService,
-            CountryRepository countryRepository) {
+            CountryRepository countryRepository,
+            SimpMessagingTemplate messagingTemplate) {
 
         // To use methods from the Game repository, use it as follows:
-        // GameRepository.addGame("1", new Game(countryHandlerService,
-        // countryRepository));
+         GameRepository.addGame("1", new Game(countryHandlerService, countryRepository, messagingTemplate));
     }
 }

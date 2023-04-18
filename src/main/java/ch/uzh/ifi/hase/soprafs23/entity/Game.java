@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 public class Game {
 
@@ -19,55 +20,73 @@ public class Game {
 
     private final CountryHandlerService countryHandlerService;
     private final CountryRepository countryRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private ScoreBoard scoreBoard;
+    private HintHandler hintHandler;
 
     private ArrayList<String> allCountryCodes;
     private Country currentCountry;
     private String correctGuess;
     private Integer round;
-
     private ArrayList<String> playerNames;
 
-    public Game(CountryHandlerService countryHandlerService, CountryRepository countryRepository) {
+    public Game(CountryHandlerService countryHandlerService,
+                CountryRepository countryRepository,
+                SimpMessagingTemplate messagingTemplate) {
 
         this.countryHandlerService = countryHandlerService;
         this.countryRepository = countryRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
+        this.messagingTemplate = messagingTemplate;
 
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
         this.round = 0;
 
         // TESTING
-        // ArrayList<String> playerNames = new ArrayList<String>();
-        // playerNames.add("Player1");
-        // playerNames.add("Player2");
-        // playerNames.add("Player3");
-        // playerNames.add("Player4");
-        // this.playerNames = playerNames;
+         ArrayList<String> playerNames = new ArrayList<String>();
+         playerNames.add("Player1");
+         playerNames.add("Player2");
+         playerNames.add("Player3");
+         playerNames.add("Player4");
+         this.playerNames = playerNames;
 
         // initialize ScoreBoard (UNCOMMENT THIS LINE AS SOON AS THE LOBBY PROVIDES A
         // LIST OF PLAYER NAMES FOR THE GAME)
-        // this.scoreBoard = new ScoreBoard(this.playerNames);
+         this.scoreBoard = new ScoreBoard(this.playerNames);
 
-        // startRound();
-        // log.info(allCountryCodes.toString());
-        // log.info(this.correctGuess);
-        // log.info(this.round.toString());
+         startRound();
+         log.info(allCountryCodes.toString());
+         log.info(this.correctGuess);
+         log.info("test1");
+         log.info(this.round.toString());
 
-        // endRound();
-
-        // log.info(this.round.toString());
-        // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
-        // log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
+        endRound();
+        log.info("test2");
+         log.info(this.round.toString());
+         log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
+         log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
 
     }
 
     public void startRound() {
         String currentCountryCode = this.allCountryCodes.get(this.round);
+        log.info("test0");
+        log.info(currentCountryCode);
         updateCorrectGuess(currentCountryCode);
         // init procedure for a new round
+
+        // init hints for new round given country code
+        hintHandler = hintHandler = new HintHandler(
+                currentCountryCode, 3, 1,
+                this.countryRepository, this.messagingTemplate
+        );
+        hintHandler.setHints();
+        hintHandler.sendHintViaWebSocket();
+//        log.info(hintHandler.setHints());
+
+
 
         // start the timer
         // call endRound if the timer runs out
