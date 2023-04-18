@@ -2,7 +2,16 @@ package ch.uzh.ifi.hase.soprafs23.websocket.dto;
 
 public class GuessDTO {
 
+    private String playerName;
     private String guess;
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
 
     public String getGuess() {
         return guess;
