@@ -29,6 +29,7 @@ public class Game {
     private Country currentCountry;
     private String correctGuess;
     private Integer round;
+    private Integer gameId;
     private ArrayList<String> playerNames;
 
     public Game(CountryHandlerService countryHandlerService,
@@ -40,6 +41,9 @@ public class Game {
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.messagingTemplate = messagingTemplate;
 
+        // TODO: get gameId from game lobby
+//        this.gameId = gameLobby.getLobbyId();
+        this.gameId = 1;
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
         this.round = 0;
@@ -78,14 +82,12 @@ public class Game {
         // init procedure for a new round
 
         // init hints for new round given country code
-        hintHandler = hintHandler = new HintHandler(
-                currentCountryCode, 3, 1,
-                this.countryRepository, this.messagingTemplate
+        hintHandler = new HintHandler(
+                currentCountryCode, 3, gameId,
+                countryRepository, messagingTemplate
         );
         hintHandler.setHints();
         hintHandler.sendHintViaWebSocket();
-//        log.info(hintHandler.setHints());
-
 
 
         // start the timer
@@ -154,6 +156,8 @@ public class Game {
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true);
             return true;
         } else {
+            //if guess is wrong, send GuessDTO to client
+            messagingTemplate.convertAndSend(String.format("/topic/queue/%d/guesses", gameId), guess);
 
             // increment the number of wrong guesses by 1
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
