@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
+import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
@@ -9,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.Basic;
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 @Transactional
@@ -30,5 +31,20 @@ public class LobbyService {
         BasicLobby savedLobby = lobbyRepository.save(basicLobby);
         lobbyRepository.flush();
         return savedLobby;
+    }
+
+    public AdvancedLobby createAdvancedLobby(AdvancedLobby advancedLobby) {
+
+        AdvancedLobby savedLobby = lobbyRepository.save(advancedLobby);
+        lobbyRepository.flush();
+        return savedLobby;
+    }
+
+    public List<Lobby> getAllPublicLobbies() {
+        return this.lobbyRepository.findAllByIsPublic(true);
+    }
+
+    public Lobby getLobbyById(long lobbyId) {
+        return this.lobbyRepository.findByLobbyId(lobbyId);
     }
 }

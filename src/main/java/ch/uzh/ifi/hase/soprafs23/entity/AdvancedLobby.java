@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity
 @DiscriminatorValue("ADVANCED")
@@ -10,7 +9,7 @@ public class AdvancedLobby extends Lobby {
 
     private int numSecondsUntilHint;
     private int hintInterval;
-    private int maxNGuesses;
+    private int maxNumGuesses;
 
     public int getNumSecondsUntilHint() {
         return numSecondsUntilHint;
@@ -28,11 +27,11 @@ public class AdvancedLobby extends Lobby {
         this.hintInterval = hintInterval;
     }
 
-    public int getMaxNGuesses() {
-        return maxNGuesses;
+    public int getMaxNumGuesses() {
+        return maxNumGuesses;
     }
 
-    public void setMaxNGuesses(int maxNGuesses) {
-        this.maxNGuesses = maxNGuesses;
+    public void setMaxNumGuesses(int maxNumGuesses) {
+        this.maxNumGuesses = maxNumGuesses;
     }
 }

@@ -37,24 +37,14 @@ public interface DTOMapper {
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 
 
-    @Mapping(source = "isPublic", target = "isPublic")
-    @Mapping(source = "lobbyName", target = "lobbyName")
-    @Mapping(source = "numOptions", target = "numOptions")
-    @Mapping(source = "numSeconds", target = "numSeconds")
     BasicLobby convertBasicLobbyCreateDTOtoEntity(BasicLobbyCreateDTO basicLobbyCreateDTO);
 
-    @Mapping(source = "isPublic", target = "isPublic")
-    @Mapping(source = "lobbyName", target = "lobbyName")
-    @Mapping(source = "numSeconds", target = "numSeconds")
-    @Mapping(source = "numSecondsUntilHint", target = "numSecondsUntilHint")
-    @Mapping(source = "hintInterval", target = "hintInterval")
-    @Mapping(source = "maxNGuesses", target = "maxNGuesses")
+
     AdvancedLobby convertAdvancedLobbyCreateDTOtoEntity(AdvancedLobbyCreateDTO advancedLobbyCreateDTO);
 
 
-    @Mapping(source = "isPublic", target = "isPublic")
-    @Mapping(source = "lobbyName", target = "lobbyName")
-    @Mapping(source = "numOptions", target = "numOptions")
-    @Mapping(source = "numSeconds", target = "numSeconds")
     LobbyGetDTO convertBasicLobbyEntityToLobbyGetDTO(BasicLobby basicLobby);
+
+    LobbyGetDTO convertAdvancedLobbyEntityToLobbyGetDTO(AdvancedLobby advancedLobby);
+    
 }

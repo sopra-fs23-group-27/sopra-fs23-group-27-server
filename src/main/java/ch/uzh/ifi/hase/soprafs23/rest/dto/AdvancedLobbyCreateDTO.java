@@ -6,7 +6,7 @@ public class AdvancedLobbyCreateDTO {
     private int numSeconds;
     private int numSecondsUntilHint;
     private int hintInterval;
-    private int maxNGuesses;
+    private int maxNumGuesses;
     private String lobbyName;
 
     public boolean getIsPublic() {
@@ -41,12 +41,12 @@ public class AdvancedLobbyCreateDTO {
         this.hintInterval = hintInterval;
     }
 
-    public int getMaxNGuesses() {
-        return maxNGuesses;
+    public int getMaxNumGuesses() {
+        return maxNumGuesses;
     }
 
-    public void setMaxNGuesses(int maxNGuesses) {
-        this.maxNGuesses = maxNGuesses;
+    public void setMaxNumGuesses(int maxNumGuesses) {
+        this.maxNumGuesses = maxNumGuesses;
     }
 
     public String getLobbyName() {

@@ -13,7 +13,7 @@ public class LobbyGetDTO {
     private int numSecondsUntilHint;
     private int hintInterval;
     private int maxNumGuesses;
-    private List<String> joinedPlayers;
+    private List<String> joinedPlayerNames;
     private Long lobbyCreatorPlayerId;
     private String privateLobbyKey;
 
@@ -90,12 +90,12 @@ public class LobbyGetDTO {
         this.maxNumGuesses = maxNumGuesses;
     }
 
-    public List<String> getJoinedPlayers() {
-        return joinedPlayers;
+    public List<String> getJoinedPlayerNames() {
+        return joinedPlayerNames;
     }
 
-    public void setJoinedPlayers(List<String> joinedPlayers) {
-        this.joinedPlayers = joinedPlayers;
+    public void setJoinedPlayerNames(List<String> joinedPlayerNames) {
+        this.joinedPlayerNames = joinedPlayerNames;
     }
 
     public Long getLobbyCreatorPlayerId() {

@@ -22,7 +22,7 @@ public abstract class Lobby implements Serializable {
     @ElementCollection
     private List<String> joinedPlayerNames;
 
-    private Long lobbyCreatorId;
+    private Long lobbyCreatorPlayerId;
     private boolean isJoinable;
     private Long currentGameId;
     private String privateLobbyKey;
@@ -32,6 +32,11 @@ public abstract class Lobby implements Serializable {
         this.joinedPlayerNames = new ArrayList<>();
     }
 
+
+    @Transient
+    public String getMode() {
+        return this.getClass().getAnnotation(DiscriminatorValue.class).value();
+    }
 
     public Long getLobbyId() {
         return lobbyId;
@@ -73,12 +78,12 @@ public abstract class Lobby implements Serializable {
         this.joinedPlayerNames = joinedPlayerNames;
     }
 
-    public Long getLobbyCreatorId() {
-        return lobbyCreatorId;
+    public Long getLobbyCreatorPlayerId() {
+        return lobbyCreatorPlayerId;
     }
 
-    public void setLobbyCreatorId(Long lobbyCreatorId) {
-        this.lobbyCreatorId = lobbyCreatorId;
+    public void setLobbyCreatorPlayerId(Long lobbyCreatorPlayerId) {
+        this.lobbyCreatorPlayerId = lobbyCreatorPlayerId;
     }
 
     public boolean isJoinable() {
