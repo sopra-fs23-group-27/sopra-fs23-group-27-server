@@ -21,7 +21,7 @@ public class GameService {
         // To use methods from the Game repository, use it as follows:
          GameRepository.addGame("1", new Game(countryHandlerService, countryRepository, messagingTemplate));
     }
-
+    
     public void validateGuess(String gameId, GuessDTO guessDTO) {
             Game game = GameRepository.findByLobbyId(gameId);
             game.validateGuess(guessDTO.getPlayerName(), guessDTO.getGuess());

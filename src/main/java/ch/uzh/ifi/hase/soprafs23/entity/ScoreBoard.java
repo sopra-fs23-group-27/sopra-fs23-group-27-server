@@ -1,11 +1,18 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.print.attribute.standard.MediaSize.NA;
 
 public class ScoreBoard {
 
     private ArrayList<String> playerNames;
+
+    private final Logger log = LoggerFactory.getLogger(ScoreBoard.class);
 
     private HashMap<String, Boolean> currentCorrectGuess;
     private HashMap<String, Integer> totalCorrectGuesses;
@@ -16,6 +23,9 @@ public class ScoreBoard {
 
     private HashMap<String, Integer> currentNumberOfWrongGuesses;
     private HashMap<String, Integer> totalNumberOfWrongGuesses;
+    
+    private HashMap<String, Integer> currentTotalScore;
+    private HashMap<String, Integer> leaderBoardTotalScore;
 
     public ScoreBoard(ArrayList<String> playerNames) {
 
@@ -31,6 +41,8 @@ public class ScoreBoard {
         this.currentNumberOfWrongGuesses = new HashMap<String, Integer>();
         this.totalNumberOfWrongGuesses = new HashMap<String, Integer>();
 
+        this.leaderBoardTotalScore = new HashMap<String, Integer>();
+        
         initTotalScores();
     }
 
@@ -57,7 +69,11 @@ public class ScoreBoard {
     // HashMaps
 
     public Boolean getCurrentCorrectGuessPerPlayer(String playerName) {
-        return this.currentCorrectGuess.getOrDefault(playerName, null);
+        // RETURNS: true if the player has guessed correctly
+        // RETURNS: false if the player has guessed incorrectly
+        // RETURNS: false if the player has not guessed yet AND IS THEREFORE NOT IN THE 
+        // currentCorrectGuess HashMap
+        return this.currentCorrectGuess.getOrDefault(playerName, false);
     }
 
     public Integer getCurrentTimeUntilCorrectGuessPerPlayer(String playerName) {
@@ -66,6 +82,10 @@ public class ScoreBoard {
 
     public Integer getCurrentNumberOfWrongGuessesPerPlayer(String playerName) {
         return this.currentNumberOfWrongGuesses.getOrDefault(playerName, null);
+    }
+
+    public Integer getCurrentScorePerPlayer(String playerName) {
+        return this.currentTotalScore.getOrDefault(playerName, null);
     }
 
     public Integer getTotalCorrectGuessesPerPlayer(String playerName) {
@@ -84,6 +104,10 @@ public class ScoreBoard {
         return this.totalNumberOfWrongGuesses.getOrDefault(playerName, null);
     }
 
+    public Integer getLeaderBoardTotalScorePerPlayer(String playerName) {
+        return this.leaderBoardTotalScore.getOrDefault(playerName, null);
+    }
+
     // ---------------------------------------------------------------------------------
 
     public void resetAllTotalScores() {
@@ -98,6 +122,7 @@ public class ScoreBoard {
     }
 
     public void updateTotalScores() {
+
 
         // UPDATE: totalCorrectGuesses
         for (String playerName : this.currentCorrectGuess.keySet()) {
@@ -126,7 +151,7 @@ public class ScoreBoard {
         }
     }
 
-    public void initTotalScores() {
+    private void initTotalScores() {
         // This function initializes all HashMaps that store the total scores.
         // This can be used if the game is restarted with the same settings
         // That is, if the admin chooses to play the same game again
@@ -136,11 +161,55 @@ public class ScoreBoard {
             this.totalCorrectGuessesInARow.put(playerName, 0);
             this.totalTimeUntilCorrectGuess.put(playerName, 0);
             this.totalNumberOfWrongGuesses.put(playerName, 0);
+            this.leaderBoardTotalScore.put(playerName, 0);
         }
 
     }
 
-    private void resetAllCurrentScores() {
+    public void computeLeaderBoardScore() {
+        // This function computes the score for each player in the game
+        // NOTE: This function can only be called once per round, otherwise the 
+        // total-score will be incorrect
+
+        
+        // initialize the HashMap that will store the score for each player
+        this.currentTotalScore = new HashMap<String, Integer>();
+        
+        // compute the score for each player
+        for (String playerName : this.playerNames) {
+            if (this.currentCorrectGuess.get(playerName) == false){
+                // if the player has not guessed correctly, the score is 0
+                this.currentTotalScore.put(playerName, 0);
+            }
+            else if (this.currentCorrectGuess.get(playerName) == null){
+                // this is for error handling (there shouldn't be a case where the currentCorrectGuess is null)
+
+                this.currentTotalScore.put(playerName, 0);
+            }
+            else {
+                // the score is computed as follows:
+                // 3 * the number of total correct guesses in a row
+                // + 100 / the time until the correct guess (inverse since the faster the better)
+                // - the number of wrong guesses / 5 (to make the score less sensitive to the number
+                //  of wrong guesses, the number of wrong guesses is divided by 5)
+            
+
+                Integer score = ( 3 * this.totalCorrectGuessesInARow.get(playerName) )
+                        + ( 100 / this.currentTimeUntilCorrectGuess.get(playerName) ) 
+                        - ( this.currentNumberOfWrongGuesses.get(playerName) / 5 );
+
+                this.currentTotalScore.put(playerName, score);
+            }
+
+        }        
+
+        // update leaderBoardTotalScore with the new score
+        for (String playerName : this.playerNames) {
+            this.leaderBoardTotalScore.put(playerName, this.leaderBoardTotalScore.get(playerName) + this.currentTotalScore.get(playerName));
+        }
+    }
+
+    public void resetAllCurrentScores() {
         // This function resets all HashMaps that store the current scores.
         // To be used after each round.
 

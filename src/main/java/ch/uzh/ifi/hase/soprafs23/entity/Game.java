@@ -42,35 +42,38 @@ public class Game {
         this.messagingTemplate = messagingTemplate;
 
         // TODO: get gameId from game lobby
-//        this.gameId = gameLobby.getLobbyId();
+        // this.gameId = gameLobby.getLobbyId();
         this.gameId = 1;
+
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
         this.round = 0;
 
         // TESTING
-         ArrayList<String> playerNames = new ArrayList<String>();
-         playerNames.add("Player1");
-         playerNames.add("Player2");
-         playerNames.add("Player3");
-         playerNames.add("Player4");
-         this.playerNames = playerNames;
+        ArrayList<String> playerNames = new ArrayList<String>();
+        playerNames.add("Player1");
+        playerNames.add("Player2");
+        playerNames.add("Player3");
+        playerNames.add("Player4");
+        this.playerNames = playerNames;
 
         // initialize ScoreBoard (UNCOMMENT THIS LINE AS SOON AS THE LOBBY PROVIDES A
         // LIST OF PLAYER NAMES FOR THE GAME)
-         this.scoreBoard = new ScoreBoard(this.playerNames);
+        this.scoreBoard = new ScoreBoard(this.playerNames);
 
-         startRound();
-         log.info(allCountryCodes.toString());
-         log.info(this.correctGuess);
-         log.info("test1");
-         log.info(this.round.toString());
+        startRound();
+        log.info(allCountryCodes.toString());
+        log.info(this.correctGuess);
+        log.info("test1");
+        log.info(this.round.toString());
+
+        log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
 
         endRound();
         log.info("test2");
-         log.info(this.round.toString());
-         log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
-         log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
+        log.info(this.round.toString());
+        log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
+        log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
 
     }
 
@@ -100,13 +103,21 @@ public class Game {
 
         // stop the timer
 
-        // for each player that has not guessed the country correctly,
+        // for each player that has NOT guessed the country correctly,
         // set the current guess to false
         // for each player that has not given a single guess, set the number of wrong
         // guesses to 0
         // REPLACE WITH: for (String playerName : this.Lobby.getPlayers()) {
         for (String playerName : this.playerNames) {
-            if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == null) {
+            if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName)== false) {
+                // This is a very ugly solution, but it works for now
+                // the function getCurrentCorrectGuessPerPlayer cannot return null, as null is 
+                // not a valid Boolean value. Therefore, if the player has not yet guessed,
+                // even though the player has no entry in the underlying HashMap "currentCorrectGuess",
+                // the function returns false making use of getOrDefault(). This is not a problem, as 
+                // the player has not yet guessed and therefore the current guess is false anyway. However,
+                // it is a very ugly solution because we set the current guess to false after checking if
+                // getCurrentCorrectGuessPerPlayer returns false, what effectively means "null"
                 this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, false);
                 this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, 100); // replace with maximum time
             }
@@ -115,8 +126,19 @@ public class Game {
             }
         }
 
+        // update the current and total scores 
+        // MUST BE CALLED AFTER FOR LOOP
+        this.scoreBoard.updateTotalScores();
+
+        // computes the LeaderBoardScore for each player for the current round and total rounds
+        // NOTE: ALL GETTERS FOR THE CURRENT AND TOTAL LEADERBOARD CAN ONLY BE USED FROM NOW ON
+        this.scoreBoard.computeLeaderBoardScore();
+
         // this.scoreBoard.updateTotalScores();
         resetCorrectGuess();
+
+        // RESET all the current scores in the ScoreBoard
+        this.scoreBoard.resetAllCurrentScores();
 
         // reset the timer
 
