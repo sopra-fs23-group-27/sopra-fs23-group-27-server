@@ -127,4 +127,25 @@ public class LobbyService {
 
         return savedLobby;
     }
+
+    public Lobby leaveLobby(Lobby lobby, String playerToken) {
+        Player player = this.playerService.getPlayerByToken(playerToken);
+
+        // check if player is in the lobby
+        if (!Objects.equals(lobby.getLobbyId(), player.getLobbyId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Player is not part of this lobby");
+        }
+
+        lobby.removePlayerFromLobby(player.getPlayerName());
+        player.setLobbyId(null);
+
+        Lobby savedLobby = this.lobbyRepository.save(lobby);
+        this.lobbyRepository.flush();
+
+        this.playerRepository.save(player);
+        this.playerRepository.flush();
+
+        return savedLobby;
+    }
 }

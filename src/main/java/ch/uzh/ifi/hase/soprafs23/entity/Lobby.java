@@ -42,6 +42,10 @@ public abstract class Lobby implements Serializable {
         this.joinedPlayerNames.add(playerName);
     }
 
+    public void removePlayerFromLobby(String playerName) {
+        this.joinedPlayerNames.remove(playerName);
+    }
+
     public Long getLobbyId() {
         return lobbyId;
     }

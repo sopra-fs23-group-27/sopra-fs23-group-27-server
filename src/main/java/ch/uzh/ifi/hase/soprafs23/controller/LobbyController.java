@@ -113,4 +113,22 @@ public class LobbyController {
                 .status(HttpStatus.OK)
                 .body(lobbyGetDTO);
     }
+
+    @PutMapping("/lobbies/{lobbyId}/leave")
+    public ResponseEntity leaveLobby(@PathVariable Long lobbyId,
+                                     @RequestHeader("Authorization") String playerToken) {
+
+        Lobby lobby = lobbyService.getLobbyById(lobbyId);
+        lobby = lobbyService.leaveLobby(lobby, playerToken);
+        LobbyGetDTO lobbyGetDTO = null;
+        if (lobby instanceof BasicLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
+        }
+        else if (lobby instanceof AdvancedLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
+        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(lobbyGetDTO);
+    }
 }
