@@ -14,7 +14,7 @@ public class LobbyGetDTO {
     private int hintInterval;
     private int maxNumGuesses;
     private List<String> joinedPlayerNames;
-    private Long lobbyCreatorPlayerId;
+    private String lobbyCreatorPlayerToken;
     private String privateLobbyKey;
 
     public Long getLobbyId() {
@@ -98,12 +98,12 @@ public class LobbyGetDTO {
         this.joinedPlayerNames = joinedPlayerNames;
     }
 
-    public Long getLobbyCreatorPlayerId() {
-        return lobbyCreatorPlayerId;
+    public String getLobbyCreatorPlayerToken() {
+        return lobbyCreatorPlayerToken;
     }
 
-    public void setLobbyCreatorPlayerId(Long lobbyCreatorPlayerId) {
-        this.lobbyCreatorPlayerId = lobbyCreatorPlayerId;
+    public void setLobbyCreatorPlayerToken(String lobbyCreatorPlayerToken) {
+        this.lobbyCreatorPlayerToken = lobbyCreatorPlayerToken;
     }
 
     public String getPrivateLobbyKey() {

@@ -10,6 +10,7 @@ public class BasicLobby extends Lobby {
 
     private int numOptions;
 
+
     public int getNumOptions() {
         return numOptions;
     }

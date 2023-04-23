@@ -3,11 +3,9 @@ package ch.uzh.ifi.hase.soprafs23.controller;
 import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
 import org.springframework.http.HttpStatus;
@@ -27,10 +25,11 @@ public class LobbyController {
     }
 
     @PostMapping("/lobbies/basic")
-    public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO) {
+    public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO,
+                                           @RequestHeader("Authorization") String token) {
 
-        BasicLobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
-        BasicLobby lobbyCreated = lobbyService.createBasicLobby(basicLobbyInput);
+        Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
+        BasicLobby lobbyCreated = lobbyService.createBasicLobby(basicLobbyInput, token);
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO(lobbyCreated);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -38,15 +37,17 @@ public class LobbyController {
     }
 
     @PostMapping("/lobbies/advanced")
-    public ResponseEntity createAdvancedLobby(@RequestBody AdvancedLobbyCreateDTO advancedLobbyCreateDTO) {
+    public ResponseEntity createAdvancedLobby(@RequestBody AdvancedLobbyCreateDTO advancedLobbyCreateDTO,
+                                              @RequestHeader("Authorization") String token) {
 
-        AdvancedLobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
-        AdvancedLobby lobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput);
+        Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
+        AdvancedLobby lobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput, token);
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO(lobbyCreated);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(lobbyGetDTO);
     }
+
 
     @GetMapping("/lobbies")
     public ResponseEntity getAllPublicLobbies() {

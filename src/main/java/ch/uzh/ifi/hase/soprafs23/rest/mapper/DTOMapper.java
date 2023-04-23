@@ -46,5 +46,7 @@ public interface DTOMapper {
     LobbyGetDTO convertBasicLobbyEntityToLobbyGetDTO(BasicLobby basicLobby);
 
     LobbyGetDTO convertAdvancedLobbyEntityToLobbyGetDTO(AdvancedLobby advancedLobby);
-    
+
+    LobbyGetDTO convertLobbyEntityToLobbyGetDTO(Lobby lobby);
+
 }

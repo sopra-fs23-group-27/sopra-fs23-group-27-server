@@ -26,19 +26,22 @@ public class LobbyService {
         this.lobbyRepository = lobbyRepository;
     }
 
-    public BasicLobby createBasicLobby(BasicLobby basicLobby) {
+    public BasicLobby createBasicLobby(Lobby basicLobby, String token) {
 
-        BasicLobby savedLobby = lobbyRepository.save(basicLobby);
+        basicLobby.setLobbyCreatorPlayerToken(token);
+        Lobby savedLobby = lobbyRepository.save(basicLobby);
         lobbyRepository.flush();
-        return savedLobby;
+        return (BasicLobby) savedLobby;
     }
 
-    public AdvancedLobby createAdvancedLobby(AdvancedLobby advancedLobby) {
+    public AdvancedLobby createAdvancedLobby(Lobby advancedLobby, String token) {
 
-        AdvancedLobby savedLobby = lobbyRepository.save(advancedLobby);
+        advancedLobby.setLobbyCreatorPlayerToken(token);
+        Lobby savedLobby = lobbyRepository.save(advancedLobby);
         lobbyRepository.flush();
-        return savedLobby;
+        return (AdvancedLobby) savedLobby;
     }
+    
 
     public List<Lobby> getAllPublicLobbies() {
         return this.lobbyRepository.findAllByIsPublic(true);
