@@ -42,8 +42,9 @@ public class Game {
         this.messagingTemplate = messagingTemplate;
 
         // TODO: get gameId from game lobby
-//        this.gameId = gameLobby.getLobbyId();
+        // this.gameId = gameLobby.getLobbyId();
         this.gameId = 1;
+
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
         this.round = 0;
@@ -100,7 +101,7 @@ public class Game {
 
         // stop the timer
 
-        // for each player that has not guessed the country correctly,
+        // for each player that has NOT guessed the country correctly,
         // set the current guess to false
         // for each player that has not given a single guess, set the number of wrong
         // guesses to 0
@@ -114,6 +115,10 @@ public class Game {
                 this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(playerName, 0);
             }
         }
+
+        // update the current and total scores
+        this.scoreBoard.computeLeaderBoardScore();
+
 
         // this.scoreBoard.updateTotalScores();
         resetCorrectGuess();

@@ -70,7 +70,7 @@ public class HintHandler {
             @Override
             public void run() {
                 if (!hints.isEmpty()) {
-                    log.info("SENDING");
+                    // log.info("SENDING");
                     String nextHint = hints.remove(0).toString();
                     messagingTemplate.convertAndSend(hintsURL, nextHint);
 
