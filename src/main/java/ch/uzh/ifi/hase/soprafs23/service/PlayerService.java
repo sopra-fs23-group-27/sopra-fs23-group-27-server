@@ -53,6 +53,10 @@ public class PlayerService {
         return this.playerRepository.findById(playerId);
     }
 
+    public Player getPlayerByToken(String token) {
+        return this.playerRepository.findByToken(token);
+    }
+
     public Player createPlayer(Player newPlayer) {
 
         // create basic authentication token
@@ -78,11 +82,12 @@ public class PlayerService {
         if (playerByPlayerName == null) { // check if a player with the provided playerName exists
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "The playerName provided does not exist. Please register first.");
-        } else if (!existingPlayer.getPassword().equals(playerByPlayerName.getPassword())) { // given a player with the
-                                                                                             // provided playerName
-                                                                                             // exists, check if the
-                                                                                             // provided password is
-                                                                                             // correct
+        }
+        else if (!existingPlayer.getPassword().equals(playerByPlayerName.getPassword())) { // given a player with the
+            // provided playerName
+            // exists, check if the
+            // provided password is
+            // correct
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "The password provided is not correct. Please try again.");
         }

@@ -26,10 +26,10 @@ public class LobbyController {
 
     @PostMapping("/lobbies/basic")
     public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO,
-                                           @RequestHeader("Authorization") String token) {
+                                           @RequestHeader("Authorization") String playerToken) {
 
         Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
-        BasicLobby lobbyCreated = lobbyService.createBasicLobby(basicLobbyInput, token);
+        BasicLobby lobbyCreated = lobbyService.createBasicLobby(basicLobbyInput, playerToken, basicLobbyInput.getIsPublic());
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO(lobbyCreated);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -38,10 +38,10 @@ public class LobbyController {
 
     @PostMapping("/lobbies/advanced")
     public ResponseEntity createAdvancedLobby(@RequestBody AdvancedLobbyCreateDTO advancedLobbyCreateDTO,
-                                              @RequestHeader("Authorization") String token) {
+                                              @RequestHeader("Authorization") String playerToken) {
 
         Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
-        AdvancedLobby lobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput, token);
+        AdvancedLobby lobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput, playerToken, advancedLobbyInput.getIsPublic());
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO(lobbyCreated);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -74,6 +74,34 @@ public class LobbyController {
     public ResponseEntity getLobbyById(@PathVariable Long lobbyId) {
 
         Lobby lobby = lobbyService.getLobbyById(lobbyId);
+        LobbyGetDTO lobbyGetDTO = null;
+        if (lobby instanceof BasicLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
+        }
+        else if (lobby instanceof AdvancedLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
+        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(lobbyGetDTO);
+    }
+
+
+    @PutMapping("/lobbies/{lobbyId}/join")
+    public ResponseEntity joinLobby(@PathVariable Long lobbyId,
+                                    @RequestHeader("Authorization") String playerToken,
+                                    @RequestParam(value = "privateLobbyKey", required = false) String privateLobbyKey) {
+
+        Lobby lobby = lobbyService.getLobbyById(lobbyId);
+
+        // if lobby is private, check if privateLobbyKey is correct
+        if (!lobby.getIsPublic() && !lobby.getPrivateLobbyKey().equals(privateLobbyKey)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body("You are trying to join a private lobby. However, the provided lobby key is incorrect.");
+        }
+
+        lobby = lobbyService.joinLobby(lobby, playerToken);
         LobbyGetDTO lobbyGetDTO = null;
         if (lobby instanceof BasicLobby) {
             lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);

@@ -38,6 +38,10 @@ public abstract class Lobby implements Serializable {
         return this.getClass().getAnnotation(DiscriminatorValue.class).value();
     }
 
+    public void addPlayerToLobby(String playerName) {
+        this.joinedPlayerNames.add(playerName);
+    }
+
     public Long getLobbyId() {
         return lobbyId;
     }
