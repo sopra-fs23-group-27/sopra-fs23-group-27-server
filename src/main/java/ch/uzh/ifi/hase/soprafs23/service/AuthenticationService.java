@@ -57,14 +57,14 @@ public class AuthenticationService {
             throw new PlayerServiceException(
                     "Player was not authenticated. Please perform authentication before establishing a websocket connection.");
         }
-        
+
         Long lobbyId = getLobbyIdFromAuthToken(playerToken);
         Lobby lobby = lobbyService.getLobbyById(lobbyId);
 
         LobbyGetDTO lobbyGetDTO = lobbyService.joinLobby(lobby, playerToken, wsConnectionId);
 
         WSConnectedDTO wsConnectedDTO = new WSConnectedDTO(player.getPlayerName(), lobbyId);
-        this.webSocketService.sendToPlayerInLobby(wsConnectionId, "/queue/register", lobbyId.toString(), wsConnectedDTO);
+        this.webSocketService.sendToPlayerInLobby(wsConnectionId, "/queue/authentication", lobbyId.toString(), wsConnectedDTO);
         // wait for player to subscribe to channels
         webSocketService.wait(500);
         // send initial lobby-state packet
