@@ -1,16 +1,17 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Player;
+import ch.uzh.ifi.hase.soprafs23.entity.*;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
+import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -28,18 +29,27 @@ public class LobbyService {
     private final LobbyRepository lobbyRepository;
     private final PlayerRepository playerRepository;
     private final PlayerService playerService;
+    private WebSocketService webSocketService;
+    private final GameService gameService;
 
 
     @Autowired
     public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository,
                         @Qualifier("playerRepository") PlayerRepository playerRepository,
-                        PlayerService playerService) {
+                        PlayerService playerService,
+                        WebSocketService webSocketService,
+                        GameService gameService) {
         this.lobbyRepository = lobbyRepository;
         this.playerRepository = playerRepository;
         this.playerService = playerService;
+        this.webSocketService = webSocketService;
+        this.gameService = gameService;
+
     }
 
     public BasicLobby createBasicLobby(Lobby basicLobby, String playerToken, Boolean isPublic) {
+        checkIfLobbyIsCreatable(basicLobby);
+
         Player player = this.playerService.getPlayerByToken(playerToken);
 
         basicLobby.setLobbyCreatorPlayerToken(playerToken);
@@ -61,6 +71,8 @@ public class LobbyService {
     }
 
     public AdvancedLobby createAdvancedLobby(Lobby advancedLobby, String playerToken, Boolean isPublic) {
+        checkIfLobbyIsCreatable(advancedLobby);
+
         Player player = this.playerService.getPlayerByToken(playerToken);
 
         advancedLobby.setLobbyCreatorPlayerToken(playerToken);
@@ -102,30 +114,40 @@ public class LobbyService {
         return lobby;
     }
 
-    public Lobby joinLobby(Lobby lobby, String playerToken) {
+    public LobbyGetDTO joinLobby(Lobby lobby, String playerToken, String wsConnectionId) {
         Player player = this.playerService.getPlayerByToken(playerToken);
+        if (!player.isCreator()) {
+//            // check if player is already in the lobby
+//            if (Objects.equals(lobby.getLobbyId(), player.getLobbyId())) {
+//                return lobby;
+//            }
 
-        // check if player is already in the lobby
-        if (Objects.equals(lobby.getLobbyId(), player.getLobbyId())) {
-            return lobby;
+            // check if player is already in another lobby
+            if (player.getLobbyId() != null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "A player can only be part of one lobby at a time. Please leave the currently joined lobby first.");
+            }
+
+            lobby.addPlayerToLobby(player.getPlayerName());
         }
-
-        // check if player is already in another lobby
-        if (player.getLobbyId() != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "A player can only be part of one lobby at a time. Please leave the currently joined lobby first.");
-        }
-
-        lobby.addPlayerToLobby(player.getPlayerName());
-        player.setLobbyId(lobby.getLobbyId());
-
         Lobby savedLobby = this.lobbyRepository.save(lobby);
         this.lobbyRepository.flush();
+
+        player.setLobbyId(lobby.getLobbyId());
+        player.setWsConnectionId(wsConnectionId);
 
         this.playerRepository.save(player);
         this.playerRepository.flush();
 
-        return savedLobby;
+        LobbyGetDTO lobbyGetDTO = null;
+        if (lobby instanceof BasicLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
+        }
+        else if (lobby instanceof AdvancedLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
+        }
+
+        return lobbyGetDTO;
     }
 
     public Lobby leaveLobby(Lobby lobby, String playerToken) {
@@ -148,4 +170,59 @@ public class LobbyService {
 
         return savedLobby;
     }
+
+    public Lobby startGame(Long lobbyId, String playerToken) {
+
+        Lobby lobby = getLobbyById(lobbyId);
+
+        // check if player is the lobby creator
+        if (!lobby.getLobbyCreatorPlayerToken().equals(playerToken)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You are not the lobby creator. Only the creator can start the game");
+        }
+
+        // check if lobby has enough players
+        if (lobby.getJoinedPlayerNames().size() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Lobby needs at least 2 players to start the game");
+        }
+
+        lobby.setJoinable(false);
+
+        Game game = this.gameService.createGame(lobby);
+        lobby.setCurrentGameId(game.getGameId().longValue());
+        Lobby savedLobby = this.lobbyRepository.save(lobby);
+        this.lobbyRepository.flush();
+
+        return savedLobby;
+    }
+
+    public void checkIfLobbyIsJoinable(Long lobbyId, String privateLobbyKey) {
+        Lobby lobby = getLobbyById(lobbyId);
+
+        // check if lobby with specific id exists
+        if (lobby.getLobbyId() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lobby not found.");
+        }
+        // check if game has already started
+        if (!lobby.isJoinable()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You are trying to join a lobby that has already started a game.");
+        }
+        // check if lobby is private and if privateLobbyKey is correct
+        if (!lobby.getIsPublic() && !lobby.getPrivateLobbyKey().equals(privateLobbyKey)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You are trying to join a private lobby. However, the provided lobby key is incorrect.");
+        }
+    }
+
+    private void checkIfLobbyIsCreatable(Lobby lobby) {
+        if (lobby.getLobbyName() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lobby's name is missing.");
+        }
+        if (lobbyRepository.findByLobbyName(lobby.getLobbyName()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lobby's name is already taken.");
+        }
+    }
+
 }

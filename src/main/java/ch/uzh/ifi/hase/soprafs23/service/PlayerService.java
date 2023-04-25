@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import ch.uzh.ifi.hase.soprafs23.entity.Player;
-import ch.uzh.ifi.hase.soprafs23.entity.PlayerStats;
+import ch.uzh.ifi.hase.soprafs23.entity.*;
+import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
+import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.AuthenticateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.Base64;
 import java.util.List;
 
@@ -33,13 +33,18 @@ public class PlayerService {
     private final Logger log = LoggerFactory.getLogger(PlayerService.class);
 
     private final PlayerRepository playerRepository;
-
+    private final LobbyRepository lobbyRepository;
+    
     private final PlayerStats PlayerStats;
+    private WebSocketService webSocketService;
 
     @Autowired
-    public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository) {
+    public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository,
+                         LobbyRepository lobbyRepository, WebSocketService webSocketService) {
         this.playerRepository = playerRepository;
+        this.lobbyRepository = lobbyRepository;
         this.PlayerStats = new PlayerStats(); // Can be changed
+        this.webSocketService = webSocketService;
     }
 
     public List<Player> getPlayers(String token) {
@@ -190,5 +195,33 @@ public class PlayerService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Error: You are unauthorized to perform this action.");
         }
+    }
+
+    public void joinLobby(String wsConnectionId, AuthenticateDTO dto) {
+        Player player = playerRepository.findByToken(dto.getPlayerToken());
+        if (player == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Player with token " + dto.getPlayerToken() + " not found. Please authenticate first.");
+        }
+        
+        player.setWsConnectionId(wsConnectionId);
+        playerRepository.saveAndFlush(player);
+
+        Long lobbyId = player.getLobbyId();
+        Lobby lobby = lobbyRepository.findByLobbyId(lobbyId);
+
+        LobbyGetDTO lobbyGetDTO = null;
+        if (lobby instanceof BasicLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
+        }
+        else if (lobby instanceof AdvancedLobby) {
+            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
+        }
+
+        webSocketService.sendToPlayerInLobby(wsConnectionId, "/queue/register", lobbyId.toString(), lobbyGetDTO);
+
+        webSocketService.wait(500);
+
+        webSocketService.sendToLobby(lobbyId.toString(), "/queue/lobby", lobbyGetDTO);
     }
 }

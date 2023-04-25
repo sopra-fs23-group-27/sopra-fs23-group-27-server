@@ -22,7 +22,7 @@ public class GameController {
     }
 
     @MessageMapping("/games/{gameId}/guess")
-    public void validateGuess(@DestinationVariable String gameId, @Payload GuessDTO guessDTO) {
+    public void validateGuess(@DestinationVariable Integer gameId, @Payload GuessDTO guessDTO) {
         gameService.validateGuess(gameId, guessDTO);
     }
 
