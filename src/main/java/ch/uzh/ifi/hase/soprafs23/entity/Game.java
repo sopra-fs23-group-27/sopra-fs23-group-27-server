@@ -31,19 +31,21 @@ public class Game {
     private Integer round;
     private Integer gameId;
     private ArrayList<String> playerNames;
+    private Lobby lobby;
 
     public Game(CountryHandlerService countryHandlerService,
                 CountryRepository countryRepository,
-                SimpMessagingTemplate messagingTemplate) {
+                SimpMessagingTemplate messagingTemplate,
+                Lobby lobby) {
 
         this.countryHandlerService = countryHandlerService;
         this.countryRepository = countryRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.messagingTemplate = messagingTemplate;
+        this.lobby = lobby;
 
-        // TODO: get gameId from game lobby
-        // this.gameId = gameLobby.getLobbyId();
-        this.gameId = 1;
+        this.gameId = lobby.getLobbyId().intValue();
+        //this.gameId = 1;
 
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
@@ -109,7 +111,7 @@ public class Game {
         // guesses to 0
         // REPLACE WITH: for (String playerName : this.Lobby.getPlayers()) {
         for (String playerName : this.playerNames) {
-            if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName)== false) {
+            if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == false) {
                 // This is a very ugly solution, but it works for now
                 // the function getCurrentCorrectGuessPerPlayer cannot return null, as null is 
                 // not a valid Boolean value. Therefore, if the player has not yet guessed,
@@ -177,7 +179,8 @@ public class Game {
             // this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(PlayerName, 100);
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true);
             return true;
-        } else {
+        }
+        else {
             //if guess is wrong, send GuessDTO to client
             messagingTemplate.convertAndSend(String.format("/topic/queue/%d/guesses", gameId), guess);
 
@@ -194,4 +197,11 @@ public class Game {
         this.currentCountry = null;
     }
 
+    public Integer getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(Integer gameId) {
+        this.gameId = gameId;
+    }
 }

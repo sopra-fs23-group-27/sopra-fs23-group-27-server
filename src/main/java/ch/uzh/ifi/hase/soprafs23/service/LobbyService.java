@@ -1,9 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Player;
+import ch.uzh.ifi.hase.soprafs23.entity.*;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
@@ -33,16 +30,21 @@ public class LobbyService {
     private final PlayerRepository playerRepository;
     private final PlayerService playerService;
     private WebSocketService webSocketService;
+    private final GameService gameService;
 
 
     @Autowired
     public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository,
                         @Qualifier("playerRepository") PlayerRepository playerRepository,
-                        PlayerService playerService, WebSocketService webSocketService) {
+                        PlayerService playerService,
+                        WebSocketService webSocketService,
+                        GameService gameService) {
         this.lobbyRepository = lobbyRepository;
         this.playerRepository = playerRepository;
         this.playerService = playerService;
         this.webSocketService = webSocketService;
+        this.gameService = gameService;
+
     }
 
     public BasicLobby createBasicLobby(Lobby basicLobby, String playerToken, Boolean isPublic) {
@@ -169,9 +171,35 @@ public class LobbyService {
         return savedLobby;
     }
 
+    public Lobby startGame(Long lobbyId, String playerToken) {
+
+        Lobby lobby = getLobbyById(lobbyId);
+
+        // check if player is the lobby creator
+        if (!lobby.getLobbyCreatorPlayerToken().equals(playerToken)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You are not the lobby creator. Only the creator can start the game");
+        }
+
+        // check if lobby has enough players
+        if (lobby.getJoinedPlayerNames().size() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Lobby needs at least 2 players to start the game");
+        }
+
+        lobby.setJoinable(false);
+
+        Game game = this.gameService.createGame(lobby);
+        lobby.setCurrentGameId(game.getGameId().longValue());
+        Lobby savedLobby = this.lobbyRepository.save(lobby);
+        this.lobbyRepository.flush();
+
+        return savedLobby;
+    }
+
     public void checkIfLobbyIsJoinable(Long lobbyId, String privateLobbyKey) {
         Lobby lobby = getLobbyById(lobbyId);
-        
+
         // check if lobby with specific id exists
         if (lobby.getLobbyId() == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Lobby not found.");

@@ -125,4 +125,18 @@ public class LobbyController {
                 .status(HttpStatus.OK)
                 .body(lobbyGetDTO);
     }
+
+    @PutMapping("/lobbies/{lobbyId}/start")
+    public ResponseEntity startGameInLobby(@PathVariable Long lobbyId,
+                                           @RequestHeader("Authorization") String playerToken) {
+
+
+        Lobby lobby = lobbyService.startGame(lobbyId, playerToken);
+
+        Long gameId = lobby.getCurrentGameId();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(gameId);
+    }
 }
