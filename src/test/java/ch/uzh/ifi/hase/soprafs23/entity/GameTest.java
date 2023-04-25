@@ -9,8 +9,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
+import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
+
 
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -22,6 +25,7 @@ public class GameTest {
     CountryRepository countryRepository;
     SimpMessagingTemplate messagingTemplate;
     ScoreBoard scoreBoard;
+    Lobby lobby;
 
 
     @BeforeEach
@@ -35,6 +39,10 @@ public class GameTest {
         // mock messagingTemplate
         this.messagingTemplate = mock(SimpMessagingTemplate.class);
 
+        // mock lobby
+        this.lobby = mock(Lobby.class);
+        when(this.lobby.getLobbyId()).thenReturn(1L);
+        
         // mock scoreBoard
         this.scoreBoard = mock(ScoreBoard.class);
         doNothing().when(this.scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
@@ -44,7 +52,7 @@ public class GameTest {
     public void testCorrectValidateGuess(){
         
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate);
+        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
 
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -62,7 +70,7 @@ public class GameTest {
     public void testCorrectValidateGuessWithSpace(){
             
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate);
+        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
     
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -78,7 +86,7 @@ public class GameTest {
     public void testLowerspacedInputValidateGuess(){
                 
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate);
+        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
         
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -94,7 +102,7 @@ public class GameTest {
     public void testWrongValidateGuess(){
             
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate);
+        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
     
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -116,7 +124,7 @@ public class GameTest {
         when(this.countryRepository.findByCountryCode(anyString())).thenReturn(testCountry);
         
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate);
+        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
 
         // override attribute correctGuess
         ReflectionTestUtils.setField(game, "correctGuess", "ch");

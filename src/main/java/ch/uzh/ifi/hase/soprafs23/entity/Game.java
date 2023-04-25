@@ -63,19 +63,19 @@ public class Game {
         // LIST OF PLAYER NAMES FOR THE GAME)
         this.scoreBoard = new ScoreBoard(this.playerNames);
 
-        startRound();
-        log.info(allCountryCodes.toString());
-        log.info(this.correctGuess);
-        log.info("test1");
-        log.info(this.round.toString());
+        // startRound();
+        // log.info(allCountryCodes.toString());
+        // log.info(this.correctGuess);
+        // log.info("test1");
+        // log.info(this.round.toString());
 
-        log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
+        // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
 
-        endRound();
-        log.info("test2");
-        log.info(this.round.toString());
-        log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
-        log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
+        // endRound();
+        // log.info("test2");
+        // log.info(this.round.toString());
+        // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
+        // log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
 
     }
 
