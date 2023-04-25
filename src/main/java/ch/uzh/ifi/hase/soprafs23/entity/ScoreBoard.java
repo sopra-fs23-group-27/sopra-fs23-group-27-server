@@ -119,6 +119,8 @@ public class ScoreBoard {
         this.totalCorrectGuessesInARow = new HashMap<String, Integer>();
         this.totalTimeUntilCorrectGuess = new HashMap<String, Integer>();
         this.totalNumberOfWrongGuesses = new HashMap<String, Integer>();
+
+        initTotalScores();
     }
 
     public void updateTotalScores() {
