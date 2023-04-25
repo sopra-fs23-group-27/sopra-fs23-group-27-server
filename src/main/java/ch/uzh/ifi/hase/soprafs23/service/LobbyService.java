@@ -86,6 +86,7 @@ public class LobbyService {
         }
 
         player.setLobbyId(savedLobby.getLobbyId());
+        player.setCreator(true);
         this.playerRepository.save(player);
         this.playerRepository.flush();
 
