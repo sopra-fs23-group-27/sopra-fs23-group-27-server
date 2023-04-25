@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.websocket.dto;
 
-public class RegisterDTO {
+public class AuthenticateDTO {
 
     private String playerToken;
 

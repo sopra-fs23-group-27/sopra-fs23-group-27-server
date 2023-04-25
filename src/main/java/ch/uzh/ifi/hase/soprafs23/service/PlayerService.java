@@ -6,7 +6,7 @@ import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.RegisterDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.AuthenticateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,7 +197,7 @@ public class PlayerService {
         }
     }
 
-    public void joinLobby(String wsConnectionId, RegisterDTO dto) {
+    public void joinLobby(String wsConnectionId, AuthenticateDTO dto) {
         Player player = playerRepository.findByToken(dto.getPlayerToken());
         if (player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

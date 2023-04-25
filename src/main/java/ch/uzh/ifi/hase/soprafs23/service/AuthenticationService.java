@@ -47,6 +47,10 @@ public class AuthenticationService {
         return null;
     }
 
+    public Map<String, Long> getAuthenticatedJoins() {
+        return this.authenticatedJoins;
+    }
+
     public void removeFromAuthenticatedJoins(String playerToken) {
         this.authenticatedJoins.remove(playerToken);
     }
