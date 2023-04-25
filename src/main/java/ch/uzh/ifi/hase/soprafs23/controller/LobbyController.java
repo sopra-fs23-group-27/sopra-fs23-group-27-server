@@ -9,7 +9,6 @@ import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
-import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +23,11 @@ public class LobbyController {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
 
-    LobbyController(LobbyService lobbyService, AuthenticationService authenticationService) {
+    public LobbyController(LobbyService lobbyService, AuthenticationService authenticationService) {
         this.lobbyService = lobbyService;
         this.authenticationService = authenticationService;
     }
+
 
     @PostMapping("/lobbies/basic")
     public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO,
@@ -101,8 +101,8 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void joinLobby(@PathVariable Long lobbyId,
-                                    @RequestHeader("Authorization") String playerToken,
-                                    @RequestParam(value = "privateLobbyKey", required = false) String privateLobbyKey) {
+                          @RequestHeader("Authorization") String playerToken,
+                          @RequestParam(value = "privateLobbyKey", required = false) String privateLobbyKey) {
 
         lobbyService.checkIfLobbyIsJoinable(lobbyId, privateLobbyKey);
         authenticationService.addToAuthenticatedJoins(playerToken, lobbyId);
