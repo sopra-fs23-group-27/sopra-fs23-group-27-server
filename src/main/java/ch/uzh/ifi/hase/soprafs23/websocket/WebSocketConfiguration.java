@@ -1,10 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.websocket;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -40,7 +37,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 // Allow all origins to send messages to us.
                 .setAllowedOriginPatterns("*")
                 // for every new handshake we will create a new uuid for the UI
-                .setHandshakeHandler(new HandshakeHandler())
+                .setHandshakeHandler(new CustomHandshakeHandler())
                 // Enable SockJS fallback options
                 .withSockJS();
 

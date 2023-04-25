@@ -7,7 +7,10 @@ import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
+import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,18 +22,22 @@ import java.util.List;
 public class LobbyController {
 
     private final LobbyService lobbyService;
+    private final AuthenticationService authenticationService;
 
-    LobbyController(LobbyService lobbyService) {
+    LobbyController(LobbyService lobbyService, AuthenticationService authenticationService) {
         this.lobbyService = lobbyService;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/lobbies/basic")
     public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO,
                                            @RequestHeader("Authorization") String playerToken) {
-
         Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
         BasicLobby lobbyCreated = lobbyService.createBasicLobby(basicLobbyInput, playerToken, basicLobbyInput.getIsPublic());
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO(lobbyCreated);
+
+        authenticationService.addToAuthenticatedJoins(playerToken, lobbyGetDTO.getLobbyId());
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(lobbyGetDTO);
@@ -43,6 +50,9 @@ public class LobbyController {
         Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
         AdvancedLobby lobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput, playerToken, advancedLobbyInput.getIsPublic());
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO(lobbyCreated);
+
+        authenticationService.addToAuthenticatedJoins(playerToken, lobbyGetDTO.getLobbyId());
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(lobbyGetDTO);
@@ -88,30 +98,14 @@ public class LobbyController {
 
 
     @PutMapping("/lobbies/{lobbyId}/join")
-    public ResponseEntity joinLobby(@PathVariable Long lobbyId,
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void joinLobby(@PathVariable Long lobbyId,
                                     @RequestHeader("Authorization") String playerToken,
                                     @RequestParam(value = "privateLobbyKey", required = false) String privateLobbyKey) {
 
-        Lobby lobby = lobbyService.getLobbyById(lobbyId);
-
-        // if lobby is private, check if privateLobbyKey is correct
-        if (!lobby.getIsPublic() && !lobby.getPrivateLobbyKey().equals(privateLobbyKey)) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("You are trying to join a private lobby. However, the provided lobby key is incorrect.");
-        }
-
-        lobby = lobbyService.joinLobby(lobby, playerToken);
-        LobbyGetDTO lobbyGetDTO = null;
-        if (lobby instanceof BasicLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
-        }
-        else if (lobby instanceof AdvancedLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
-        }
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(lobbyGetDTO);
+        lobbyService.checkIfLobbyIsJoinable(lobbyId, privateLobbyKey);
+        authenticationService.addToAuthenticatedJoins(playerToken, lobbyId);
     }
 
     @PutMapping("/lobbies/{lobbyId}/leave")

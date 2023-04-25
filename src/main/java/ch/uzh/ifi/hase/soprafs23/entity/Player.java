@@ -1,8 +1,11 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.security.Principal;
 
 /**
  * Internal Player Representation
@@ -35,6 +38,9 @@ public class Player implements Serializable {
 
     @Column(nullable = false, unique = true)
     private String token;
+
+    @Column(unique = true)
+    private String wsConnectionId;
 
     @Column
     private Long lobbyId;
@@ -86,4 +92,14 @@ public class Player implements Serializable {
     public void setLobbyId(Long lobbyId) {
         this.lobbyId = lobbyId;
     }
+
+    public String getWsConnectionId() {
+        return wsConnectionId;
+    }
+
+    public void setWsConnectionId(String wsConnectionId) {
+        this.wsConnectionId = wsConnectionId;
+    }
+
+
 }
