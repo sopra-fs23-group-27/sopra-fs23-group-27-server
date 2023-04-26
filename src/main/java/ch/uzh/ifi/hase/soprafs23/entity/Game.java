@@ -190,6 +190,19 @@ public class Game {
 
             // write correct guess to scoreBoard
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true);
+
+
+            // check if all players have submitted the correct guess and the round is over
+            for (String playerName : this.playerNames) {
+                if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == false) {
+                    break;
+                } 
+                else{ 
+                    // if all players have submitted the correct guess, end the round
+                    this.endRound();
+                }
+            }
+            
             return true;
         }
         else {
