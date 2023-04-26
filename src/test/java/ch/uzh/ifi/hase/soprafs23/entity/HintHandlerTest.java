@@ -65,7 +65,7 @@ public class HintHandlerTest {
         // Mock the SimpMessagingTemplate
         messagingTemplate = Mockito.mock(SimpMessagingTemplate.class);
 
-        hintHandler = new HintHandler("CH", 4, 1, countryRepository, messagingTemplate);
+        hintHandler = new HintHandler("CH", 4, 1L, countryRepository, messagingTemplate);
     }
 
     @Test

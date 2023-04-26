@@ -9,6 +9,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -21,9 +22,11 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @MessageMapping("/games/{gameId}/guess")
-    public void validateGuess(@DestinationVariable Integer gameId, @Payload GuessDTO guessDTO) {
-        gameService.validateGuess(gameId, guessDTO);
+    @MessageMapping("/games/{lobbyId}/guess")
+    public void validateGuess(@DestinationVariable Integer lobbyId,
+                              SimpMessageHeaderAccessor smha,
+                              @Payload GuessDTO guessDTO) {
+        gameService.validateGuess(lobbyId, guessDTO);
     }
 
 }

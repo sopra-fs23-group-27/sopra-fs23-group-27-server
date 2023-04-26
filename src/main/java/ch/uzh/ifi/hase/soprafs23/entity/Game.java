@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +22,7 @@ public class Game {
     private final Logger log = LoggerFactory.getLogger(CountryHandlerService.class);
 
     private final CountryHandlerService countryHandlerService;
+    private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -30,7 +33,7 @@ public class Game {
     private Country currentCountry;
     private String correctGuess;
     private Integer round;
-    private Integer gameId;
+    private Long gameId;
     private ArrayList<String> playerNames;
     private Lobby lobby;
 
@@ -38,18 +41,19 @@ public class Game {
     private int numSeconds;
 
     public Game(CountryHandlerService countryHandlerService,
-                CountryRepository countryRepository,
+                WebSocketService webSocketService, CountryRepository countryRepository,
                 SimpMessagingTemplate messagingTemplate,
                 Lobby lobby) {
 
         this.countryHandlerService = countryHandlerService;
+        this.webSocketService = webSocketService;
         this.countryRepository = countryRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.messagingTemplate = messagingTemplate;
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
 
-        this.gameId = lobby.getLobbyId().intValue();
+        this.gameId = lobby.getLobbyId();
 
         List playerNames = lobby.getJoinedPlayerNames();
 
@@ -59,7 +63,6 @@ public class Game {
             playerNamesArrayList.add((String) playerNames.get(i));
         }
         this.playerNames = playerNamesArrayList;
-        //this.gameId = 1;
 
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
@@ -186,7 +189,7 @@ public class Game {
 
     }
 
-    public Boolean validateGuess(String PlayerName, String guess) {
+    public Boolean validateGuess(String playerName, String guess) {
         // prepare the guess
         // remove all whitespaces and make it lowercase
         guess = guess.toLowerCase();
@@ -198,15 +201,15 @@ public class Game {
             Integer passedTime = this.computePassedTime();
 
             // write time of player to scoreBoard
-            this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(PlayerName, passedTime);
+            this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
 
             // write correct guess to scoreBoard
-            this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true);
+            this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, true);
 
 
             // check if all players have submitted the correct guess and the round is over
-            for (String playerName : this.playerNames) {
-                if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == false) {
+            for (String playerNameList  : this.playerNames){
+                if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerNameList) == false) {
                     break;
                 }
                 else {
@@ -219,12 +222,13 @@ public class Game {
         }
         else {
             //if guess is wrong, send GuessDTO to client
-            messagingTemplate.convertAndSend(String.format("/topic/queue/%d/guesses", gameId), guess);
+            GuessDTO guessDTO = new GuessDTO(playerName, guess);
+            webSocketService.sendToLobby(this.gameId, "guesses", guessDTO);
 
             // increment the number of wrong guesses by 1
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
-                    PlayerName,
-                    this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(PlayerName) + 1);
+                    playerName,
+                    this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
             return false;
         }
     }
@@ -234,11 +238,11 @@ public class Game {
         this.currentCountry = null;
     }
 
-    public Integer getGameId() {
+    public Long getGameId() {
         return gameId;
     }
 
-    public void setGameId(Integer gameId) {
+    public void setGameId(Long gameId) {
         this.gameId = gameId;
     }
 

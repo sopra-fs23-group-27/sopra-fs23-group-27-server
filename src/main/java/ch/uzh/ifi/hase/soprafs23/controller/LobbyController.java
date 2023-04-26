@@ -130,7 +130,6 @@ public class LobbyController {
     public void startGameInLobby(@PathVariable Long lobbyId,
                                  @RequestHeader("Authorization") String playerToken) {
 
-
         this.lobbyService.startGame(lobbyId, playerToken);
 
 /*        return ResponseEntity

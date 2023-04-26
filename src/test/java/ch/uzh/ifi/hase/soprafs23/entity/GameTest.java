@@ -2,9 +2,7 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -12,7 +10,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
-import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 
 
 import org.springframework.test.util.ReflectionTestUtils;
@@ -22,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameTest {
 
     CountryHandlerService countryHandlerService;
+    WebSocketService webSocketService;
     CountryRepository countryRepository;
     SimpMessagingTemplate messagingTemplate;
     ScoreBoard scoreBoard;
@@ -32,6 +30,9 @@ public class GameTest {
     public void setUp() {
         // mock countryHandlerService
         this.countryHandlerService = mock(CountryHandlerService.class);
+
+        // mock webSocketService
+        this.webSocketService = mock(WebSocketService.class);
 
         // mock countryRepository
         this.countryRepository = mock(CountryRepository.class);
@@ -52,7 +53,7 @@ public class GameTest {
     public void testCorrectValidateGuess(){
         
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
 
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -74,7 +75,7 @@ public class GameTest {
     public void testCorrectValidateGuessWithSpace(){
             
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
     
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -94,7 +95,7 @@ public class GameTest {
     public void testLowerspacedInputValidateGuess(){
                 
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
         
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -115,7 +116,7 @@ public class GameTest {
     public void testWrongValidateGuess(){
             
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
     
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -137,7 +138,7 @@ public class GameTest {
         when(this.countryRepository.findByCountryCode(anyString())).thenReturn(testCountry);
         
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
 
         // override attribute correctGuess
         ReflectionTestUtils.setField(game, "correctGuess", "ch");
