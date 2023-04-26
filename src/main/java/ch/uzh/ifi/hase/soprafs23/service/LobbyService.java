@@ -5,13 +5,11 @@ import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -172,7 +170,7 @@ public class LobbyService {
         return savedLobby;
     }
 
-    public Lobby startGame(Long lobbyId, String playerToken) {
+    public void startGame(Long lobbyId, String playerToken) {
 
         Lobby lobby = getLobbyById(lobbyId);
 
@@ -190,12 +188,8 @@ public class LobbyService {
 
         lobby.setJoinable(false);
 
-        Game game = this.gameService.createGame(lobby);
-        lobby.setCurrentGameId(game.getGameId().longValue());
-        Lobby savedLobby = this.lobbyRepository.save(lobby);
-        this.lobbyRepository.flush();
 
-        return savedLobby;
+        this.gameService.startGame(lobby);
     }
 
     public void checkIfLobbyIsJoinable(Long lobbyId, String privateLobbyKey) {

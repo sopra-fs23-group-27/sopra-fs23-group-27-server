@@ -35,6 +35,7 @@ public class Game {
     private Lobby lobby;
 
     private Long startTime;
+    private int numSeconds;
 
     public Game(CountryHandlerService countryHandlerService,
                 CountryRepository countryRepository,
@@ -46,6 +47,7 @@ public class Game {
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.messagingTemplate = messagingTemplate;
         this.lobby = lobby;
+        this.numSeconds = lobby.getNumSeconds();
 
         this.gameId = lobby.getLobbyId().intValue();
 
@@ -82,7 +84,7 @@ public class Game {
         // log.info(this.round.toString());
 
         // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
-        
+
         // endRound();
         // log.info("test2");
         // log.info(this.round.toString());
@@ -191,7 +193,7 @@ public class Game {
         guess = guess.replaceAll("\\s+", "");
 
         if (guess.equals(this.correctGuess)) {
-            
+
             // compute the time until the correct guess
             Integer passedTime = this.computePassedTime();
 
@@ -206,13 +208,13 @@ public class Game {
             for (String playerName : this.playerNames) {
                 if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == false) {
                     break;
-                } 
-                else{ 
+                }
+                else {
                     // if all players have submitted the correct guess, end the round
                     this.endRound();
                 }
             }
-            
+
             return true;
         }
         else {
