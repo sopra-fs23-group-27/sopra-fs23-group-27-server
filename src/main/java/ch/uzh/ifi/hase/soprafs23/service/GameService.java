@@ -18,10 +18,10 @@ import java.util.TimerTask;
 @Service
 public class GameService {
     private final CountryHandlerService countryHandlerService;
+    private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final LobbyRepository lobbyRepository;
-    private final WebSocketService websocketService;
     private Timer timer;
 
     @Autowired
@@ -29,13 +29,13 @@ public class GameService {
                        @Qualifier("lobbyRepository") LobbyRepository lobbyRepository,
                        CountryHandlerService countryHandlerService,
                        SimpMessagingTemplate messagingTemplate,
-                       WebSocketService websocketService) {
+                       WebSocketService webSocketService) {
 
         this.countryRepository = countryRepository;
         this.countryHandlerService = countryHandlerService;
+        this.webSocketService = webSocketService;
         this.messagingTemplate = messagingTemplate;
         this.lobbyRepository = lobbyRepository;
-        this.websocketService = websocketService;
     }
 
     public void validateGuess(Integer gameId, GuessDTO guessDTO) {
@@ -47,9 +47,10 @@ public class GameService {
         Long lobbyId = lobby.getLobbyId();
 
         // Inform all players in the lobby that the game has started
-        this.websocketService.sendToLobby(lobbyId, "game-start", "{}");
+        this.webSocketService.sendToLobby(lobbyId, "game-start", "{}");
 
-        Game game = new Game(countryHandlerService, countryRepository, messagingTemplate, lobby);
+        Game game = new Game(countryHandlerService, webSocketService, countryRepository, messagingTemplate, lobby);
+
         GameRepository.addGame(lobby.getLobbyId(), game);
 
         lobby.setCurrentGameId(game.getGameId().longValue());
@@ -59,7 +60,7 @@ public class GameService {
         startGameLoop(game, lobby);
 
         // Inform all players in the lobby that the game has ended
-        this.websocketService.sendToLobby(lobbyId, "game-end", "{}");
+        this.webSocketService.sendToLobby(lobbyId, "game-end", "{}");
     }
 
     public void startGameLoop(Game game, Lobby lobby) {
@@ -67,10 +68,10 @@ public class GameService {
         Long lobbyId = lobby.getLobbyId();
 
         for (int i = 0; i < numRounds; i++) {
-            websocketService.sendToLobby(lobbyId, "round-start", "Round " + (i + 1) + " has started!");
+            webSocketService.sendToLobby(lobbyId, "round-start", "Round " + (i + 1) + " has started!");
             game.startRound();
             startTimer(lobby.getNumSeconds(), game);
-            websocketService.sendToLobby(lobbyId, "round-end", "Round " + (i + 1) + " has ended!");
+            webSocketService.sendToLobby(lobbyId, "round-end", "Round " + (i + 1) + " has ended!");
         }
     }
 

@@ -16,12 +16,12 @@ public class HintHandler {
 
     private String countryCode;
     private int numHints;
-    private int gameID;
+    private Long gameID;
     private final CountryRepository countryRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private List<HashMap.Entry<String, String>> hints;
 
-    public HintHandler(String countryCode, int numHints, int gameID,
+    public HintHandler(String countryCode, int numHints, Long gameID,
                        CountryRepository countryRepository,
                        SimpMessagingTemplate messagingTemplate) {
         this.countryCode = countryCode;

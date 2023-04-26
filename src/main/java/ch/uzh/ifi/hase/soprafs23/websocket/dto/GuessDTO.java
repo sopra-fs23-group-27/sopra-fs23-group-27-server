@@ -5,6 +5,11 @@ public class GuessDTO {
     private String playerName;
     private String guess;
 
+    public GuessDTO(String playerName, String guess) {
+        this.playerName = playerName;
+        this.guess = guess;
+    }
+
     public String getPlayerName() {
         return playerName;
     }
