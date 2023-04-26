@@ -16,5 +16,5 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     boolean existsByToken(String token);
 
-    List<Player> findByLobbyId(String lobbyId);
+    List<Player> findByLobbyId(Long lobbyId);
 }

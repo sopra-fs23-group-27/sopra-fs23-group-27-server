@@ -66,15 +66,16 @@ public class AuthenticationService {
         Lobby lobby = lobbyService.getLobbyById(lobbyId);
 
         LobbyGetDTO lobbyGetDTO = lobbyService.joinLobby(lobby, playerToken, wsConnectionId);
-
         WSConnectedDTO wsConnectedDTO = new WSConnectedDTO(player.getPlayerName(), lobbyId);
+
         this.webSocketService.sendToPlayerInLobby(wsConnectionId, "/queue/authentication", lobbyId.toString(), wsConnectedDTO);
         // wait for player to subscribe to channels
         webSocketService.wait(500);
         // send initial lobby-state packet
-        this.webSocketService.sendToLobby(lobbyId.toString(), "/lobby-settings", lobbyGetDTO);
+        this.webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
+
+        log.info("Lobby " + lobbyId + ": Player " + wsConnectionId + " joined");
 
         removeFromAuthenticatedJoins(playerToken);
-        log.info("Lobby " + lobbyId + ": Player " + wsConnectionId + " joined");
     }
 }

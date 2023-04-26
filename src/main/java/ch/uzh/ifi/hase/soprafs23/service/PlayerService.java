@@ -222,6 +222,6 @@ public class PlayerService {
 
         webSocketService.wait(500);
 
-        webSocketService.sendToLobby(lobbyId.toString(), "/queue/lobby", lobbyGetDTO);
+        webSocketService.sendToLobby(lobbyId, "/queue/lobby", lobbyGetDTO);
     }
 }

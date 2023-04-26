@@ -13,7 +13,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
 
-        // Set prefix for the endpoint that the client listens. Note by convention we distinguish bewtween /topic/ and
+        // Set prefix for the endpoint that the client listens. Note by convention we distinguish between /topic/ and
         // /queue/. /topic/.. implies publish-subscribe (one-to-many) and /queue/ implies point-to-point (one-to-one)
         // message exchanges (Hence, we use queues to send messages to specific users)
         registry.enableSimpleBroker("/topic", "/queue");
@@ -29,10 +29,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
         // /ws is the HTTP URL for the endpoint to which a WebSocket (or SockJS) client needs to connect for the
         // WebSocket handshake.
-        registry.addEndpoint("/ws")
-                // Allow all origins to send messages to us.
-                .setAllowedOriginPatterns("*");
-
         registry.addEndpoint("/ws")
                 // Allow all origins to send messages to us.
                 .setAllowedOriginPatterns("*")

@@ -18,7 +18,6 @@ import java.util.List;
 @Transactional
 public class WebSocketService {
 
-
     private PlayerRepository playerRepository;
 
     @Autowired
@@ -33,10 +32,10 @@ public class WebSocketService {
         this.simpMessagingTemplate.convertAndSendToUser(wsConnectionId, "/queue/lobby/" + lobbyId + path, dto);
     }
 
-    public void sendToLobby(String lobbyId, String path, Object dto) {
+    public void sendToLobby(Long lobbyId, String path, Object dto) {
         List<Player> lobby = this.playerRepository.findByLobbyId(lobbyId);
         for (Player player : lobby) {
-            sendToPlayerInLobby(player.getWsConnectionId(), path, lobbyId, dto);
+            sendToPlayerInLobby(player.getWsConnectionId(), path, lobbyId.toString(), dto);
         }
     }
 
