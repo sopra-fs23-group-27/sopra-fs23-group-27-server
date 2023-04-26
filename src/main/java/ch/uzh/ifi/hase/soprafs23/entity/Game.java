@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,15 @@ public class Game {
         this.lobby = lobby;
 
         this.gameId = lobby.getLobbyId().intValue();
+
+        List playerNames = lobby.getJoinedPlayerNames();
+
+        // convert to ArrayList<String>
+        ArrayList<String> playerNamesArrayList = new ArrayList<String>();
+        for (int i = 0; i < playerNames.size(); i++) {
+            playerNamesArrayList.add((String) playerNames.get(i));
+        }
+        this.playerNames = playerNamesArrayList;
         //this.gameId = 1;
 
         // set the round to 0, this is to get the first of the sourced countries
@@ -54,12 +64,12 @@ public class Game {
         this.round = 0;
 
         // TESTING
-        ArrayList<String> playerNames = new ArrayList<String>();
-        playerNames.add("Player1");
-        playerNames.add("Player2");
-        playerNames.add("Player3");
-        playerNames.add("Player4");
-        this.playerNames = playerNames;
+        // ArrayList<String> playerNames = new ArrayList<String>();
+        // playerNames.add("Player1");
+        // playerNames.add("Player2");
+        // playerNames.add("Player3");
+        // playerNames.add("Player4");
+        // this.playerNames = playerNames;
 
         // initialize ScoreBoard (UNCOMMENT THIS LINE AS SOON AS THE LOBBY PROVIDES A
         // LIST OF PLAYER NAMES FOR THE GAME)
