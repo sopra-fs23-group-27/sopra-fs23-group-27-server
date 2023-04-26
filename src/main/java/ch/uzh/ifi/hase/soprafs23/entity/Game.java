@@ -33,6 +33,8 @@ public class Game {
     private ArrayList<String> playerNames;
     private Lobby lobby;
 
+    private Long startTime;
+
     public Game(CountryHandlerService countryHandlerService,
                 CountryRepository countryRepository,
                 SimpMessagingTemplate messagingTemplate,
@@ -70,7 +72,7 @@ public class Game {
         // log.info(this.round.toString());
 
         // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
-
+        
         // endRound();
         // log.info("test2");
         // log.info(this.round.toString());
@@ -96,6 +98,8 @@ public class Game {
 
 
         // start the timer
+
+        this.startTime = System.currentTimeMillis();
         // call endRound if the timer runs out
 
     }
@@ -103,7 +107,8 @@ public class Game {
     public void endRound() {
         // end procedure for a round
 
-        // stop the timer
+        // compute the time passed since the start of the round in seconds
+        Integer passedTime = this.computePassedTime();
 
         // for each player that has NOT guessed the country correctly,
         // set the current guess to false
@@ -121,7 +126,7 @@ public class Game {
                 // it is a very ugly solution because we set the current guess to false after checking if
                 // getCurrentCorrectGuessPerPlayer returns false, what effectively means "null"
                 this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, false);
-                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, 100); // replace with maximum time
+                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime); // replace with maximum time
             }
             if (this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) == null) {
                 this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(playerName, 0);
@@ -143,6 +148,7 @@ public class Game {
         this.scoreBoard.resetAllCurrentScores();
 
         // reset the timer
+        this.resetStartTime();
 
         // prepare the counter for the next round
         this.round++;
@@ -175,8 +181,14 @@ public class Game {
         guess = guess.replaceAll("\\s+", "");
 
         if (guess.equals(this.correctGuess)) {
-            // TODO: Enter here the correct guess time
-            // this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(PlayerName, 100);
+            
+            // compute the time until the correct guess
+            Integer passedTime = this.computePassedTime();
+
+            // write time of player to scoreBoard
+            this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(PlayerName, passedTime);
+
+            // write correct guess to scoreBoard
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true);
             return true;
         }
@@ -203,5 +215,25 @@ public class Game {
 
     public void setGameId(Integer gameId) {
         this.gameId = gameId;
+    }
+
+    private Integer computePassedTime() {
+
+        // stop the timer
+        Long endTime = System.currentTimeMillis();
+
+        // compute the time until the correct guess for each player
+        Long passedTimeLong = endTime - this.startTime;
+
+        // convert long to integer
+        Integer passedTime = passedTimeLong.intValue();
+
+        passedTime = passedTime / 1000;
+
+        return passedTime;
+    }
+
+    private void resetStartTime() {
+        this.startTime = null;
     }
 }

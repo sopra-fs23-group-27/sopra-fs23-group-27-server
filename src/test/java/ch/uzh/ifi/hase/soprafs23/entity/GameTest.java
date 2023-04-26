@@ -57,6 +57,10 @@ public class GameTest {
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
 
+        // manually set start time 
+        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
+        ReflectionTestUtils.setField(game, "startTime", 1000L);
+
         // set attribute correctGuess (note: correctGuess is passed through lower 
         // and a regex that removes all whitespaces)
         ReflectionTestUtils.setField(game, "correctGuess", "ch");
@@ -77,6 +81,10 @@ public class GameTest {
     
         // set attribute correctGuess
         ReflectionTestUtils.setField(game, "correctGuess", "ch");
+
+        // manually set start time 
+        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
+        ReflectionTestUtils.setField(game, "startTime", 1000L);
     
         // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
         assertTrue(game.validateGuess("Player1", "CH "));
@@ -93,6 +101,11 @@ public class GameTest {
         
         // set attribute correctGuess
         ReflectionTestUtils.setField(game, "correctGuess", "ch");
+
+        // manually set start time 
+        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
+        // Note that validate guess makes use uf the private computePassedTime function
+        ReflectionTestUtils.setField(game, "startTime", 1000L);
         
         // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
         assertTrue(game.validateGuess("Player1", "ch"));

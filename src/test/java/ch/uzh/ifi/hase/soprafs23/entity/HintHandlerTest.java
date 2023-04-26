@@ -30,8 +30,7 @@ public class HintHandlerTest {
 
     @InjectMocks
     CountryHandlerService countryHandlerService;
-    @InjectMocks
-    CountryHandler countryHandler;
+
 
     @BeforeEach
     public void setUp() {

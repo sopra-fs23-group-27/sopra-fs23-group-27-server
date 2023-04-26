@@ -48,12 +48,16 @@ public class ScoreBoardTest {
 
     @Test
     public void testCorrectSetCurrentTimeUntilCorrectGuessPerPlayer(){
-                
-            // set current time until correct guess for player 1
-            this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", 10);
+
+        Integer passedTime = this.timer(); 
+
+        System.out.println(passedTime);
+        
+        // set current time until correct guess for player 1
+        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", passedTime);
     
-            // check if current time until correct guess for player 1 is 10
-            assertEquals(10, this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
+        // check if current time until correct guess for player 1 is 10
+        assertEquals(passedTime, this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
 
     }
 
@@ -169,15 +173,15 @@ public class ScoreBoardTest {
     @Test
     public void testGetTotalTimeUntilCorrectGuessPerPlayer(){
 
-        int a = 10;
-        int b = 200;
+        Integer a = this.timer();
+        Integer b = this.timer();
 
         // set current time until correct guess for player 1
         this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", a);
 
         this.scoreBoard.updateTotalScores();
 
-        assertEquals(10, this.scoreBoard.getTotalTimeUntilCorrectGuessPerPlayer("Player1"));
+        assertEquals(a, this.scoreBoard.getTotalTimeUntilCorrectGuessPerPlayer("Player1"));
 
         this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", b);
 
@@ -215,10 +219,12 @@ public class ScoreBoardTest {
     @Test
     public void testResetAllCurrentScores(){
 
+        Integer passedTime = this.timer();
+
         // set the current attributes for Player1
         this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player1", null);
 
-        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", 10);
+        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", passedTime);
 
         this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("Player1", 10);
 
@@ -314,6 +320,24 @@ public class ScoreBoardTest {
         assertEquals(0, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player2"));
         assertEquals(14, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
         assertEquals(0, this.scoreBoard.getCurrentScorePerPlayer("Player2"));
+    }
+
+    private Integer timer(){
+
+        Long startTime = System.currentTimeMillis();
+
+        // system timeout for 1 second
+        while(System.currentTimeMillis() - startTime < 1000);
+
+        Long endTime = System.currentTimeMillis();
+
+        Long passedTimeLong = endTime - startTime;
+
+        Integer passedTime = passedTimeLong.intValue(); 
+
+        passedTime = passedTime / 1000;
+
+        return passedTime;
     }
     
 }
