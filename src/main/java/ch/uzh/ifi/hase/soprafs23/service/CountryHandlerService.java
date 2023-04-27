@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 
 @Service
 public class CountryHandlerService {
@@ -90,7 +91,7 @@ public class CountryHandlerService {
         }
 
         // Shuffle the list
-        Collections.shuffle(allCountryCodes);
+        Collections.shuffle(allCountryCodes, new Random(0));
 
         // get first numCountries elements
         ArrayList<String> randomCountryCodes = new ArrayList<String>(allCountryCodes.subList(0, numCountries));
