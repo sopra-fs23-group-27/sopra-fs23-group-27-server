@@ -2,15 +2,11 @@ package ch.uzh.ifi.hase.soprafs23.controller;
 
 import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPostDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
-import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
