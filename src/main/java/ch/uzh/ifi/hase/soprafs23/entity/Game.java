@@ -122,6 +122,9 @@ public class Game {
     public void endRound() {
         // end procedure for a round
 
+        // inform players in lobby that game round has ended
+        webSocketService.sendToLobby(this.gameId, "round-end", "Round " + (this.round + 1) + " has ended!");
+
         // compute the time passed since the start of the round in seconds
         Integer passedTime = this.computePassedTime();
 
