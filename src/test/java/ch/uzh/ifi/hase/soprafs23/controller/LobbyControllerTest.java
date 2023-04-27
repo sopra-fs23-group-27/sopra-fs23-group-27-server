@@ -2,9 +2,11 @@ package ch.uzh.ifi.hase.soprafs23.controller;
 
 import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
+import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,13 +22,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -274,7 +279,6 @@ class LobbyControllerTest {
         String testLobbyId = "0";
 
 
-
         // when the mock object (lobbyService) is called do nothing
         doNothing().when(lobbyService).checkIfLobbyIsJoinable(Mockito.any(), Mockito.any());
         doNothing().when(authenticationService).addToAuthenticatedJoins(Mockito.any(), Mockito.any());
@@ -363,6 +367,242 @@ class LobbyControllerTest {
         mockMvc.perform(putRequest)
                 .andExpect(status().isForbidden())
                 .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
+    public void testGetAllPublicLobbies() throws Exception {
+        // given
+        String playerToken = "test-token";
+
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken(playerToken);
+
+        BasicLobby basicLobby = new BasicLobby();
+        basicLobby.setLobbyId(0L);
+        basicLobby.setLobbyName("testLobby");
+        basicLobby.setNumOptions(4);
+        basicLobby.setNumSeconds(30);
+        basicLobby.setIsPublic(true);
+        basicLobby.setLobbyCreatorPlayerToken(player.getToken());
+        basicLobby.addPlayerToLobby(player.getPlayerName());
+
+        AdvancedLobby advancedLobby = new AdvancedLobby();
+        advancedLobby.setLobbyId(0L);
+        advancedLobby.setLobbyName("testLobbyAdvanced");
+        advancedLobby.setHintInterval(4);
+        advancedLobby.setNumSecondsUntilHint(10);
+        advancedLobby.setNumSeconds(30);
+        advancedLobby.setIsPublic(true);
+        advancedLobby.setLobbyCreatorPlayerToken(player.getToken());
+        advancedLobby.addPlayerToLobby(player.getPlayerName());
+
+        List<Lobby> lobbies = new ArrayList<>();
+        lobbies.add(basicLobby);
+        lobbies.add(advancedLobby);
+
+        LobbyGetDTO lobbyGetDTO = new LobbyGetDTO();
+        lobbyGetDTO.setLobbyName("testLobby");
+        lobbyGetDTO.setNumOptions(4);
+        lobbyGetDTO.setNumSeconds(30);
+        lobbyGetDTO.setIsPublic(true);
+        lobbyGetDTO.setLobbyCreatorPlayerToken(player.getToken());
+
+        LobbyGetDTO advancedLobbyGetDTO = new LobbyGetDTO();
+        advancedLobbyGetDTO.setLobbyName("testLobbyAdvanced");
+        advancedLobbyGetDTO.setHintInterval(4);
+        advancedLobbyGetDTO.setNumSecondsUntilHint(10);
+        advancedLobbyGetDTO.setNumSeconds(30);
+        advancedLobbyGetDTO.setIsPublic(true);
+        advancedLobbyGetDTO.setLobbyCreatorPlayerToken(player.getToken());
+
+        List<LobbyGetDTO> lobbyGetDTOs = new ArrayList<>();
+        lobbyGetDTOs.add(lobbyGetDTO);
+        lobbyGetDTOs.add(advancedLobbyGetDTO);
+
+        given(lobbyService.getAllPublicLobbies()).willReturn(lobbies);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder getRequest = get("/lobbies")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].lobbyId", is(basicLobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$[0].lobbyName", is(basicLobby.getLobbyName())))
+                .andExpect(jsonPath("$[0].numOptions", is(basicLobby.getNumOptions())))
+                .andExpect(jsonPath("$[0].numSeconds", is(basicLobby.getNumSeconds())))
+                .andExpect(jsonPath("$[0].isPublic", is(basicLobby.getIsPublic())))
+                .andExpect(jsonPath("$[1].lobbyId", is(advancedLobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$[1].lobbyName", is(advancedLobby.getLobbyName())))
+                .andExpect(jsonPath("$[1].hintInterval", is(advancedLobby.getHintInterval())))
+                .andExpect(jsonPath("$[1].numSecondsUntilHint", is(advancedLobby.getNumSecondsUntilHint())))
+                .andExpect(jsonPath("$[1].numSeconds", is(advancedLobby.getNumSeconds())))
+                .andExpect(jsonPath("$[1].isPublic", is(advancedLobby.getIsPublic())));
+    }
+
+    @Test
+    public void givenBasicLobby_whenGetLobby_returnJSONArray() throws Exception {
+        // given
+        String playerToken = "test-token";
+
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken(playerToken);
+
+        BasicLobby lobby = new BasicLobby();
+        lobby.setLobbyId(0L);
+        lobby.setLobbyName("testLobby");
+        lobby.setNumOptions(4);
+        lobby.setNumSeconds(30);
+        lobby.setIsPublic(true);
+        lobby.setLobbyCreatorPlayerToken(player.getToken());
+        lobby.addPlayerToLobby(player.getPlayerName());
+
+
+        given(lobbyService.getLobbyById(lobby.getLobbyId())).willReturn(lobby);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/0")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lobbyId", is(lobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$.lobbyName", is(lobby.getLobbyName())))
+                .andExpect(jsonPath("$.numOptions", is(lobby.getNumOptions())))
+                .andExpect(jsonPath("$.numSeconds", is(lobby.getNumSeconds())))
+                .andExpect(jsonPath("$.isPublic", is(lobby.getIsPublic())));
+    }
+
+    @Test
+    public void givenAdvancedLobby_whenGetLobby_returnJSONArray() throws Exception {
+        // given
+        String playerToken = "test-token";
+
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken(playerToken);
+
+        AdvancedLobby lobby = new AdvancedLobby();
+        lobby.setLobbyId(0L);
+        lobby.setLobbyName("testLobby");
+        lobby.setHintInterval(4);
+        lobby.setNumSecondsUntilHint(10);
+        lobby.setNumSeconds(30);
+        lobby.setIsPublic(true);
+        lobby.setLobbyCreatorPlayerToken(player.getToken());
+        lobby.addPlayerToLobby(player.getPlayerName());
+
+
+        given(lobbyService.getLobbyById(lobby.getLobbyId())).willReturn(lobby);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/{lobbyId}", lobby.getLobbyId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lobbyId", is(lobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$.lobbyName", is(lobby.getLobbyName())))
+                .andExpect(jsonPath("$.hintInterval", is(lobby.getHintInterval())))
+                .andExpect(jsonPath("$.numSecondsUntilHint", is(lobby.getNumSecondsUntilHint())))
+                .andExpect(jsonPath("$.numSeconds", is(lobby.getNumSeconds())))
+                .andExpect(jsonPath("$.isPublic", is(lobby.getIsPublic())));
+    }
+
+
+    @Test
+    public void testLeaveAdvancedLobby() throws Exception {
+        // given
+        String playerToken = "test-token";
+        String playerToken2 = "test-token2";
+        String playerToken3 = "test-token3";
+
+        Player player1 = new Player();
+        player1.setId(1L);
+        player1.setPassword("password");
+        player1.setPlayerName("testPlayerName1");
+        player1.setToken(playerToken);
+
+        Player player2 = new Player();
+        player2.setId(2L);
+        player2.setPassword("password");
+        player2.setPlayerName("testPlayerName2");
+        player2.setToken(playerToken2);
+
+        Player player3 = new Player();
+        player3.setId(3L);
+        player3.setPassword("password");
+        player3.setPlayerName("testPlayerName3");
+        player3.setToken(playerToken3);
+
+        AdvancedLobby lobby = new AdvancedLobby();
+        lobby.setLobbyId(0L);
+        lobby.setLobbyName("testLobby");
+        lobby.setHintInterval(4);
+        lobby.setNumSecondsUntilHint(10);
+        lobby.setNumSeconds(30);
+        lobby.setIsPublic(true);
+        lobby.setLobbyCreatorPlayerToken(player1.getToken());
+        lobby.addPlayerToLobby(player1.getPlayerName());
+        lobby.addPlayerToLobby(player2.getPlayerName());
+        lobby.addPlayerToLobby(player3.getPlayerName());
+
+
+        // when
+        given(lobbyService.getLobbyById(lobby.getLobbyId())).willReturn(lobby);
+
+        lobby.removePlayerFromLobby(player3.getPlayerName());
+
+        given(lobbyService.leaveLobby(lobby, playerToken3)).willReturn(lobby);
+
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/leave", lobby.getLobbyId().toString())
+                .header("Authorization", playerToken3);
+
+
+        // then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lobbyId", is(lobby.getLobbyId().intValue())))
+                .andExpect(jsonPath("$.lobbyName", is(lobby.getLobbyName())))
+                .andExpect(jsonPath("$.hintInterval", is(lobby.getHintInterval())))
+                .andExpect(jsonPath("$.numSecondsUntilHint", is(lobby.getNumSecondsUntilHint())))
+                .andExpect(jsonPath("$.numSeconds", is(lobby.getNumSeconds())))
+                .andExpect(jsonPath("$.isPublic", is(lobby.getIsPublic())))
+                .andExpect(jsonPath("$.joinedPlayerNames", hasSize(2)));
+    }
+
+    @Test
+    public void testStartGameInLobby() throws Exception {
+        // given
+        String playerToken = "test-token";
+        Long testLobbyId = 0L;
+
+
+        // when the mock object (lobbyService) is called do nothing
+        doNothing().when(lobbyService).startGame(testLobbyId, playerToken);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/start", testLobbyId.toString())
+                .header("Authorization", playerToken);
+
+
+        // then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").doesNotExist());
     }
 
     /**
