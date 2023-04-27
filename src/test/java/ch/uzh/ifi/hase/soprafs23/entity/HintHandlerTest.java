@@ -1,18 +1,18 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
-import ch.uzh.ifi.hase.soprafs23.entity.HintHandler;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
+import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.HintDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +24,9 @@ public class HintHandlerTest {
 
     @Mock
     SimpMessagingTemplate messagingTemplate;
+
+    @Mock
+    WebSocketService webSocketService;
 
     HintHandler hintHandler;
     Country testCountry;
@@ -65,7 +68,10 @@ public class HintHandlerTest {
         // Mock the SimpMessagingTemplate
         messagingTemplate = Mockito.mock(SimpMessagingTemplate.class);
 
-        hintHandler = new HintHandler("CH", 4, 1L, countryRepository, messagingTemplate);
+        // Mock the WebSocketService
+        webSocketService = Mockito.mock(WebSocketService.class);
+
+        hintHandler = new HintHandler("CH", 4, 1L, countryRepository, messagingTemplate, webSocketService);
     }
 
     @Test
@@ -87,20 +93,29 @@ public class HintHandlerTest {
     }
 
     @Test
-    public void testSendHintViaWebSocket() throws Exception {
+    public void testSendHintViaWebSocket() {
         // Call the setHints() method
         hintHandler.setHints();
 
-        // Capture the arguments passed to the convertAndSend method
-        ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> hintCaptor = ArgumentCaptor.forClass(String.class);
-
-        // Call the method
+        // call the sendHintViaWebSocket() method
         hintHandler.sendHintViaWebSocket();
 
-        // Verify that the first hint was sent immediately
-        verify(messagingTemplate).convertAndSend(urlCaptor.capture(), hintCaptor.capture());
-        assertEquals("/topic/games/1/hints-in-round", urlCaptor.getValue());
-        assertEquals("URL=https://flagcdn.com/h240/ch.png", hintCaptor.getValue());
+        // verify that the WebSocketService.sendToLobby() method was called with the first hint immediately
+        verify(webSocketService).sendToLobby(eq(1L), eq("hints-in-round"), any(HintDTO.class));
+    }
+
+    @Test
+    public void testSendHintViaWebSocketTiming() throws InterruptedException {
+        // Call the setHints() method
+        hintHandler.setHints();
+
+        // call the sendHintViaWebSocket() method
+        hintHandler.sendHintViaWebSocket();
+
+        // wait for 20 seconds to ensure all four hints are sent
+        Thread.sleep(20000);
+
+        // verify that sendToLobby was called 3 times with the expected parameters
+        verify(webSocketService, times(4)).sendToLobby(eq(1L), eq("hints-in-round"), any(HintDTO.class));
     }
 }

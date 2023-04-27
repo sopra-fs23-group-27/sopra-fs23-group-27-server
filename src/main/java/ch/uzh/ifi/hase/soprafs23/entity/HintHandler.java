@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
+import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.HintDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -19,16 +21,19 @@ public class HintHandler {
     private Long gameID;
     private final CountryRepository countryRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketService webSocketService;
+
     private List<HashMap.Entry<String, String>> hints;
 
     public HintHandler(String countryCode, int numHints, Long gameID,
                        CountryRepository countryRepository,
-                       SimpMessagingTemplate messagingTemplate) {
+                       SimpMessagingTemplate messagingTemplate, WebSocketService webSocketService) {
         this.countryCode = countryCode;
         this.numHints = numHints;
         this.gameID = gameID;
         this.countryRepository = countryRepository;
         this.messagingTemplate = messagingTemplate;
+        this.webSocketService = webSocketService;
     }
 
     /**
@@ -61,8 +66,8 @@ public class HintHandler {
     public void sendHintViaWebSocket() {
         // send first hint immediately
         String firstHint = hints.remove(0).toString();
-        String hintsURL = String.format("/topic/games/%d/hints-in-round", gameID);
-        messagingTemplate.convertAndSend(hintsURL, firstHint);
+        HintDTO hintDTO = new HintDTO(firstHint);
+        webSocketService.sendToLobby(gameID, "hints-in-round", hintDTO);
 
         // send remaining hints every 5 seconds
         Timer timer = new Timer();
@@ -70,9 +75,10 @@ public class HintHandler {
             @Override
             public void run() {
                 if (!hints.isEmpty()) {
-                    // log.info("SENDING");
+                    // log.info("SENDING HINT");
                     String nextHint = hints.remove(0).toString();
-                    messagingTemplate.convertAndSend(hintsURL, nextHint);
+                    HintDTO hintDTO = new HintDTO(nextHint);
+                    webSocketService.sendToLobby(gameID, "hints-in-round", hintDTO);
 
                 } else {
                     timer.cancel();

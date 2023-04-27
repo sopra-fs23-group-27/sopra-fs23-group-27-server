@@ -106,8 +106,8 @@ public class Game {
         // init hints for new round given country code
         hintHandler = new HintHandler(
                 currentCountryCode, 3, gameId,
-                countryRepository, messagingTemplate
-        );
+                countryRepository, messagingTemplate,
+                webSocketService);
         hintHandler.setHints();
         hintHandler.sendHintViaWebSocket();
 

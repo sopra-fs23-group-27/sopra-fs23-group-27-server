@@ -53,7 +53,7 @@ public class GameService {
 
         GameRepository.addGame(lobby.getLobbyId(), game);
 
-        lobby.setCurrentGameId(game.getGameId().longValue());
+        lobby.setCurrentGameId(game.getGameId());
         lobby = this.lobbyRepository.save(lobby);
         this.lobbyRepository.flush();
 
