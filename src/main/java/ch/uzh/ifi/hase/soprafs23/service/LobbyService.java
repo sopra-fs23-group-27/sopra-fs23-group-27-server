@@ -187,7 +187,8 @@ public class LobbyService {
         }
 
         lobby.setJoinable(false);
-
+        lobby = this.lobbyRepository.save(lobby);
+        this.lobbyRepository.flush();
 
         this.gameService.startGame(lobby);
     }

@@ -17,6 +17,7 @@ import java.util.TimerTask;
 
 @Service
 public class GameService {
+
     private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
@@ -50,7 +51,6 @@ public class GameService {
         this.webSocketService.sendToLobby(lobbyId, "game-start", "{}");
 
         Game game = new Game(countryHandlerService, webSocketService, countryRepository, messagingTemplate, lobby);
-
         GameRepository.addGame(lobby.getLobbyId(), game);
 
         lobby.setCurrentGameId(game.getGameId());
@@ -66,12 +66,10 @@ public class GameService {
     public void startGameLoop(Game game, Lobby lobby) {
         int numRounds = 4;
         Long lobbyId = lobby.getLobbyId();
-
         for (int i = 0; i < numRounds; i++) {
             webSocketService.sendToLobby(lobbyId, "round-start", "Round " + (i + 1) + " has started!");
             game.startRound();
-            startTimer(lobby.getNumSeconds(), game);
-            webSocketService.sendToLobby(lobbyId, "round-end", "Round " + (i + 1) + " has ended!");
+//            startTimer(lobby.getNumSeconds(), game);
         }
     }
 

@@ -75,7 +75,6 @@ public class HintHandler {
             @Override
             public void run() {
                 if (!hints.isEmpty()) {
-                    // log.info("SENDING HINT");
                     String nextHint = hints.remove(0).toString();
                     HintDTO hintDTO = new HintDTO(nextHint);
                     webSocketService.sendToLobby(gameID, "hints-in-round", hintDTO);
