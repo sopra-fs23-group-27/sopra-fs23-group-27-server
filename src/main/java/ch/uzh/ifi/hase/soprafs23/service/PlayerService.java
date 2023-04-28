@@ -34,7 +34,7 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final LobbyRepository lobbyRepository;
-    
+
     private final PlayerStats PlayerStats;
     private WebSocketService webSocketService;
 
@@ -203,7 +203,7 @@ public class PlayerService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Player with token " + dto.getPlayerToken() + " not found. Please authenticate first.");
         }
-        
+
         player.setWsConnectionId(wsConnectionId);
         playerRepository.saveAndFlush(player);
 
@@ -218,10 +218,10 @@ public class PlayerService {
             lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
         }
 
-        webSocketService.sendToPlayerInLobby(wsConnectionId, "/queue/register", lobbyId.toString(), lobbyGetDTO);
+        webSocketService.sendToPlayerInLobby(wsConnectionId, "/register", lobbyId.toString(), lobbyGetDTO);
 
         webSocketService.wait(500);
 
-        webSocketService.sendToLobby(lobbyId, "/queue/lobby", lobbyGetDTO);
+        webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
     }
 }

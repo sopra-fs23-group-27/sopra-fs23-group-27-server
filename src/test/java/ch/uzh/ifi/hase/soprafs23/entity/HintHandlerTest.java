@@ -101,7 +101,7 @@ public class HintHandlerTest {
         hintHandler.sendHintViaWebSocket();
 
         // verify that the WebSocketService.sendToLobby() method was called with the first hint immediately
-        verify(webSocketService).sendToLobby(eq(1L), eq("hints-in-round"), any(HintDTO.class));
+        verify(webSocketService).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
     }
 
     @Test
@@ -116,6 +116,6 @@ public class HintHandlerTest {
         Thread.sleep(20000);
 
         // verify that sendToLobby was called 3 times with the expected parameters
-        verify(webSocketService, times(4)).sendToLobby(eq(1L), eq("hints-in-round"), any(HintDTO.class));
+        verify(webSocketService, times(4)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
     }
 }

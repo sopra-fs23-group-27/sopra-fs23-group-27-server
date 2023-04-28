@@ -117,7 +117,7 @@ class AuthenticationServiceTest {
         // check if the methods are called with the correct arguments
         Mockito.verify(webSocketService).sendToPlayerInLobby(
                 eq("test-websocket-key"),
-                eq("/queue/authentication"),
+                eq("/authentication"),
                 eq(lobbyId.toString()),
                 Mockito.any(WSConnectedDTO.class));
         Mockito.verify(webSocketService).sendToLobby(

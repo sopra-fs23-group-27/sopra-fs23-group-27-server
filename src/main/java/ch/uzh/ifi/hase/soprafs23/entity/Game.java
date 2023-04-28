@@ -123,7 +123,7 @@ public class Game {
         // end procedure for a round
 
         // inform players in lobby that game round has ended
-        webSocketService.sendToLobby(this.gameId, "round-end", "Round " + (this.round + 1) + " has ended!");
+        webSocketService.sendToLobby(this.gameId, "/round-end", "{}");
 
         // compute the time passed since the start of the round in seconds
         Integer passedTime = this.computePassedTime();
@@ -211,7 +211,7 @@ public class Game {
 
 
             // check if all players have submitted the correct guess and the round is over
-            for (String playerNameList  : this.playerNames){
+            for (String playerNameList : this.playerNames) {
                 if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerNameList) == false) {
                     break;
                 }
@@ -226,7 +226,7 @@ public class Game {
         else {
             //if guess is wrong, send GuessDTO to client
             GuessDTO guessDTO = new GuessDTO(playerName, guess);
-            webSocketService.sendToLobby(this.gameId, "guesses", guessDTO);
+            webSocketService.sendToLobby(this.gameId, "/guesses", guessDTO);
 
             // increment the number of wrong guesses by 1
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(

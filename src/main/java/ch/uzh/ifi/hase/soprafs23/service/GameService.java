@@ -48,7 +48,7 @@ public class GameService {
         Long lobbyId = lobby.getLobbyId();
 
         // Inform all players in the lobby that the game has started
-        this.webSocketService.sendToLobby(lobbyId, "game-start", "{}");
+        this.webSocketService.sendToLobby(lobbyId, "/game-start", "{}");
 
         Game game = new Game(countryHandlerService, webSocketService, countryRepository, messagingTemplate, lobby);
         GameRepository.addGame(lobby.getLobbyId(), game);
@@ -60,14 +60,14 @@ public class GameService {
         startGameLoop(game, lobby);
 
         // Inform all players in the lobby that the game has ended
-        this.webSocketService.sendToLobby(lobbyId, "game-end", "{}");
+        this.webSocketService.sendToLobby(lobbyId, "/game-end", "{}");
     }
 
     public void startGameLoop(Game game, Lobby lobby) {
         int numRounds = 4;
         Long lobbyId = lobby.getLobbyId();
         for (int i = 0; i < numRounds; i++) {
-            webSocketService.sendToLobby(lobbyId, "round-start", "Round " + (i + 1) + " has started!");
+            webSocketService.sendToLobby(lobbyId, "/round-start", "{}");
             game.startRound();
 //            startTimer(lobby.getNumSeconds(), game);
         }

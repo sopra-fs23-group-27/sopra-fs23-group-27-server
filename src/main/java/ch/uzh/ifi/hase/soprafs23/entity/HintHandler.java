@@ -67,7 +67,7 @@ public class HintHandler {
         // send first hint immediately
         String firstHint = hints.remove(0).toString();
         HintDTO hintDTO = new HintDTO(firstHint);
-        webSocketService.sendToLobby(gameID, "hints-in-round", hintDTO);
+        webSocketService.sendToLobby(gameID, "/hints-in-round", hintDTO);
 
         // send remaining hints every 5 seconds
         Timer timer = new Timer();
@@ -77,9 +77,10 @@ public class HintHandler {
                 if (!hints.isEmpty()) {
                     String nextHint = hints.remove(0).toString();
                     HintDTO hintDTO = new HintDTO(nextHint);
-                    webSocketService.sendToLobby(gameID, "hints-in-round", hintDTO);
+                    webSocketService.sendToLobby(gameID, "/hints-in-round", hintDTO);
 
-                } else {
+                }
+                else {
                     timer.cancel();
                 }
             }
