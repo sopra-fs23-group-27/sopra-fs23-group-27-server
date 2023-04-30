@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
@@ -19,7 +21,7 @@ public class Game {
     // here, the game logic is implemented
 
     // add Logger
-    private final Logger log = LoggerFactory.getLogger(CountryHandlerService.class);
+    private final Logger log = LoggerFactory.getLogger(Game.class);
 
     private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
@@ -33,12 +35,14 @@ public class Game {
     private Country currentCountry;
     private String correctGuess;
     private Integer round;
+    private Integer numRounds;
     private Long gameId;
     private ArrayList<String> playerNames;
     private Lobby lobby;
 
     private Long startTime;
     private int numSeconds;
+    private Timer timer;
 
     public Game(CountryHandlerService countryHandlerService,
                 WebSocketService webSocketService, CountryRepository countryRepository,
@@ -52,6 +56,7 @@ public class Game {
         this.messagingTemplate = messagingTemplate;
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
+        this.numRounds = 4;
 
         this.gameId = lobby.getLobbyId();
 
@@ -59,48 +64,39 @@ public class Game {
 
         // convert to ArrayList<String>
         ArrayList<String> playerNamesArrayList = new ArrayList<String>();
-        for (int i = 0; i < playerNames.size(); i++) {
-            playerNamesArrayList.add((String) playerNames.get(i));
+        for (Object playerName : playerNames) {
+            playerNamesArrayList.add((String) playerName);
         }
         this.playerNames = playerNamesArrayList;
+        log.info("New game created with playerNames: " + playerNamesArrayList);
 
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
         this.round = 0;
 
-        // TESTING
-        // ArrayList<String> playerNames = new ArrayList<String>();
-        // playerNames.add("Player1");
-        // playerNames.add("Player2");
-        // playerNames.add("Player3");
-        // playerNames.add("Player4");
-        // this.playerNames = playerNames;
-
-        // initialize ScoreBoard (UNCOMMENT THIS LINE AS SOON AS THE LOBBY PROVIDES A
-        // LIST OF PLAYER NAMES FOR THE GAME)
         this.scoreBoard = new ScoreBoard(this.playerNames);
-
-        // startRound();
-        // log.info(allCountryCodes.toString());
-        // log.info(this.correctGuess);
-        // log.info("test1");
-        // log.info(this.round.toString());
-
-        // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
-
-        // endRound();
-        // log.info("test2");
-        // log.info(this.round.toString());
-        // log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1").toString());
-        // log.info(this.scoreBoard.getTotalCorrectGuessesPerPlayer("Player2").toString());
 
     }
 
+    public void startGame() {
+        log.info("Game loop started for lobbyId: " + this.gameId);
+        startRound();
+    }
+
+    public void endGame() {
+        // Inform all players in the lobby that the game has ended
+        log.info("Game loop ended for lobbyId: " + this.gameId);
+        this.webSocketService.sendToLobby(this.gameId, "/game-end", "{}");
+    }
+
     public void startRound() {
+        startTimer(this.numSeconds, this);
+        webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
+        log.info("Round " + (this.round + 1) + " started for lobbyId: " + this.gameId);
+
         String currentCountryCode = this.allCountryCodes.get(this.round);
-        log.info("test0");
-        log.info(currentCountryCode);
         updateCorrectGuess(currentCountryCode);
+        log.info("Correct guess for round " + (this.round + 1) + " is: " + this.correctGuess);
         // init procedure for a new round
 
         // init hints for new round given country code
@@ -120,7 +116,10 @@ public class Game {
     }
 
     public void endRound() {
+        // Stop the timer
+        this.stopTimer();
         // end procedure for a round
+        log.info("Round " + (this.round + 1) + " ended for lobbyId: " + this.gameId);
 
         // inform players in lobby that game round has ended
         webSocketService.sendToLobby(this.gameId, "/round-end", "{}");
@@ -134,7 +133,7 @@ public class Game {
         // guesses to 0
         // REPLACE WITH: for (String playerName : this.Lobby.getPlayers()) {
         for (String playerName : this.playerNames) {
-            if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName) == false) {
+            if (!this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName)) {
                 // This is a very ugly solution, but it works for now
                 // the function getCurrentCorrectGuessPerPlayer cannot return null, as null is 
                 // not a valid Boolean value. Therefore, if the player has not yet guessed,
@@ -158,6 +157,8 @@ public class Game {
         // computes the LeaderBoardScore for each player for the current round and total rounds
         // NOTE: ALL GETTERS FOR THE CURRENT AND TOTAL LEADERBOARD CAN ONLY BE USED FROM NOW ON
         this.scoreBoard.computeLeaderBoardScore();
+        log.info("Current LeaderBoard: ");
+        log.info(this.scoreBoard.getLeaderBoardTotalScore());
 
         // this.scoreBoard.updateTotalScores();
         resetCorrectGuess();
@@ -170,6 +171,15 @@ public class Game {
 
         // prepare the counter for the next round
         this.round++;
+
+        // start the next round
+        if (this.round < this.numRounds) {
+            this.startRound();
+        }
+        // end the game if the last round has been played
+        else {
+            this.endGame();
+        }
     }
 
     public void updateCorrectGuess(String countryCode) {
@@ -197,6 +207,8 @@ public class Game {
         // remove all whitespaces and make it lowercase
         guess = guess.toLowerCase();
         guess = guess.replaceAll("\\s+", "");
+        log.info("cleaned guess is: " + guess);
+        log.info("correct guess is: " + this.correctGuess);
 
         if (guess.equals(this.correctGuess)) {
 
@@ -205,18 +217,21 @@ public class Game {
 
             // write time of player to scoreBoard
             this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+            log.info(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName).toString());
 
             // write correct guess to scoreBoard
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, true);
+            log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName).toString());
 
 
             // check if all players have submitted the correct guess and the round is over
             for (String playerNameList : this.playerNames) {
-                if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerNameList) == false) {
+                if (!this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerNameList)) {
                     break;
                 }
                 else {
                     // if all players have submitted the correct guess, end the round
+                    log.info("all players have submitted the correct guess; end of round");
                     this.endRound();
                 }
             }
@@ -267,5 +282,20 @@ public class Game {
 
     private void resetStartTime() {
         this.startTime = null;
+    }
+
+    public void startTimer(int seconds, Game game) {
+        this.timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                game.endRound();
+            }
+        };
+        this.timer.schedule(timerTask, seconds * 1000L);
+    }
+
+    public void stopTimer() {
+        this.timer.cancel();
     }
 }
