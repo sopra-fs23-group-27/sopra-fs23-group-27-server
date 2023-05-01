@@ -7,6 +7,7 @@ import java.util.TimerTask;
 
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,8 +185,14 @@ public class Game {
         log.info("Current LeaderBoard: ");
         log.info(this.scoreBoard.getLeaderBoardTotalScore());
 
+        // send the total LeaderBoard to the lobby
+        this.sendStatsToLobby();
+
+        // TODO: sleep the system for 5 seconds to give the players time to read the stats
+        
+
         // this.scoreBoard.updateTotalScores();
-        resetCorrectGuess();
+        this.resetCorrectGuess();
 
         // RESET all the current scores in the ScoreBoard
         this.scoreBoard.resetAllCurrentScores();
@@ -321,5 +328,34 @@ public class Game {
 
     public void stopTimer() {
         this.timer.cancel();
+    }
+
+    public void sendStatsToLobby(){
+
+        // Init Arrays for the mapping into a JSON object
+        ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
+        ArrayList<Integer> TotalCorrectGuesses = new ArrayList<Integer>();
+        ArrayList<Integer> TotalTimeUntilCorrectGuess = new ArrayList<Integer>();
+        ArrayList<Integer> TotalWrongGuesses = new ArrayList<Integer>();
+
+        // Fill the Arrays with the data from the ScoreBoard
+        this.playerNames.forEach(playerName -> {
+            TotalGameScores.add(this.scoreBoard.getLeaderBoardTotalScorePerPlayer(playerName));
+            TotalCorrectGuesses.add(this.scoreBoard.getTotalCorrectGuessesPerPlayer(playerName));
+            TotalTimeUntilCorrectGuess.add(this.scoreBoard.getTotalTimeUntilCorrectGuessPerPlayer(playerName));
+            TotalWrongGuesses.add(this.scoreBoard.getTotalNumberOfWrongGuessesPerPlayer(playerName));
+        });
+
+        // Create a new GameStatsDTO object with the data from the ScoreBoard
+        GameStatsDTO gameStatsDTO = new GameStatsDTO(
+            this.playerNames,
+            TotalGameScores,
+            TotalCorrectGuesses,
+            TotalTimeUntilCorrectGuess,
+            TotalWrongGuesses
+        );
+
+        // send the game stats to the players
+        webSocketService.sendToLobby(this.gameId, "/score-board", gameStatsDTO);
     }
 }
