@@ -1,12 +1,9 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
-import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.HintDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.HintDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.FlagDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

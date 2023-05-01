@@ -4,8 +4,7 @@ import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.exceptions.PlayerServiceException;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.WSConnectedDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.WSConnectedDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Handles authentication / registration dance

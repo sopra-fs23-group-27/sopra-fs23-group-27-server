@@ -3,7 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.HintDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.HintDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.FlagDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
