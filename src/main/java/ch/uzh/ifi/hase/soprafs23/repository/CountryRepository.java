@@ -15,4 +15,7 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
     public Country findByCountryCode(String countryCode);
 
     public ArrayList<Country> findAll();
+
+    @Query("SELECT c.name FROM Country c")
+    public List<String> getAllCountryNames();
 }

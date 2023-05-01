@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.ChoicesDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.HintDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.FlagDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 
 import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,6 +32,7 @@ public class HintHandlerTest {
 
     HintHandler hintHandler;
     Country testCountry;
+    List<String> testCountryNamesList;
     private Lobby basicLobby;
     private Lobby advancedLobby;
 
@@ -62,10 +66,20 @@ public class HintHandlerTest {
         testCountry.setPopulationDensity(-9999);
         testCountry.setInternetUsers(-9999);
 
+        testCountryNamesList = new ArrayList<>();
+        testCountryNamesList.add("Switzerland");
+        testCountryNamesList.add("Germany");
+        testCountryNamesList.add("France");
+        testCountryNamesList.add("Italy");
+        testCountryNamesList.add("Spain");
+        testCountryNamesList.add("Austria");
+        testCountryNamesList.add("United Kingdom");
+        testCountryNamesList.add("United States");
 
         // Mock the CountryRepository
         countryRepository = Mockito.mock(CountryRepository.class);
         when(countryRepository.findByCountryCode(Mockito.anyString())).thenReturn(testCountry);
+        when(countryRepository.getAllCountryNames()).thenReturn(testCountryNamesList);
 
         // Mock the SimpMessagingTemplate
         messagingTemplate = Mockito.mock(SimpMessagingTemplate.class);
@@ -168,10 +182,11 @@ public class HintHandlerTest {
         // wait for 20 seconds to ensure all four hints are sent
         Thread.sleep(10000);
 
-        // verify that no hints were sent
+        // verify that the WebSocketService.sendToLobby() method was called immediately and sent flag and n options
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
+        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/choices-in-round"), any(ChoicesDTO.class));
+        // verify that no hints were sent
         verify(webSocketService, times(0)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
-
     }
 
     @Test
@@ -198,5 +213,7 @@ public class HintHandlerTest {
         // verify that sendToLobby was called 3 times with the expected parameters
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
         verify(webSocketService, times(3)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
+        // verify that no option were sent
+        verify(webSocketService, times(0)).sendToLobby(eq(1L), eq("/choices-in-round"), any(ChoicesDTO.class));
     }
 }

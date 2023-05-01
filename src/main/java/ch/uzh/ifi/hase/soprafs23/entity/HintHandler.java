@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.ChoicesDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.HintDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.FlagDTO;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class HintHandler {
     private Lobby lobby;
     private Long lobbyId;
     private int numHints;
+    private int numChoices;
 
     private final CountryRepository countryRepository;
     private final WebSocketService webSocketService;
@@ -34,6 +36,7 @@ public class HintHandler {
         this.lobby = lobby;
         this.lobbyId = lobby.getLobbyId();
         this.numHints = determineNumHints(lobby);
+        this.numChoices = determineNumOptions(lobby);
         this.countryRepository = countryRepository;
         this.webSocketService = webSocketService;
     }
@@ -77,14 +80,18 @@ public class HintHandler {
             startSendingHints(((AdvancedLobby) lobby).getNumSecondsUntilHint(),
                             ((AdvancedLobby) lobby).getHintInterval());
         }
+        // if game is in basic mode, provide n options immediately
+        else {
+            sendChoices();
+        }
     }
+
 
     public void stopSendingHints() {
         this.timer.cancel();
     }
 
     private int determineNumHints(Lobby lobby) {
-        String gameMode = lobby.getMode();
         // set variables depending on lobby type
         if (lobby instanceof AdvancedLobby) {
             int numSeconds = ((AdvancedLobby) lobby).getNumSeconds();
@@ -95,6 +102,17 @@ public class HintHandler {
             int nHints = ((numSeconds - numSecondsUntilHint) / hintInterval) + 1;
 
             return nHints;
+        }
+        else {
+            return 1;
+        }
+    }
+
+    private int determineNumOptions(Lobby lobby) {
+        // set variables depending on lobby type
+        if (lobby instanceof BasicLobby) {
+            int numChoices = ((BasicLobby) lobby).getNumOptions();
+            return numChoices;
         }
         else {
             return 1;
@@ -197,6 +215,11 @@ public class HintHandler {
         return flagURL;
     }
 
+    /**
+     * Sends hints to client given the country, the number of hints and the hint frequency
+     *
+     * @return HashMap of URL
+     */
     private void startSendingHints(int delay, int period) {
         this.timer = new Timer();
         TimerTask timerTask = new TimerTask() {
@@ -217,5 +240,28 @@ public class HintHandler {
         this.timer.schedule(timerTask, delay * 1000L, period * 1000L);
     }
 
+    /**
+     * Sends choices to client given the country, the number of choices
+     *
+     */
+    private void sendChoices() {
+        Country countryLookedFor = countryRepository.findByCountryCode(countryCode);
+
+        // get all country names except the one looked for
+        List<String> countryNamesList = countryRepository.getAllCountryNames();
+        countryNamesList.remove(countryLookedFor.getName());
+
+        // shuffle list and get first n elements (n = numChoices - 1)
+        Collections.shuffle(countryNamesList);
+        List<String> choices = countryNamesList.subList(0, numChoices-1);
+
+        // add country looked for to choices and shuffle again
+        choices.add(countryLookedFor.getName());
+        Collections.shuffle(choices);
+
+        // send choices via websocket
+        ChoicesDTO choicesDTO = new ChoicesDTO(choices);
+        webSocketService.sendToLobby(lobbyId, "/choices-in-round", choicesDTO);
+    }
 }
 
