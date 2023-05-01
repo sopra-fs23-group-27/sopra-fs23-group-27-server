@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import org.slf4j.Logger;
@@ -43,6 +44,10 @@ public class Game {
     private Long startTime;
     private int numSeconds;
     private Timer timer;
+    private int numSecondsUntilHint;
+    private int hintInterval;
+    private int maxNumGuesses;
+    private int numOptions;
 
     public Game(CountryHandlerService countryHandlerService,
                 WebSocketService webSocketService, CountryRepository countryRepository,
@@ -58,6 +63,17 @@ public class Game {
         this.numSeconds = lobby.getNumSeconds();
         this.numRounds = 4;
 
+        // set variables depending on lobby type
+        if (lobby instanceof BasicLobby) {
+            this.numOptions = ((BasicLobby) lobby).getNumOptions();
+        }
+        else if (lobby instanceof AdvancedLobby) {
+            this.numSecondsUntilHint = ((AdvancedLobby) lobby).getNumSecondsUntilHint();
+            this.hintInterval = ((AdvancedLobby) lobby).getHintInterval();
+            this.maxNumGuesses = ((AdvancedLobby) lobby).getMaxNumGuesses();
+        }
+
+
         this.gameId = lobby.getLobbyId();
 
         List playerNames = lobby.getJoinedPlayerNames();
@@ -69,6 +85,13 @@ public class Game {
         }
         this.playerNames = playerNamesArrayList;
         log.info("New game created with playerNames: " + playerNamesArrayList);
+        log.info("New game created with following game settings:");
+        log.info("- numSeconds: " + this.numSeconds);
+        log.info("- numRounds: " + this.numRounds);
+        log.info("- numOptions: " + this.numOptions);
+        log.info("- numSecondsUntilHint: " + this.numSecondsUntilHint);
+        log.info("- hintInterval: " + this.hintInterval);
+        log.info("- maxNumGuesses: " + this.maxNumGuesses);
 
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1
@@ -105,7 +128,7 @@ public class Game {
                 countryRepository, messagingTemplate,
                 webSocketService);
         hintHandler.setHints();
-        hintHandler.sendHintViaWebSocket();
+        hintHandler.sendHintViaWebSocket(this.numSecondsUntilHint, this.hintInterval);
 
 
         // start the timer
@@ -117,7 +140,9 @@ public class Game {
 
     public void endRound() {
         // Stop the timer
+        hintHandler.stopTimer();
         this.stopTimer();
+
         // end procedure for a round
         log.info("Round " + (this.round + 1) + " ended for lobbyId: " + this.gameId);
 

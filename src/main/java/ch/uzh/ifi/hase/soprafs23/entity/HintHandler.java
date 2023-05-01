@@ -24,6 +24,7 @@ public class HintHandler {
     private final WebSocketService webSocketService;
 
     private List<HashMap.Entry<String, String>> hints;
+    private Timer timer;
 
     public HintHandler(String countryCode, int numHints, Long gameID,
                        CountryRepository countryRepository,
@@ -63,20 +64,27 @@ public class HintHandler {
      * only be sent if the roundStarted flag is set to true, and the hints
      * list is not null and not empty.
      */
-    public void sendHintViaWebSocket() {
+    public void sendHintViaWebSocket(int firstHintAfter, int hintInterval) {
         // send first hint immediately
         String firstHint = hints.remove(0).toString();
         HintDTO hintDTO = new HintDTO(firstHint);
+        log.info("FLAG-URL: " + firstHint);
         webSocketService.sendToLobby(gameID, "/hints-in-round", hintDTO);
 
-        // send remaining hints every 5 seconds
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        // send remaining hints every hintInterval seconds starting after firstHintAfter seconds
+        startTimer(firstHintAfter, hintInterval);
+
+    }
+
+    public void startTimer(int delay, int period) {
+        this.timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 if (!hints.isEmpty()) {
                     String nextHint = hints.remove(0).toString();
                     HintDTO hintDTO = new HintDTO(nextHint);
+                    log.info("Hint: " + nextHint);
                     webSocketService.sendToLobby(gameID, "/hints-in-round", hintDTO);
 
                 }
@@ -84,7 +92,12 @@ public class HintHandler {
                     timer.cancel();
                 }
             }
-        }, 5000, 5000);
+        };
+        this.timer.schedule(timerTask, delay * 1000L, period * 1000L);
+    }
+
+    public void stopTimer() {
+        this.timer.cancel();
     }
 
     /**

@@ -98,7 +98,7 @@ public class HintHandlerTest {
         hintHandler.setHints();
 
         // call the sendHintViaWebSocket() method
-        hintHandler.sendHintViaWebSocket();
+        hintHandler.sendHintViaWebSocket(5, 5);
 
         // verify that the WebSocketService.sendToLobby() method was called with the first hint immediately
         verify(webSocketService).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
@@ -110,7 +110,7 @@ public class HintHandlerTest {
         hintHandler.setHints();
 
         // call the sendHintViaWebSocket() method
-        hintHandler.sendHintViaWebSocket();
+        hintHandler.sendHintViaWebSocket(5, 5);
 
         // wait for 20 seconds to ensure all four hints are sent
         Thread.sleep(20000);
