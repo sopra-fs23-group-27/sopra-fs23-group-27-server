@@ -2,7 +2,7 @@ package ch.uzh.ifi.hase.soprafs23.controller;
 
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.AuthenticateDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;

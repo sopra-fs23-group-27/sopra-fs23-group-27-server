@@ -50,7 +50,7 @@ public class GameService {
         // Inform all players in the lobby that the game has started
         this.webSocketService.sendToLobby(lobbyId, "/game-start", "{}");
 
-        Game game = new Game(countryHandlerService, webSocketService, countryRepository, messagingTemplate, lobby);
+        Game game = new Game(countryHandlerService, webSocketService, countryRepository, lobby);
         GameRepository.addGame(lobby.getLobbyId(), game);
 
         lobby.setCurrentGameId(game.getGameId());

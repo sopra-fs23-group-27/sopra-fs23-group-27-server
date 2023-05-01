@@ -65,7 +65,7 @@ public class ScoreBoardTest {
     public void testWrongSetCurrentTimeUntilCorrectGuessPerPlayer(){
 
         // why does this return null? --> because we use getOrDefault and the default value is null
-        assertEquals(0, this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
+        assertEquals(0,this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
     }
 
     @Test
