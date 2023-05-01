@@ -1,17 +1,19 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.HintDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.FlagDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.AbstractMap;
 
 import static org.mockito.Mockito.*;
@@ -30,6 +32,8 @@ public class HintHandlerTest {
 
     HintHandler hintHandler;
     Country testCountry;
+    private Lobby basicLobby;
+    private Lobby advancedLobby;
 
     @InjectMocks
     CountryHandlerService countryHandlerService;
@@ -61,6 +65,7 @@ public class HintHandlerTest {
         testCountry.setPopulationDensity(-9999);
         testCountry.setInternetUsers(-9999);
 
+
         // Mock the CountryRepository
         countryRepository = Mockito.mock(CountryRepository.class);
         when(countryRepository.findByCountryCode(Mockito.anyString())).thenReturn(testCountry);
@@ -71,11 +76,44 @@ public class HintHandlerTest {
         // Mock the WebSocketService
         webSocketService = Mockito.mock(WebSocketService.class);
 
-        hintHandler = new HintHandler("CH", 4, 1L, countryRepository, messagingTemplate, webSocketService);
     }
 
     @Test
-    public void testSetHints() {
+    public void testSetHints_BasicMode() {
+        basicLobby = new BasicLobby();
+        basicLobby.setLobbyName("testBasicLobby");
+        basicLobby.setIsPublic(true);
+        basicLobby.setNumSeconds(10);
+        ((BasicLobby) basicLobby).setNumOptions(4);
+
+        hintHandler = new HintHandler("CH", basicLobby,  countryRepository, webSocketService);
+
+        // Call the setHints() method
+        hintHandler.setHints();
+
+        // Assert that the hints list is not nulll and has the correct size
+        // and contains the correct attributes
+        assertNotNull(hintHandler.getHints());
+        assertEquals(1, hintHandler.getHints().size());
+
+        // test content of list
+        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("URL", "https://flagcdn.com/h240/ch.png")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Capital", "Bern")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8000000")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "CHF")));
+    }
+
+    @Test
+    public void testSetHints_AdvancedMode() {
+        advancedLobby = new AdvancedLobby();
+        advancedLobby.setLobbyName("testBasicLobby");
+        advancedLobby.setIsPublic(true);
+        advancedLobby.setNumSeconds(20);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
+        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+
+        hintHandler = new HintHandler("CH", advancedLobby,  countryRepository, webSocketService);
+
         // Call the setHints() method
         hintHandler.setHints();
 
@@ -89,33 +127,79 @@ public class HintHandlerTest {
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Capital", "Bern")));
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8000000")));
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "CHF")));
-
     }
 
     @Test
-    public void testSendHintViaWebSocket() {
+    public void testSendRequiredDetailsViaWebSocket() {
+        advancedLobby = new AdvancedLobby();
+        advancedLobby.setLobbyId(1L);
+        advancedLobby.setLobbyName("testAdvancedLobby");
+        advancedLobby.setIsPublic(true);
+        advancedLobby.setNumSeconds(20);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
+        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+
+        hintHandler = new HintHandler("CH", advancedLobby,  countryRepository, webSocketService);
+
         // Call the setHints() method
         hintHandler.setHints();
 
         // call the sendHintViaWebSocket() method
-        hintHandler.sendHintViaWebSocket(5, 5);
+        hintHandler.sendRequiredDetailsViaWebSocket();
 
-        // verify that the WebSocketService.sendToLobby() method was called with the first hint immediately
-        verify(webSocketService).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
+        // verify that the WebSocketService.sendToLobby() method was called immediately amd sent flag
+        verify(webSocketService).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
     }
 
     @Test
-    public void testSendHintViaWebSocketTiming() throws InterruptedException {
+    public void testSendRequiredDetailsViaWebSocketTiming_BasicMode() throws InterruptedException {
+        basicLobby = new BasicLobby();
+        basicLobby.setLobbyId(1L);
+        basicLobby.setLobbyName("testBasicLobby");
+        basicLobby.setIsPublic(true);
+        basicLobby.setNumSeconds(10);
+        ((BasicLobby) basicLobby).setNumOptions(4);
+
+        hintHandler = new HintHandler("CH", basicLobby,  countryRepository, webSocketService);
+
         // Call the setHints() method
         hintHandler.setHints();
 
         // call the sendHintViaWebSocket() method
-        hintHandler.sendHintViaWebSocket(5, 5);
+        hintHandler.sendRequiredDetailsViaWebSocket();
+
+        // wait for 20 seconds to ensure all four hints are sent
+        Thread.sleep(10000);
+
+        // verify that no hints were sent
+        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
+        verify(webSocketService, times(0)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
+
+    }
+
+    @Test
+    public void testSendRequiredDetailsViaWebSocketTiming_AdvancedMode() throws InterruptedException {
+        advancedLobby = new AdvancedLobby();
+        advancedLobby.setLobbyId(1L);
+        advancedLobby.setLobbyName("testAdvancedLobby");
+        advancedLobby.setIsPublic(true);
+        advancedLobby.setNumSeconds(20);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
+        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+
+        hintHandler = new HintHandler("CH", advancedLobby,  countryRepository, webSocketService);
+
+        // Call the setHints() method
+        hintHandler.setHints();
+
+        // call the sendHintViaWebSocket() method
+        hintHandler.sendRequiredDetailsViaWebSocket();
 
         // wait for 20 seconds to ensure all four hints are sent
         Thread.sleep(20000);
 
         // verify that sendToLobby was called 3 times with the expected parameters
-        verify(webSocketService, times(4)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
+        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
+        verify(webSocketService, times(3)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
     }
 }

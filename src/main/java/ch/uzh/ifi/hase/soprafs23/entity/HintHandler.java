@@ -4,9 +4,9 @@ import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.HintDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.FlagDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.*;
 
@@ -17,23 +17,24 @@ public class HintHandler {
     private final Logger log = LoggerFactory.getLogger(CountryHandlerService.class);
 
     private String countryCode;
+
+    private Lobby lobby;
+    private Long lobbyId;
     private int numHints;
-    private Long gameID;
+
     private final CountryRepository countryRepository;
-    private final SimpMessagingTemplate messagingTemplate;
     private final WebSocketService webSocketService;
 
     private List<HashMap.Entry<String, String>> hints;
     private Timer timer;
 
-    public HintHandler(String countryCode, int numHints, Long gameID,
-                       CountryRepository countryRepository,
-                       SimpMessagingTemplate messagingTemplate, WebSocketService webSocketService) {
+    public HintHandler(String countryCode, Lobby lobby, CountryRepository countryRepository,
+                       WebSocketService webSocketService) {
         this.countryCode = countryCode;
-        this.numHints = numHints;
-        this.gameID = gameID;
+        this.lobby = lobby;
+        this.lobbyId = lobby.getLobbyId();
+        this.numHints = determineNumHints(lobby);
         this.countryRepository = countryRepository;
-        this.messagingTemplate = messagingTemplate;
         this.webSocketService = webSocketService;
     }
 
@@ -55,49 +56,49 @@ public class HintHandler {
     }
 
     /**
-     * The sendHintViaWebSocket method is a scheduled task that is executed
-     * every five seconds. This method first checks if roundStarted is true,
+     * The sendRequiredDetailsViaWebSocket method is a scheduled task that is executed
+     * every five seconds. The method first checks if roundStarted is true,
      * and if the hints list is not null and not empty. If all of these
      * conditions are true, it removes the first hint from the list, converts
-     * it to a string, and sends it via the WebSocket using the
-     * convertAndSend method of SimpMessagingTemplate. This way, a hint will
+     * it to a string, and sends it via the WebSocket. This way, a hint will
      * only be sent if the roundStarted flag is set to true, and the hints
      * list is not null and not empty.
      */
-    public void sendHintViaWebSocket(int firstHintAfter, int hintInterval) {
-        // send first hint immediately
-        String firstHint = hints.remove(0).toString();
-        HintDTO hintDTO = new HintDTO(firstHint);
-        log.info("FLAG-URL: " + firstHint);
-        webSocketService.sendToLobby(gameID, "/hints-in-round", hintDTO);
+    public void sendRequiredDetailsViaWebSocket() {
+        // send url of flag immediately
+        String url = hints.remove(0).toString();
+        FlagDTO flagDTO = new FlagDTO(url);
+        log.info("FLAG-URL: " + url);
+        webSocketService.sendToLobby(lobbyId, "/flag-in-round", flagDTO);
 
-        // send remaining hints every hintInterval seconds starting after firstHintAfter seconds
-        startTimer(firstHintAfter, hintInterval);
-
+        // if game mode is advanced, send remaining hints every hintInterval
+        // seconds starting after firstHintAfter seconds
+        if (lobby instanceof AdvancedLobby) {
+            startSendingHints(((AdvancedLobby) lobby).getNumSecondsUntilHint(),
+                            ((AdvancedLobby) lobby).getHintInterval());
+        }
     }
 
-    public void startTimer(int delay, int period) {
-        this.timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (!hints.isEmpty()) {
-                    String nextHint = hints.remove(0).toString();
-                    HintDTO hintDTO = new HintDTO(nextHint);
-                    log.info("Hint: " + nextHint);
-                    webSocketService.sendToLobby(gameID, "/hints-in-round", hintDTO);
-
-                }
-                else {
-                    timer.cancel();
-                }
-            }
-        };
-        this.timer.schedule(timerTask, delay * 1000L, period * 1000L);
-    }
-
-    public void stopTimer() {
+    public void stopSendingHints() {
         this.timer.cancel();
+    }
+
+    private int determineNumHints(Lobby lobby) {
+        String gameMode = lobby.getMode();
+        // set variables depending on lobby type
+        if (lobby instanceof AdvancedLobby) {
+            int numSeconds = ((AdvancedLobby) lobby).getNumSeconds();
+            int numSecondsUntilHint = ((AdvancedLobby) lobby).getNumSecondsUntilHint();
+            int hintInterval = ((AdvancedLobby) lobby).getHintInterval();
+
+            // user integer division to determine number of hints, add 1 to account for flag
+            int nHints = ((numSeconds - numSecondsUntilHint) / hintInterval) + 1;
+
+            return nHints;
+        }
+        else {
+            return 1;
+        }
     }
 
     /**
@@ -194,6 +195,26 @@ public class HintHandler {
         // add attributes of this country to list
         flagURL.put("URL", country.getFlag());
         return flagURL;
+    }
+
+    private void startSendingHints(int delay, int period) {
+        this.timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (!hints.isEmpty()) {
+                    String nextHint = hints.remove(0).toString();
+                    HintDTO hintDTO = new HintDTO(nextHint);
+                    log.info("Hint: " + nextHint);
+                    webSocketService.sendToLobby(lobbyId, "/hints-in-round", hintDTO);
+
+                }
+                else {
+                    timer.cancel();
+                }
+            }
+        };
+        this.timer.schedule(timerTask, delay * 1000L, period * 1000L);
     }
 
 }

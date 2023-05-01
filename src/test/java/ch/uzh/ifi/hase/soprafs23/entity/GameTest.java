@@ -53,7 +53,7 @@ public class GameTest {
     public void testCorrectValidateGuess(){
         
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
 
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -75,7 +75,7 @@ public class GameTest {
     public void testCorrectValidateGuessWithSpace(){
             
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
     
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -95,7 +95,7 @@ public class GameTest {
     public void testLowerspacedInputValidateGuess(){
                 
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
         
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -116,7 +116,7 @@ public class GameTest {
     public void testWrongValidateGuess(){
             
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
     
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -138,7 +138,7 @@ public class GameTest {
         when(this.countryRepository.findByCountryCode(anyString())).thenReturn(testCountry);
         
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
 
         // override attribute correctGuess
         ReflectionTestUtils.setField(game, "correctGuess", "ch");

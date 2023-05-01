@@ -27,7 +27,6 @@ public class Game {
     private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
-    private final SimpMessagingTemplate messagingTemplate;
 
     private ScoreBoard scoreBoard;
     private HintHandler hintHandler;
@@ -38,6 +37,7 @@ public class Game {
     private Integer round;
     private Integer numRounds;
     private Long gameId;
+    private String gameMode;
     private ArrayList<String> playerNames;
     private Lobby lobby;
 
@@ -51,14 +51,12 @@ public class Game {
 
     public Game(CountryHandlerService countryHandlerService,
                 WebSocketService webSocketService, CountryRepository countryRepository,
-                SimpMessagingTemplate messagingTemplate,
                 Lobby lobby) {
 
         this.countryHandlerService = countryHandlerService;
         this.webSocketService = webSocketService;
         this.countryRepository = countryRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
-        this.messagingTemplate = messagingTemplate;
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
         this.numRounds = 4;
@@ -75,6 +73,7 @@ public class Game {
 
 
         this.gameId = lobby.getLobbyId();
+        this.gameMode = lobby.getMode();
 
         List playerNames = lobby.getJoinedPlayerNames();
 
@@ -124,11 +123,11 @@ public class Game {
 
         // init hints for new round given country code
         hintHandler = new HintHandler(
-                currentCountryCode, 3, gameId,
-                countryRepository, messagingTemplate,
-                webSocketService);
+                currentCountryCode, lobby, countryRepository, webSocketService
+        );
         hintHandler.setHints();
-        hintHandler.sendHintViaWebSocket(this.numSecondsUntilHint, this.hintInterval);
+
+        hintHandler.sendRequiredDetailsViaWebSocket();
 
 
         // start the timer
@@ -140,7 +139,7 @@ public class Game {
 
     public void endRound() {
         // Stop the timer
-        hintHandler.stopTimer();
+        hintHandler.stopSendingHints();
         this.stopTimer();
 
         // end procedure for a round
