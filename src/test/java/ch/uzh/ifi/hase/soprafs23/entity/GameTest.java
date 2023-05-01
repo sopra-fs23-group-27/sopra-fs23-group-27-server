@@ -2,7 +2,11 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
+
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -39,6 +43,9 @@ public class GameTest {
 
         // mock messagingTemplate
         this.messagingTemplate = mock(SimpMessagingTemplate.class);
+        
+        // Mock the WebSocketService
+        webSocketService = mock(WebSocketService.class);
 
         // mock lobby
         this.lobby = mock(Lobby.class);
@@ -146,6 +153,17 @@ public class GameTest {
         game.updateCorrectGuess("US");
 
         assertEquals("unitedstates", ReflectionTestUtils.getField(game, "correctGuess"));
+    }
+
+    @Test
+    public void testSendsDTO(){
+
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
+
+        game.sendStatsToLobby();
+
+        // verify that the WebSocketService.sendToLobby() method was called with the first hint immediately
+        verify(webSocketService).sendToLobby(eq(1L), eq("/score-board"), any(GameStatsDTO.class));
     }
     
 }

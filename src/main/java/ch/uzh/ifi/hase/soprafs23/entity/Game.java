@@ -189,6 +189,9 @@ public class Game {
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
+        // TODO: sleep the system for 5 seconds to give the players time to read the stats
+        
+
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
 
@@ -328,7 +331,7 @@ public class Game {
         this.timer.cancel();
     }
 
-    private void sendStatsToLobby(){
+    public void sendStatsToLobby(){
 
         // Init Arrays for the mapping into a JSON object
         ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
@@ -354,6 +357,6 @@ public class Game {
         );
 
         // send the game stats to the players
-        webSocketService.sendToLobby(this.gameId, "/game-end", gameStatsDTO);
+        webSocketService.sendToLobby(this.gameId, "/score-board", gameStatsDTO);
     }
 }
