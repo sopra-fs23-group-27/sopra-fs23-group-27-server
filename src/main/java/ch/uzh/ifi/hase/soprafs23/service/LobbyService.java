@@ -60,6 +60,12 @@ public class LobbyService {
             savedLobby = setPrivateLobbyKey(savedLobby);
         }
 
+        if (savedLobby.getLobbyName() == null) {
+            savedLobby.setLobbyName("Lobby " + savedLobby.getLobbyId().toString());
+            this.lobbyRepository.save(savedLobby);
+            this.lobbyRepository.flush();
+        }
+
         player.setLobbyId(savedLobby.getLobbyId());
         player.setCreator(true);
         this.playerRepository.save(player);
@@ -81,6 +87,12 @@ public class LobbyService {
 
         if (!isPublic) {
             savedLobby = setPrivateLobbyKey(savedLobby);
+        }
+
+        if (savedLobby.getLobbyName() == null) {
+            savedLobby.setLobbyName("Lobby " + savedLobby.getLobbyId().toString());
+            this.lobbyRepository.save(savedLobby);
+            this.lobbyRepository.flush();
         }
 
         player.setLobbyId(savedLobby.getLobbyId());

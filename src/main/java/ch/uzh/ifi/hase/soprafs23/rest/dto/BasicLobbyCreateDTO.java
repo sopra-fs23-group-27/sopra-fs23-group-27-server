@@ -2,9 +2,9 @@ package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
 public class BasicLobbyCreateDTO {
 
-    private boolean isPublic;
-    private int numOptions;
-    private int numSeconds;
+    private boolean isPublic = true;
+    private int numOptions = 4;
+    private int numSeconds = 30;
     private String lobbyName;
 
 
