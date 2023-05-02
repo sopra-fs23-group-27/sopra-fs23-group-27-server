@@ -158,7 +158,7 @@ public class GameTest {
     @Test
     public void testSendsDTO(){
 
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.messagingTemplate, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
 
         game.sendStatsToLobby();
 
