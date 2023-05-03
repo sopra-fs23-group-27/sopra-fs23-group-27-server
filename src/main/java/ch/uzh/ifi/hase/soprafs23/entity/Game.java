@@ -11,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.TimerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,6 +191,9 @@ public class Game {
 
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
+
+        // send round to lobby
+        this.sendRoundToLobby();
 
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
@@ -433,5 +437,14 @@ public class Game {
 
         // send the game stats to the players
         webSocketService.sendToLobby(this.gameId, "/score-board", gameStatsDTO);
+    }
+
+    public void sendRoundToLobby() {
+
+        // create a DTO for the current round and pass it the current round
+        RoundDTO roundDTO = new RoundDTO(this.round);
+        
+        // send the round to the frontent on endpoint /round 
+        this.webSocketService.sendToLobby(this.gameId, "/round", roundDTO);
     }
 }

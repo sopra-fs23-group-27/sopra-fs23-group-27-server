@@ -9,7 +9,6 @@ import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -176,7 +175,7 @@ public class LobbyServiceIntegrationTest {
         foundLobby = lobbyRepository.findByLobbyId(lobbyId);
 
         // check if player is in lobby
-        Assert.assertEquals("testBasicLobby", foundLobby.getLobbyName());
+        assertEquals("testBasicLobby", foundLobby.getLobbyName());
         assertEquals(3, foundLobby.getJoinedPlayerNames().size());
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer2.getPlayerName()));
@@ -200,7 +199,7 @@ public class LobbyServiceIntegrationTest {
         foundLobby = lobbyRepository.findByLobbyId(lobbyId);
 
         // check if player is in lobby
-        Assert.assertEquals("testAdvancedLobby", foundLobby.getLobbyName());
+        assertEquals("testAdvancedLobby", foundLobby.getLobbyName());
         assertEquals(3, foundLobby.getJoinedPlayerNames().size());
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer2.getPlayerName()));
