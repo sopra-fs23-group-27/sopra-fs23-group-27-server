@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,7 +240,7 @@ public class Game {
 
     }
 
-    public Boolean validateGuess(String playerName, String guess) {
+    public Boolean validateGuess(String playerName, String guess, String wsConnectionId) {
         // prepare the guess
         // remove all whitespaces and make it lowercase
         guess = guess.toLowerCase();
@@ -251,6 +252,13 @@ public class Game {
 
             // compute the time until the correct guess
             Integer passedTime = this.computePassedTime();
+
+            // Send confirmation to client that guess was correct
+            GuessEvalDTO guessEvalDTO = new GuessEvalDTO(guess, true);
+            this.webSocketService.sendToPlayerInLobby(wsConnectionId,
+                    "/guess-evaluation",
+                    this.gameId.toString(),
+                    guessEvalDTO);
 
             // write time of player to scoreBoard
             this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);

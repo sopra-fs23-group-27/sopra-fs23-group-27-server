@@ -1,12 +1,14 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -39,9 +41,10 @@ public class GameService {
         this.lobbyRepository = lobbyRepository;
     }
 
-    public void validateGuess(Integer gameId, GuessDTO guessDTO) {
+    public void validateGuess(Integer gameId, GuessDTO guessDTO, SimpMessageHeaderAccessor smha) {
         Game game = GameRepository.findByLobbyId(gameId.longValue());
-        game.validateGuess(guessDTO.getPlayerName(), guessDTO.getGuess());
+        String wsConnectionId = WebSocketService.getIdentity(smha);
+        game.validateGuess(guessDTO.getPlayerName(), guessDTO.getGuess(), wsConnectionId);
     }
 
     public void startGame(Lobby lobby) {
