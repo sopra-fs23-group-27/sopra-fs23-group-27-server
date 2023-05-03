@@ -188,9 +188,6 @@ public class Game {
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
-        // TODO: sleep the system for 5 seconds to give the players time to read the stats
-        
-
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
 
@@ -205,6 +202,15 @@ public class Game {
 
         // start the next round
         if (this.round < this.numRounds) {
+            // give the players 5sec to read the stats
+            try {
+                Thread.sleep(5000);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // start new Round
             this.startRound();
         }
         // end the game if the last round has been played
@@ -330,7 +336,7 @@ public class Game {
         this.timer.cancel();
     }
 
-    public void sendStatsToLobby(){
+    public void sendStatsToLobby() {
 
         // Init Arrays for the mapping into a JSON object
         ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
@@ -348,11 +354,11 @@ public class Game {
 
         // Create a new GameStatsDTO object with the data from the ScoreBoard
         GameStatsDTO gameStatsDTO = new GameStatsDTO(
-            this.playerNames,
-            TotalGameScores,
-            TotalCorrectGuesses,
-            TotalTimeUntilCorrectGuess,
-            TotalWrongGuesses
+                this.playerNames,
+                TotalGameScores,
+                TotalCorrectGuesses,
+                TotalTimeUntilCorrectGuess,
+                TotalWrongGuesses
         );
 
         // send the game stats to the players
