@@ -291,18 +291,23 @@ public class Game {
             return true;
         }
         else {
-            //if guess is wrong, send GuessDTO to client
-            GuessDTO guessDTO = new GuessDTO(playerName, guess);
-            webSocketService.sendToLobby(this.gameId, "/guesses", guessDTO);
 
-            // If game is in advanced mode: send guessEvalDTO to client
+            // If game is in advanced mode:
+            // - send guessEvalDTO to client
+            // - send GuessDTO to client
             if (this.lobby instanceof AdvancedLobby) {
+
+                // send guessEvalDTO to client
                 this.webSocketService.sendToPlayerInLobby(wsConnectionId,
                         "/guess-evaluation",
                         this.gameId.toString(),
                         guessEvalDTO);
+
+                // send GuessDTO to client
+                GuessDTO guessDTO = new GuessDTO(playerName, guess);
+                webSocketService.sendToLobby(this.gameId, "/guesses", guessDTO);
             }
-            
+
 
             // increment the number of wrong guesses by 1
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
