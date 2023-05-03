@@ -248,14 +248,18 @@ public class Game {
         log.info("cleaned guess is: " + guess);
         log.info("correct guess is: " + this.correctGuess);
 
+        GuessEvalDTO guessEvalDTO = new GuessEvalDTO(guess, false);
+
         if (guess.equals(this.correctGuess)) {
 
             // compute the time until the correct guess
             Integer passedTime = this.computePassedTime();
 
-            // If game is in advanced mode: Send confirmation to client that guess was correct
+            // If guess is correct, change guessEvalDTO to true
+            guessEvalDTO.setIsCorrect(true);
+
+            // If game is in advanced mode: send guessEvalDTO to client
             if (this.lobby instanceof AdvancedLobby) {
-                GuessEvalDTO guessEvalDTO = new GuessEvalDTO(guess, true);
                 this.webSocketService.sendToPlayerInLobby(wsConnectionId,
                         "/guess-evaluation",
                         this.gameId.toString(),
@@ -290,6 +294,15 @@ public class Game {
             //if guess is wrong, send GuessDTO to client
             GuessDTO guessDTO = new GuessDTO(playerName, guess);
             webSocketService.sendToLobby(this.gameId, "/guesses", guessDTO);
+
+            // If game is in advanced mode: send guessEvalDTO to client
+            if (this.lobby instanceof AdvancedLobby) {
+                this.webSocketService.sendToPlayerInLobby(wsConnectionId,
+                        "/guess-evaluation",
+                        this.gameId.toString(),
+                        guessEvalDTO);
+            }
+            
 
             // increment the number of wrong guesses by 1
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
