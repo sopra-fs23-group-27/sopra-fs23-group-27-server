@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -10,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.TimerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -350,7 +352,7 @@ public class Game {
         this.startTime = null;
     }
 
-    public void startTimer(int seconds, Game game) {
+/*    public void startTimer(int seconds, Game game) {
         this.timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override
@@ -359,7 +361,46 @@ public class Game {
             }
         };
         this.timer.schedule(timerTask, seconds * 1000L);
+    }*/
+
+    public void startTimer(int seconds, Game game) {
+        this.timer = new Timer();
+        final int remainingTime = seconds;
+
+        // send initial remaining time
+        TimerDTO timerDTO = new TimerDTO(remainingTime);
+        try {
+            webSocketService.sendToLobby(game.getGameId(), "/timer", timerDTO);
+            log.info("TimerDTO sent to lobby. Remaining time: " + remainingTime + " seconds.");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        TimerTask timerTask = new TimerTask() {
+            int currentRemainingTime = remainingTime;
+
+            @Override
+            public void run() {
+                currentRemainingTime--;
+                if (currentRemainingTime == 0) {
+                    game.endRound();
+                }
+                else {
+                    TimerDTO timerDTO = new TimerDTO(currentRemainingTime);
+                    try {
+                        webSocketService.sendToLobby(game.getGameId(), "/timer", timerDTO);
+                        log.info("TimerDTO sent to lobby. Remaining time: " + currentRemainingTime + " seconds.");
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        this.timer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
     }
+
 
     public void stopTimer() {
         this.timer.cancel();
