@@ -253,12 +253,15 @@ public class Game {
             // compute the time until the correct guess
             Integer passedTime = this.computePassedTime();
 
-            // Send confirmation to client that guess was correct
-            GuessEvalDTO guessEvalDTO = new GuessEvalDTO(guess, true);
-            this.webSocketService.sendToPlayerInLobby(wsConnectionId,
-                    "/guess-evaluation",
-                    this.gameId.toString(),
-                    guessEvalDTO);
+            // If game is in advanced mode: Send confirmation to client that guess was correct
+            if (this.lobby instanceof AdvancedLobby) {
+                GuessEvalDTO guessEvalDTO = new GuessEvalDTO(guess, true);
+                this.webSocketService.sendToPlayerInLobby(wsConnectionId,
+                        "/guess-evaluation",
+                        this.gameId.toString(),
+                        guessEvalDTO);
+            }
+
 
             // write time of player to scoreBoard
             this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
