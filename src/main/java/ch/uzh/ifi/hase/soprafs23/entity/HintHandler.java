@@ -71,6 +71,14 @@ public class HintHandler {
         // send url of flag immediately
         String url = hints.remove(0).toString();
         FlagDTO flagDTO = new FlagDTO(url);
+
+        // sleep for 1 second to ensure that each player receives flag at the same time
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         log.info("FLAG-URL: " + url);
         webSocketService.sendToLobby(lobbyId, "/flag-in-round", flagDTO);
 
@@ -78,7 +86,7 @@ public class HintHandler {
         // seconds starting after firstHintAfter seconds
         if (lobby instanceof AdvancedLobby) {
             startSendingHints(((AdvancedLobby) lobby).getNumSecondsUntilHint(),
-                            ((AdvancedLobby) lobby).getHintInterval());
+                    ((AdvancedLobby) lobby).getHintInterval());
         }
         // if game is in basic mode, provide n options immediately
         else {
@@ -242,7 +250,6 @@ public class HintHandler {
 
     /**
      * Sends choices to client given the country, the number of choices
-     *
      */
     private void sendChoices() {
         Country countryLookedFor = countryRepository.findByCountryCode(countryCode);
@@ -253,7 +260,7 @@ public class HintHandler {
 
         // shuffle list and get first n elements (n = numChoices - 1)
         Collections.shuffle(countryNamesList);
-        List<String> choices = countryNamesList.subList(0, numChoices-1);
+        List<String> choices = countryNamesList.subList(0, numChoices - 1);
 
         // add country looked for to choices and shuffle again
         choices.add(countryLookedFor.getName());

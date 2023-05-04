@@ -281,8 +281,11 @@ public class Game {
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, true);
             log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName).toString());
 
+            // end the round since one player has submitted the correct guess
+            this.endRound();
 
-            // check if all players have submitted the correct guess and the round is over
+
+/*            // check if all players have submitted the correct guess and the round is over
             for (String playerNameList : this.playerNames) {
                 if (!this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerNameList)) {
                     break;
@@ -292,7 +295,7 @@ public class Game {
                     log.info("all players have submitted the correct guess; end of round");
                     this.endRound();
                 }
-            }
+            }*/
 
             return true;
         }
