@@ -205,6 +205,21 @@ public class LobbyService {
         this.gameService.startGame(lobby);
     }
 
+    public void disconnectPlayer(String wsConnectionId) {
+        Player player = this.playerService.getPlayerByWsConnectionId(wsConnectionId);
+        Lobby lobby = getLobbyById(player.getLobbyId());
+
+        if (lobby != null) {
+            lobby.removePlayerFromLobby(player.getPlayerName());
+            this.lobbyRepository.save(lobby);
+            this.lobbyRepository.flush();
+
+            player.setLobbyId(null);
+            this.playerRepository.save(player);
+            this.playerRepository.flush();
+        }
+    }
+
     public void checkIfLobbyIsJoinable(Long lobbyId, String privateLobbyKey) {
         Lobby lobby = getLobbyById(lobbyId);
 

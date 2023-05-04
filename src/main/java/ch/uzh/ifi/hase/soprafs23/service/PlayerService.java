@@ -62,6 +62,15 @@ public class PlayerService {
         return this.playerRepository.findByToken(token);
     }
 
+    public Player getPlayerByWsConnectionId(String wsConnectionId) {
+        Player player = this.playerRepository.findByWsConnectionId(wsConnectionId);
+        if (player == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Player with wsConnectionId " + wsConnectionId + " does not exist");
+        }
+        return player;
+    }
+
     public Player createPlayer(Player newPlayer) {
 
         // create basic authentication token
