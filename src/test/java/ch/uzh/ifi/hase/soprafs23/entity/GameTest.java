@@ -62,20 +62,22 @@ public class GameTest {
 
         // load the game class
         Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game spyGame = spy(game);
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
 
         // manually set start time 
         // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
-        ReflectionTestUtils.setField(game, "startTime", 1000L);
+        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
 
         // set attribute correctGuess (note: correctGuess is passed through lower 
         // and a regex that removes all whitespaces)
-        ReflectionTestUtils.setField(game, "correctGuess", "ch");
+        ReflectionTestUtils.setField(spyGame, "correctGuess", "ch");
 
         // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true)
-        assertTrue(game.validateGuess("Player1", "CH", "wsConnectionId"));
+        doNothing().when(spyGame).endRound();
+        assertTrue(spyGame.validateGuess("Player1", "CH", "wsConnectionId"));
 
     }
 
@@ -84,19 +86,21 @@ public class GameTest {
 
         // load the game class
         Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game spyGame = spy(game);
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
 
         // set attribute correctGuess
-        ReflectionTestUtils.setField(game, "correctGuess", "ch");
+        ReflectionTestUtils.setField(spyGame, "correctGuess", "ch");
 
         // manually set start time 
         // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
-        ReflectionTestUtils.setField(game, "startTime", 1000L);
+        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
 
         // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
-        assertTrue(game.validateGuess("Player1", "CH ", "wsConnectionId"));
+        doNothing().when(spyGame).endRound();
+        assertTrue(spyGame.validateGuess("Player1", "CH ", "wsConnectionId"));
     }
 
     @Test
@@ -104,20 +108,22 @@ public class GameTest {
 
         // load the game class
         Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game spyGame = spy(game);
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
 
         // set attribute correctGuess
-        ReflectionTestUtils.setField(game, "correctGuess", "ch");
+        ReflectionTestUtils.setField(spyGame, "correctGuess", "ch");
 
         // manually set start time 
         // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
         // Note that validate guess makes use uf the private computePassedTime function
-        ReflectionTestUtils.setField(game, "startTime", 1000L);
+        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
 
         // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
-        assertTrue(game.validateGuess("Player1", "ch", "wsConnectionId"));
+        doNothing().when(spyGame).endRound();
+        assertTrue(spyGame.validateGuess("Player1", "ch", "wsConnectionId"));
     }
 
     @Test
