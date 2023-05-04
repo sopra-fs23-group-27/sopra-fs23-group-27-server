@@ -4,8 +4,7 @@ import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.exceptions.PlayerServiceException;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.WSConnectedDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.WSConnectedDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Handles authentication / registration dance
@@ -63,12 +61,17 @@ public class AuthenticationService {
         }
 
         Long lobbyId = getLobbyIdFromAuthToken(playerToken);
+
+        // check if player is already processing a join
+        if (lobbyId == null && player.getLobbyId() != null) {
+            return;
+        }
         Lobby lobby = lobbyService.getLobbyById(lobbyId);
 
         LobbyGetDTO lobbyGetDTO = lobbyService.joinLobby(lobby, playerToken, wsConnectionId);
         WSConnectedDTO wsConnectedDTO = new WSConnectedDTO(player.getPlayerName(), lobbyId);
 
-        this.webSocketService.sendToPlayerInLobby(wsConnectionId, "/queue/authentication", lobbyId.toString(), wsConnectedDTO);
+        this.webSocketService.sendToPlayerInLobby(wsConnectionId, "/authentication", lobbyId.toString(), wsConnectedDTO);
         // wait for player to subscribe to channels
         webSocketService.wait(500);
         // send initial lobby-state packet

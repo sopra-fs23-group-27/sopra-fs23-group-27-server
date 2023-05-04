@@ -65,7 +65,7 @@ public class ScoreBoardTest {
     public void testWrongSetCurrentTimeUntilCorrectGuessPerPlayer(){
 
         // why does this return null? --> because we use getOrDefault and the default value is null
-        assertNull(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
+        assertEquals(0,this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class ScoreBoardTest {
     public void testWrongSetCurrentNumberOfWrongGuessesPerPlayer(){
             
             // why does this return null? --> because we use getOrDefault and the default value is null
-            assertNull(this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer("Player1"));
+            assertEquals(0, this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer("Player1"));
     }
 
     @Test
@@ -233,8 +233,8 @@ public class ScoreBoardTest {
 
         // check if the current attributes are null again for Player1
         assertFalse(this.scoreBoard.getCurrentCorrectGuessPerPlayer("Player1"));
-        assertNull(this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer("Player1"));
-        assertNull(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
+        assertEquals(0, this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer("Player1"));
+        assertEquals(0, this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer("Player1"));
     }
 
     @Test

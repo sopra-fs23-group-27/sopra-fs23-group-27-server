@@ -2,11 +2,11 @@ package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
 public class AdvancedLobbyCreateDTO {
 
-    private boolean isPublic;
-    private int numSeconds;
-    private int numSecondsUntilHint;
-    private int hintInterval;
-    private int maxNumGuesses;
+    private boolean isPublic = true;
+    private int numSeconds = 30;
+    private int numSecondsUntilHint = 10;
+    private int hintInterval = 5;
+    private int maxNumGuesses = 10;
     private String lobbyName;
 
     public boolean getIsPublic() {

@@ -60,6 +60,12 @@ public class LobbyService {
             savedLobby = setPrivateLobbyKey(savedLobby);
         }
 
+        if (savedLobby.getLobbyName() == null) {
+            savedLobby.setLobbyName("Lobby " + savedLobby.getLobbyId().toString());
+            this.lobbyRepository.save(savedLobby);
+            this.lobbyRepository.flush();
+        }
+
         player.setLobbyId(savedLobby.getLobbyId());
         player.setCreator(true);
         this.playerRepository.save(player);
@@ -81,6 +87,12 @@ public class LobbyService {
 
         if (!isPublic) {
             savedLobby = setPrivateLobbyKey(savedLobby);
+        }
+
+        if (savedLobby.getLobbyName() == null) {
+            savedLobby.setLobbyName("Lobby " + savedLobby.getLobbyId().toString());
+            this.lobbyRepository.save(savedLobby);
+            this.lobbyRepository.flush();
         }
 
         player.setLobbyId(savedLobby.getLobbyId());
@@ -191,6 +203,21 @@ public class LobbyService {
         this.lobbyRepository.flush();
 
         this.gameService.startGame(lobby);
+    }
+
+    public void disconnectPlayer(String wsConnectionId) {
+        Player player = this.playerService.getPlayerByWsConnectionId(wsConnectionId);
+        Lobby lobby = getLobbyById(player.getLobbyId());
+
+        if (lobby != null) {
+            lobby.removePlayerFromLobby(player.getPlayerName());
+            this.lobbyRepository.save(lobby);
+            this.lobbyRepository.flush();
+
+            player.setLobbyId(null);
+            this.playerRepository.save(player);
+            this.playerRepository.flush();
+        }
     }
 
     public void checkIfLobbyIsJoinable(Long lobbyId, String privateLobbyKey) {

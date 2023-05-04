@@ -574,14 +574,8 @@ class LobbyControllerTest {
 
         // then
         mockMvc.perform(putRequest)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.lobbyId", is(lobby.getLobbyId().intValue())))
-                .andExpect(jsonPath("$.lobbyName", is(lobby.getLobbyName())))
-                .andExpect(jsonPath("$.hintInterval", is(lobby.getHintInterval())))
-                .andExpect(jsonPath("$.numSecondsUntilHint", is(lobby.getNumSecondsUntilHint())))
-                .andExpect(jsonPath("$.numSeconds", is(lobby.getNumSeconds())))
-                .andExpect(jsonPath("$.isPublic", is(lobby.getIsPublic())))
-                .andExpect(jsonPath("$.joinedPlayerNames", hasSize(2)));
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$").doesNotExist());
     }
 
     @Test

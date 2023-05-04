@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class PlayerServiceIntegrationTest {
 
+    private Player player;
+    private Player playerUpdated;
+
     @Qualifier("playerRepository")
     @Autowired
     private PlayerRepository playerRepository;
@@ -32,6 +36,26 @@ public class PlayerServiceIntegrationTest {
 
     @BeforeEach
     public void setup() {
+        playerRepository.deleteAll();
+
+        // given
+        assertNull(playerRepository.findByPlayerName("testUsername"));
+
+        String tokenPlayer = "token";
+        player = new Player();
+        player.setPassword("password");
+        player.setPlayerName("testUsername");
+        player.setToken(tokenPlayer);
+
+        String tokenUpdatedPlayer = "tokenUpdated";
+        playerUpdated = new Player();
+        playerUpdated.setPassword("passwordUpdated");
+        playerUpdated.setPlayerName("testUsernameUpdated");
+        playerUpdated.setToken(tokenUpdatedPlayer);
+    }
+
+    @AfterEach
+    void afterEach() {
         playerRepository.deleteAll();
     }
 

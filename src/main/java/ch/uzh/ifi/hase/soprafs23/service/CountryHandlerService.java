@@ -91,7 +91,7 @@ public class CountryHandlerService {
         }
 
         // Shuffle the list
-        Collections.shuffle(allCountryCodes, new Random(0));
+        Collections.shuffle(allCountryCodes);
 
         // get first numCountries elements
         ArrayList<String> randomCountryCodes = new ArrayList<String>(allCountryCodes.subList(0, numCountries));

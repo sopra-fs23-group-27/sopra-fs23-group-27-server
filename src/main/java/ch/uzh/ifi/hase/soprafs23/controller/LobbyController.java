@@ -122,8 +122,8 @@ public class LobbyController {
             lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
         }
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(lobbyGetDTO);
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
 
     @PutMapping("/lobbies/{lobbyId}/start")

@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
+import ch.uzh.ifi.hase.soprafs23.entity.Game;
 import ch.uzh.ifi.hase.soprafs23.service.GameService;
 import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -16,6 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class GameController {
 
+    private final Logger log = LoggerFactory.getLogger(GameController.class);
+
     private final GameService gameService;
 
     GameController(GameService gameService) {
@@ -26,7 +31,7 @@ public class GameController {
     public void validateGuess(@DestinationVariable Integer lobbyId,
                               SimpMessageHeaderAccessor smha,
                               @Payload GuessDTO guessDTO) {
-        gameService.validateGuess(lobbyId, guessDTO);
+        gameService.validateGuess(lobbyId, guessDTO, smha);
     }
 
 }

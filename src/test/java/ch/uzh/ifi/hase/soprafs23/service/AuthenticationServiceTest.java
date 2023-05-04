@@ -2,12 +2,11 @@ package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.exceptions.PlayerServiceException;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.AuthenticateDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.WSConnectedDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.WSConnectedDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -117,7 +116,7 @@ class AuthenticationServiceTest {
         // check if the methods are called with the correct arguments
         Mockito.verify(webSocketService).sendToPlayerInLobby(
                 eq("test-websocket-key"),
-                eq("/queue/authentication"),
+                eq("/authentication"),
                 eq(lobbyId.toString()),
                 Mockito.any(WSConnectedDTO.class));
         Mockito.verify(webSocketService).sendToLobby(

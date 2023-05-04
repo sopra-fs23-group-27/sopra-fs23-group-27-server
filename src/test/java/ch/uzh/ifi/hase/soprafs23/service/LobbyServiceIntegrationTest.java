@@ -171,10 +171,12 @@ public class LobbyServiceIntegrationTest {
 
         // let testPlayer2 join lobby
         lobbyService.joinLobby(foundLobby, testPlayer2.getToken(), testPlayer2.getWsConnectionId());
+        lobbyService.joinLobby(foundLobby, testPlayer3.getToken(), testPlayer3.getWsConnectionId());
         foundLobby = lobbyRepository.findByLobbyId(lobbyId);
 
         // check if player is in lobby
-        assertEquals(2, foundLobby.getJoinedPlayerNames().size());
+        assertEquals("testBasicLobby", foundLobby.getLobbyName());
+        assertEquals(3, foundLobby.getJoinedPlayerNames().size());
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer2.getPlayerName()));
         assertEquals(testPlayer2.getLobbyId(), foundLobby.getLobbyId());
@@ -193,10 +195,12 @@ public class LobbyServiceIntegrationTest {
 
         // let testPlayer2 join lobby
         lobbyService.joinLobby(foundLobby, testPlayer2.getToken(), testPlayer2.getWsConnectionId());
+        lobbyService.joinLobby(foundLobby, testPlayer3.getToken(), testPlayer3.getWsConnectionId());
         foundLobby = lobbyRepository.findByLobbyId(lobbyId);
 
         // check if player is in lobby
-        assertEquals(2, foundLobby.getJoinedPlayerNames().size());
+        assertEquals("testAdvancedLobby", foundLobby.getLobbyName());
+        assertEquals(3, foundLobby.getJoinedPlayerNames().size());
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
         assertTrue(foundLobby.getJoinedPlayerNames().contains(testPlayer2.getPlayerName()));
         assertEquals(testPlayer2.getLobbyId(), foundLobby.getLobbyId());

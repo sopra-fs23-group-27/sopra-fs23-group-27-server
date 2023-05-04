@@ -6,7 +6,7 @@ import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.AuthenticateDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final LobbyRepository lobbyRepository;
-    
+
     private final PlayerStats PlayerStats;
     private WebSocketService webSocketService;
 
@@ -60,6 +60,15 @@ public class PlayerService {
 
     public Player getPlayerByToken(String token) {
         return this.playerRepository.findByToken(token);
+    }
+
+    public Player getPlayerByWsConnectionId(String wsConnectionId) {
+        Player player = this.playerRepository.findByWsConnectionId(wsConnectionId);
+        if (player == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Player with wsConnectionId " + wsConnectionId + " does not exist");
+        }
+        return player;
     }
 
     public Player createPlayer(Player newPlayer) {
@@ -203,7 +212,7 @@ public class PlayerService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Player with token " + dto.getPlayerToken() + " not found. Please authenticate first.");
         }
-        
+
         player.setWsConnectionId(wsConnectionId);
         playerRepository.saveAndFlush(player);
 
@@ -218,10 +227,10 @@ public class PlayerService {
             lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
         }
 
-        webSocketService.sendToPlayerInLobby(wsConnectionId, "/queue/register", lobbyId.toString(), lobbyGetDTO);
+        webSocketService.sendToPlayerInLobby(wsConnectionId, "/register", lobbyId.toString(), lobbyGetDTO);
 
         webSocketService.wait(500);
 
-        webSocketService.sendToLobby(lobbyId, "/queue/lobby", lobbyGetDTO);
+        webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
     }
 }

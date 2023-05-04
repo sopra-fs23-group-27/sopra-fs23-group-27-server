@@ -29,7 +29,7 @@ public class WebSocketService {
 
     public void sendToPlayerInLobby(String wsConnectionId, String path, String lobbyId, Object dto) {
 
-        this.simpMessagingTemplate.convertAndSendToUser(wsConnectionId, "/queue/lobby/" + lobbyId + path, dto);
+        this.simpMessagingTemplate.convertAndSendToUser(wsConnectionId, "/queue/lobbies/" + lobbyId + path, dto);
     }
 
     public void sendToLobby(Long lobbyId, String path, Object dto) {
@@ -57,5 +57,5 @@ public class WebSocketService {
             Thread.currentThread().interrupt();
         }
     }
-    
+
 }
