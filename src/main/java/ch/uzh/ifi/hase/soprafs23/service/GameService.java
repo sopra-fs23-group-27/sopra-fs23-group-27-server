@@ -47,6 +47,16 @@ public class GameService {
         game.validateGuess(guessDTO.getPlayerName(), guessDTO.getGuess(), wsConnectionId);
     }
 
+    public void startNewGameRound(Integer gameId, SimpMessageHeaderAccessor smha) {
+        Game game = GameRepository.findByLobbyId(gameId.longValue());
+        String wsConnectionId = WebSocketService.getIdentity(smha);
+        if (game == null) {
+            log.error("Game with id " + gameId + " not found");
+            return;
+        }
+        game.startRound();
+    }
+
     public void startGame(Lobby lobby) {
         Long lobbyId = lobby.getLobbyId();
 

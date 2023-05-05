@@ -37,6 +37,7 @@ public class GameController {
     @MessageMapping("/games/{lobbyId}/game-ready")
     public void startNewGameRound(@DestinationVariable Integer lobbyId,
                                   SimpMessageHeaderAccessor smha) {
+        gameService.startNewGameRound(lobbyId, smha);
     }
 
 }
