@@ -117,6 +117,12 @@ public class Game {
     }
 
     public void startRound() {
+        if (!(this.round < this.numRounds)) {
+            log.info("No new round can be started since numRounds is reached." +
+                    " Initiate Game loop end for lobbyId: " + this.gameId);
+            this.endGame();
+            return;
+        }
         startTimer(this.numSeconds, this);
         webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
         log.info("Round " + (this.round + 1) + " started for lobbyId: " + this.gameId);
@@ -189,6 +195,13 @@ public class Game {
         log.info("Current LeaderBoard: ");
         log.info(this.scoreBoard.getLeaderBoardTotalScore());
 
+        // sleep for 1 second to make sure that the LeaderBoard is sent after the round-end message
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
@@ -207,21 +220,8 @@ public class Game {
         // prepare the counter for the next round
         this.round++;
 
-        // start the next round
-        if (this.round < this.numRounds) {
-            // give the players 5sec to read the stats
-            try {
-                Thread.sleep(5000);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // start new Round
-            this.startRound();
-        }
         // end the game if the last round has been played
-        else {
+        if (this.round.equals(this.numRounds)) {
             this.endGame();
         }
     }
@@ -359,16 +359,6 @@ public class Game {
         this.startTime = null;
     }
 
-/*    public void startTimer(int seconds, Game game) {
-        this.timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                game.endRound();
-            }
-        };
-        this.timer.schedule(timerTask, seconds * 1000L);
-    }*/
 
     public void startTimer(int seconds, Game game) {
         this.timer = new Timer();
@@ -439,6 +429,12 @@ public class Game {
         );
 
         // send the game stats to the players
+        log.info("Sending game stats to lobby:");
+        log.info("- Player names: " + gameStatsDTO.getPlayerNames());
+        log.info("- Total game scores: " + gameStatsDTO.getTotalGameScores());
+        log.info("- Total correct guesses: " + gameStatsDTO.getTotalCorrectGuesses());
+        log.info("- Total time until correct guess: " + gameStatsDTO.getTotalTimeUntilCorrectGuess());
+        log.info("- Total wrong guesses: " + gameStatsDTO.getTotalWrongGuesses());
         webSocketService.sendToLobby(this.gameId, "/score-board", gameStatsDTO);
     }
 
@@ -446,8 +442,10 @@ public class Game {
 
         // create a DTO for the current round and pass it the current round
         RoundDTO roundDTO = new RoundDTO(this.round);
-        
-        // send the round to the frontent on endpoint /round 
+
+
+        // send the round to the frontend on endpoint /round
+        log.info("Sending round info to lobby: " + roundDTO.getRound());
         this.webSocketService.sendToLobby(this.gameId, "/round", roundDTO);
     }
 }
