@@ -195,6 +195,13 @@ public class Game {
         log.info("Current LeaderBoard: ");
         log.info(this.scoreBoard.getLeaderBoardTotalScore());
 
+        // sleep for 1 second to make sure that the LeaderBoard is sent after the round-end message
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
@@ -352,16 +359,6 @@ public class Game {
         this.startTime = null;
     }
 
-/*    public void startTimer(int seconds, Game game) {
-        this.timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                game.endRound();
-            }
-        };
-        this.timer.schedule(timerTask, seconds * 1000L);
-    }*/
 
     public void startTimer(int seconds, Game game) {
         this.timer = new Timer();
@@ -432,6 +429,12 @@ public class Game {
         );
 
         // send the game stats to the players
+        log.info("Sending game stats to lobby:");
+        log.info("- Player names: " + gameStatsDTO.getPlayerNames());
+        log.info("- Total game scores: " + gameStatsDTO.getTotalGameScores());
+        log.info("- Total correct guesses: " + gameStatsDTO.getTotalCorrectGuesses());
+        log.info("- Total time until correct guess: " + gameStatsDTO.getTotalTimeUntilCorrectGuess());
+        log.info("- Total wrong guesses: " + gameStatsDTO.getTotalWrongGuesses());
         webSocketService.sendToLobby(this.gameId, "/score-board", gameStatsDTO);
     }
 
@@ -440,7 +443,9 @@ public class Game {
         // create a DTO for the current round and pass it the current round
         RoundDTO roundDTO = new RoundDTO(this.round);
 
-        // send the round to the frontent on endpoint /round 
+
+        // send the round to the frontend on endpoint /round
+        log.info("Sending round info to lobby: " + roundDTO.getRound());
         this.webSocketService.sendToLobby(this.gameId, "/round", roundDTO);
     }
 }
