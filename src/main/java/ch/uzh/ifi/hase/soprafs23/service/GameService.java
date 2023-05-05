@@ -103,7 +103,7 @@ public class GameService {
 
         String wsConnectionId = WebSocketService.getIdentity(smha);
         log.info("Sending lobby settings to lobby id: " + lobbyId + " :");
-        log.info(lobbySettingsDTO.toString());
+        log.info("Player-role map: " + lobbySettingsDTO.getPlayerRoleMap().toString());
         this.webSocketService.sendToLobby(lobbyId.longValue(), "/lobby-settings", lobbySettingsDTO);
 
     }
@@ -138,7 +138,7 @@ public class GameService {
         lobbySettingsDTO.setPlayerRoleMap(playerRoleMap);
 
         log.info("Sending lobby settings to lobby id: " + lobbyId + " :");
-        log.info(lobbySettingsDTO.getPlayerRoleMap().toString());
+        log.info("Player-role map: " + lobbySettingsDTO.getPlayerRoleMap().toString());
         this.webSocketService.sendToLobby(lobbyId.longValue(), "/lobby-settings", lobbySettingsDTO);
 
     }
