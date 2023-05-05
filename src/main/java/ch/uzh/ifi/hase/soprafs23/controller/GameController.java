@@ -34,4 +34,9 @@ public class GameController {
         gameService.validateGuess(lobbyId, guessDTO, smha);
     }
 
+    @MessageMapping("/games/{lobbyId}/game-ready")
+    public void startNewGameRound(@DestinationVariable Integer lobbyId,
+                                  SimpMessageHeaderAccessor smha) {
+    }
+
 }
