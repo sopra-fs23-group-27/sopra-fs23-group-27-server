@@ -189,6 +189,13 @@ public class Game {
         log.info("Current LeaderBoard: ");
         log.info(this.scoreBoard.getLeaderBoardTotalScore());
 
+        // sleep for 1 second to make sure that the LeaderBoard is sent after the round-end message
+        try {
+            Thread.sleep(1000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
