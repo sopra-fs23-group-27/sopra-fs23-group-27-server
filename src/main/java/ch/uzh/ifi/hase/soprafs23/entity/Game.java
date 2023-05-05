@@ -117,6 +117,12 @@ public class Game {
     }
 
     public void startRound() {
+        if (!(this.round < this.numRounds)) {
+            log.info("No new round can be started since numRounds is reached." +
+                    " Initiate Game loop end for lobbyId: " + this.gameId);
+            this.endGame();
+            return;
+        }
         startTimer(this.numSeconds, this);
         webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
         log.info("Round " + (this.round + 1) + " started for lobbyId: " + this.gameId);
@@ -214,21 +220,8 @@ public class Game {
         // prepare the counter for the next round
         this.round++;
 
-        // start the next round
-        if (this.round < this.numRounds) {
-            // give the players 5sec to read the stats
-            try {
-                Thread.sleep(5000);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // start new Round
-            this.startRound();
-        }
         // end the game if the last round has been played
-        else {
+        if (this.round.equals(this.numRounds)) {
             this.endGame();
         }
     }
@@ -449,6 +442,7 @@ public class Game {
 
         // create a DTO for the current round and pass it the current round
         RoundDTO roundDTO = new RoundDTO(this.round);
+
 
         // send the round to the frontend on endpoint /round
         log.info("Sending round info to lobby: " + roundDTO.getRound());
