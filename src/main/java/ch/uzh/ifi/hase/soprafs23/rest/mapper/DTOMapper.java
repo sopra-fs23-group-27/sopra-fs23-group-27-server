@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.*;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -48,5 +49,9 @@ public interface DTOMapper {
     LobbyGetDTO convertAdvancedLobbyEntityToLobbyGetDTO(AdvancedLobby advancedLobby);
 
     LobbyGetDTO convertLobbyEntityToLobbyGetDTO(Lobby lobby);
+
+    LobbySettingsDTO convertBasicLobbyEntityToLobbySettingsDTO(BasicLobby basicLobby);
+
+    LobbySettingsDTO convertAdvancedLobbyEntityToLobbySettingsDTO(AdvancedLobby advancedLobby);
 
 }

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.websocket.dto;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class LobbySettingsDTO {
@@ -16,6 +17,16 @@ public class LobbySettingsDTO {
     private List<String> joinedPlayerNames;
     private String lobbyCreatorPlayerToken;
     private String privateLobbyKey;
+
+    private HashMap<String, Boolean> playerRoleMap = new HashMap<String, Boolean>();
+
+    public HashMap<String, Boolean> getPlayerRoleMap() {
+        return playerRoleMap;
+    }
+
+    public void setPlayerRoleMap(HashMap<String, Boolean> playerRoleMap) {
+        this.playerRoleMap = playerRoleMap;
+    }
 
     public Long getLobbyId() {
         return lobbyId;

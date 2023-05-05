@@ -34,10 +34,17 @@ public class GameController {
         gameService.validateGuess(lobbyId, guessDTO, smha);
     }
 
+    @MessageMapping("/games/{lobbyId}/send-lobby-settings")
+    public void sendLobbySettings(@DestinationVariable Integer lobbyId,
+                                  SimpMessageHeaderAccessor smha) {
+        gameService.sendLobbySettings(lobbyId, smha);
+    }
+    
     @MessageMapping("/games/{lobbyId}/game-ready")
     public void startNewGameRound(@DestinationVariable Integer lobbyId,
                                   SimpMessageHeaderAccessor smha) {
         gameService.startNewGameRound(lobbyId, smha);
+
     }
 
 }
