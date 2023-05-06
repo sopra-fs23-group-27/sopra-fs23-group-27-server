@@ -19,7 +19,7 @@ public abstract class Lobby implements Serializable {
     private boolean isPublic;
     private int numSeconds;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> joinedPlayerNames;
 
     private String lobbyCreatorPlayerToken;
