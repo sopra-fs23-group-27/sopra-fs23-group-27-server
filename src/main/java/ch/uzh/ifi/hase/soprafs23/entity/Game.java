@@ -10,9 +10,11 @@ import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.TimerDTO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,6 +210,9 @@ public class Game {
         // send round to lobby
         this.sendRoundToLobby();
 
+        // send the correct Guess of the previous round to Lobby
+        this.sendCorrectGuessToLobby();
+
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
 
@@ -359,7 +364,6 @@ public class Game {
         this.startTime = null;
     }
 
-
     public void startTimer(int seconds, Game game) {
         this.timer = new Timer();
         final int remainingTime = seconds;
@@ -397,7 +401,6 @@ public class Game {
         };
         this.timer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
     }
-
 
     public void stopTimer() {
         this.timer.cancel();
@@ -447,5 +450,16 @@ public class Game {
         // send the round to the frontend on endpoint /round
         log.info("Sending round info to lobby: " + roundDTO.getRound());
         this.webSocketService.sendToLobby(this.gameId, "/round", roundDTO);
+    }
+
+    public void sendCorrectGuessToLobby() {
+
+        // create a DTO for the current round and pass it the current round
+        CorrectGuessDTO correctGuessDTO = new CorrectGuessDTO(this.correctGuess);
+
+        log.info("Sending correct guess to lobby: " + this.correctGuess);
+
+        this.webSocketService.sendToLobby(this.gameId, "/correct-country", correctGuessDTO);
+
     }
 }
