@@ -19,7 +19,7 @@ public interface LobbyRepository extends JpaRepository<Lobby, Long> {
 
     List<Lobby> findAll();
 
-    List<Lobby> findAllByIsPublic(boolean isPublic);
+    List<Lobby> findAllByIsPublicAndIsJoinable(boolean isPublic, boolean isJoinable);
 
 
     // Queries related to BASIC lobbies

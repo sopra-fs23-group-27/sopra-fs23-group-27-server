@@ -9,7 +9,6 @@ import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,9 +59,9 @@ public class LobbyController {
 
 
     @GetMapping("/lobbies")
-    public ResponseEntity getAllPublicLobbies() {
+    public ResponseEntity getAllPublicAndJoinableLobbies() {
 
-        List<Lobby> lobbies = lobbyService.getAllPublicLobbies();
+        List<Lobby> lobbies = lobbyService.getAllPublicAndJoinableLobbies();
         List<LobbyGetDTO> lobbyGetDTOs = new ArrayList<>();
 
         for (Lobby lobby : lobbies) {

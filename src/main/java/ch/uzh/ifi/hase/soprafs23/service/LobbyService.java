@@ -112,8 +112,8 @@ public class LobbyService {
     }
 
 
-    public List<Lobby> getAllPublicLobbies() {
-        return this.lobbyRepository.findAllByIsPublic(true);
+    public List<Lobby> getAllPublicAndJoinableLobbies() {
+        return this.lobbyRepository.findAllByIsPublicAndIsJoinable(true, true);
     }
 
     public Lobby getLobbyById(long lobbyId) {

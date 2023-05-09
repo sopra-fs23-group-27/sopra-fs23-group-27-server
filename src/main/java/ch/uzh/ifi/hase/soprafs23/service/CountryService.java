@@ -88,7 +88,7 @@ public class CountryService {
             country.setCo2Emissions(parseString(root.get(0).get("co2_emissions")) + " kilotons");
             country.setForestedArea(parseString(root.get(0).get("forested_area")) + "% of surface area");
             country.setInfantMortality(parseString(root.get(0).get("infant_mortality")) + " per 1000 live births");
-            country.setPopulation(parseString(root.get(0).get("population")) + "000");
+            country.setPopulation(parseString(root.get(0).get("population")) + "K");
             country.setPopulationDensity(parseString(root.get(0).get("pop_density"))+ " people per sq. km of land area");
             country.setInternetUsers(parseString(root.get(0).get("internet_users")) + "% of population");
 
