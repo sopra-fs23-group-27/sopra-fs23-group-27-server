@@ -50,6 +50,10 @@ public class HintHandler {
     public void setHints() {
         List<HashMap.Entry<String, String>> attributeList = getAndShuffleAllAttributes();
 
+        // if there are less attributes than the calculated number of hints, set numHints to the number of attributes
+        if (attributeList.size() < numHints) {
+            this.numHints = attributeList.size();
+        }
         this.hints = attributeList.subList(0, numHints);
 
     }
@@ -93,8 +97,7 @@ public class HintHandler {
             sendChoices();
         }
     }
-
-
+    
     public void stopSendingHints() {
         this.timer.cancel();
     }
@@ -163,13 +166,15 @@ public class HintHandler {
      * @param countryAttributes HashMap containing all country attributes
      */
     private void filter(HashMap<String, String> countryAttributes) {
-//        countryAttributes.removeAll(Collections.singleton(null));
-        while (countryAttributes.values().remove(null)) ;
-        while (countryAttributes.values().remove("not available")) {
+        // Iterate over the entries and remove those with values containing the substring
+        Iterator<Map.Entry<String, String>> iterator = countryAttributes.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            String value = entry.getValue();
+            if (value.contains("not available") || value.contains("-9999") || value.isEmpty()) {
+                iterator.remove();
+            }
         }
-        while (countryAttributes.values().remove("-9999")) {
-        }
-
     }
 
     /**
