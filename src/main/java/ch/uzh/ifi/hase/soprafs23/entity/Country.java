@@ -23,61 +23,61 @@ public class Country {
     private String name;
 
     @Column(nullable = true)
-    private Integer gdp;
+    private String gdp;
 
     @Column(nullable = true)
-    private Integer surfaceArea;
+    private String surfaceArea;
 
     @Column(nullable = true)
-    private Integer lifeExpectancyMale;
+    private String lifeExpectancyMale;
 
     @Column(nullable = true)
-    private Integer lifeExpectancyFemale;
+    private String lifeExpectancyFemale;
 
     @Column(nullable = true)
-    private Integer unemploymentRate;
+    private String unemploymentRate;
 
     @Column(nullable = true)
-    private Integer imports;
+    private String imports;
 
     @Column(nullable = true)
-    private Integer exports;
+    private String exports;
 
     @Column(nullable = true)
-    private Integer homicideRate;
+    private String homicideRate;
 
     @Column(nullable = true)
     private String currency;
 
     @Column(nullable = true)
-    private Integer populationGrowth;
+    private String populationGrowth;
 
     @Column(nullable = true)
-    private Integer secondarySchoolEnrollmentFemale;
+    private String secondarySchoolEnrollmentFemale;
 
     @Column(nullable = true)
-    private Integer secondarySchoolEnrollmentMale;
+    private String secondarySchoolEnrollmentMale;
 
     @Column(nullable = true)
     private String capital;
 
     @Column(nullable = true)
-    private Integer co2Emissions;
+    private String co2Emissions;
 
     @Column(nullable = true)
-    private Integer forestedArea;
+    private String forestedArea;
 
     @Column(nullable = true)
-    private Integer infantMortality;
+    private String infantMortality;
 
     @Column(nullable = true)
-    private Integer population;
+    private String population;
 
     @Column(nullable = true)
-    private Integer populationDensity;
+    private String populationDensity;
 
     @Column(nullable = true)
-    private Integer internetUsers;
+    private String internetUsers;
 
     @Column(nullable = true)
     private String flag;
@@ -98,67 +98,67 @@ public class Country {
         this.name = name;
     }
 
-    public Integer getGdp() {
+    public String getGdp() {
         return gdp;
     }
 
-    public void setGdp(Integer gdp) {
+    public void setGdp(String gdp) {
         this.gdp = gdp;
     }
 
-    public Integer getSurfaceArea() {
+    public String getSurfaceArea() {
         return surfaceArea;
     }
 
-    public void setSurfaceArea(Integer surfaceArea) {
+    public void setSurfaceArea(String surfaceArea) {
         this.surfaceArea = surfaceArea;
     }
 
-    public Integer getLifeExpectancyMale() {
+    public String getLifeExpectancyMale() {
         return lifeExpectancyMale;
     }
 
-    public void setLifeExpectancyMale(Integer lifeExpectancyMale) {
+    public void setLifeExpectancyMale(String lifeExpectancyMale) {
         this.lifeExpectancyMale = lifeExpectancyMale;
     }
 
-    public Integer getLifeExpectancyFemale() {
+    public String getLifeExpectancyFemale() {
         return lifeExpectancyFemale;
     }
 
-    public void setLifeExpectancyFemale(Integer lifeExpectancyFemale) {
+    public void setLifeExpectancyFemale(String lifeExpectancyFemale) {
         this.lifeExpectancyFemale = lifeExpectancyFemale;
     }
 
-    public Integer getUnemploymentRate() {
+    public String getUnemploymentRate() {
         return unemploymentRate;
     }
 
-    public void setUnemploymentRate(Integer unemploymentRate) {
+    public void setUnemploymentRate(String unemploymentRate) {
         this.unemploymentRate = unemploymentRate;
     }
 
-    public Integer getImports() {
+    public String getImports() {
         return imports;
     }
 
-    public void setImports(Integer imports) {
+    public void setImports(String imports) {
         this.imports = imports;
     }
 
-    public Integer getExports() {
+    public String getExports() {
         return exports;
     }
 
-    public void setExports(Integer exports) {
+    public void setExports(String exports) {
         this.exports = exports;
     }
 
-    public Integer getHomicideRate() {
+    public String getHomicideRate() {
         return homicideRate;
     }
 
-    public void setHomicideRate(Integer homicideRate) {
+    public void setHomicideRate(String homicideRate) {
         this.homicideRate = homicideRate;
     }
 
@@ -170,27 +170,27 @@ public class Country {
         this.currency = currency;
     }
 
-    public Integer getPopulationGrowth() {
+    public String getPopulationGrowth() {
         return populationGrowth;
     }
 
-    public void setPopulationGrowth(Integer populationGrowth) {
+    public void setPopulationGrowth(String populationGrowth) {
         this.populationGrowth = populationGrowth;
     }
 
-    public Integer getSecondarySchoolEnrollmentFemale() {
+    public String getSecondarySchoolEnrollmentFemale() {
         return secondarySchoolEnrollmentFemale;
     }
 
-    public void setSecondarySchoolEnrollmentFemale(Integer secondarySchoolEnrollmentFemale) {
+    public void setSecondarySchoolEnrollmentFemale(String secondarySchoolEnrollmentFemale) {
         this.secondarySchoolEnrollmentFemale = secondarySchoolEnrollmentFemale;
     }
 
-    public Integer getSecondarySchoolEnrollmentMale() {
+    public String getSecondarySchoolEnrollmentMale() {
         return secondarySchoolEnrollmentMale;
     }
 
-    public void setSecondarySchoolEnrollmentMale(Integer secondarySchoolEnrollmentMale) {
+    public void setSecondarySchoolEnrollmentMale(String secondarySchoolEnrollmentMale) {
         this.secondarySchoolEnrollmentMale = secondarySchoolEnrollmentMale;
     }
 
@@ -202,51 +202,51 @@ public class Country {
         this.capital = capital;
     }
 
-    public Integer getCo2Emissions() {
+    public String getCo2Emissions() {
         return co2Emissions;
     }
 
-    public void setCo2Emissions(Integer co2Emissions) {
+    public void setCo2Emissions(String co2Emissions) {
         this.co2Emissions = co2Emissions;
     }
 
-    public Integer getForestedArea() {
+    public String getForestedArea() {
         return forestedArea;
     }
 
-    public void setForestedArea(Integer forestedArea) {
+    public void setForestedArea(String forestedArea) {
         this.forestedArea = forestedArea;
     }
 
-    public Integer getInfantMortality() {
+    public String getInfantMortality() {
         return infantMortality;
     }
 
-    public void setInfantMortality(Integer infantMortality) {
+    public void setInfantMortality(String infantMortality) {
         this.infantMortality = infantMortality;
     }
 
-    public Integer getPopulation() {
+    public String getPopulation() {
         return population;
     }
 
-    public void setPopulation(Integer population) {
+    public void setPopulation(String population) {
         this.population = population;
     }
 
-    public Integer getPopulationDensity() {
+    public String getPopulationDensity() {
         return populationDensity;
     }
 
-    public void setPopulationDensity(Integer populationDensity) {
+    public void setPopulationDensity(String populationDensity) {
         this.populationDensity = populationDensity;
     }
 
-    public Integer getInternetUsers() {
+    public String getInternetUsers() {
         return internetUsers;
     }
 
-    public void setInternetUsers(Integer internetUsers) {
+    public void setInternetUsers(String internetUsers) {
         this.internetUsers = internetUsers;
     }
 

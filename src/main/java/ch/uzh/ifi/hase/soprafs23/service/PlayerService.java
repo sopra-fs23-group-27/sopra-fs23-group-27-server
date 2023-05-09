@@ -205,32 +205,4 @@ public class PlayerService {
                     "Error: You are unauthorized to perform this action.");
         }
     }
-
-    public void joinLobby(String wsConnectionId, AuthenticateDTO dto) {
-        Player player = playerRepository.findByToken(dto.getPlayerToken());
-        if (player == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Player with token " + dto.getPlayerToken() + " not found. Please authenticate first.");
-        }
-
-        player.setWsConnectionId(wsConnectionId);
-        playerRepository.saveAndFlush(player);
-
-        Long lobbyId = player.getLobbyId();
-        Lobby lobby = lobbyRepository.findByLobbyId(lobbyId);
-
-        LobbyGetDTO lobbyGetDTO = null;
-        if (lobby instanceof BasicLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
-        }
-        else if (lobby instanceof AdvancedLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
-        }
-
-        webSocketService.sendToPlayerInLobby(wsConnectionId, "/register", lobbyId.toString(), lobbyGetDTO);
-
-        webSocketService.wait(500);
-
-        webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
-    }
 }
