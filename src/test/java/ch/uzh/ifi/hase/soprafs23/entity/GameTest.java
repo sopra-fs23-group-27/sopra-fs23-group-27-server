@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -180,6 +181,15 @@ public class GameTest {
         game.sendRoundToLobby();
 
         verify(webSocketService).sendToLobby(eq(1L), eq("/round"), any(RoundDTO.class));
+    }
+
+    @Test
+    public void testSendCorrectGuessToLobby() {
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+
+        game.sendCorrectGuessToLobby();
+
+        verify(webSocketService).sendToLobby(eq(1L), eq("/correct-country"), any(CorrectGuessDTO.class));
     }
 
 }
