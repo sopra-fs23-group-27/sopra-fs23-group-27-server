@@ -6,8 +6,10 @@ import java.util.ArrayList;
 
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.WSConnectedDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 
 
@@ -27,6 +30,7 @@ public class GameTest {
     CountryHandlerService countryHandlerService;
     WebSocketService webSocketService;
     CountryRepository countryRepository;
+    PlayerRepository playerRepository;
     SimpMessagingTemplate messagingTemplate;
     ScoreBoard scoreBoard;
     Lobby lobby;
@@ -42,6 +46,9 @@ public class GameTest {
 
         // mock countryRepository
         this.countryRepository = mock(CountryRepository.class);
+
+        // mock playerRepository
+        this.playerRepository = mock(PlayerRepository.class);
 
         // mock messagingTemplate
         this.messagingTemplate = mock(SimpMessagingTemplate.class);
@@ -62,7 +69,7 @@ public class GameTest {
     public void testCorrectValidateGuess() {
 
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.playerRepository,  this.lobby);
         Game spyGame = spy(game);
 
         // override the attribute scoreBoard
@@ -86,7 +93,7 @@ public class GameTest {
     public void testCorrectValidateGuessWithSpace() {
 
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.playerRepository,  this.lobby);
         Game spyGame = spy(game);
 
         // override the attribute scoreBoard
@@ -108,7 +115,12 @@ public class GameTest {
     public void testLowerspacedInputValidateGuess() {
 
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game game = new Game(
+            this.countryHandlerService, 
+            this.webSocketService, 
+            this.countryRepository, 
+            this.playerRepository,  
+            this.lobby);
         Game spyGame = spy(game);
 
         // override the attribute scoreBoard
@@ -131,7 +143,12 @@ public class GameTest {
     public void testWrongValidateGuess() {
 
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game game = new Game(
+            this.countryHandlerService, 
+            this.webSocketService, 
+            this.countryRepository, 
+            this.playerRepository,  
+            this.lobby);
 
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
@@ -151,9 +168,14 @@ public class GameTest {
         testCountry.setCountryCode("US");
         testCountry.setName("United States");
         when(this.countryRepository.findByCountryCode(anyString())).thenReturn(testCountry);
-
+        
         // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Game game = new Game(
+            this.countryHandlerService, 
+            this.webSocketService, 
+            this.countryRepository, 
+            this.playerRepository,  
+            this.lobby);
 
         // override attribute correctGuess
         ReflectionTestUtils.setField(game, "correctGuess", "ch");
@@ -165,18 +187,60 @@ public class GameTest {
 
     @Test
     public void testSendsGameStatsDTO() {
+        // load the game class
+        Game game = new Game(
+            this.countryHandlerService, 
+            this.webSocketService, 
+            this.countryRepository, 
+            this.playerRepository,  
+            this.lobby);
 
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        Player testPlayer = new Player();
+        testPlayer.setPlayerName("testPlayer");
+        testPlayer.setCreator(false);
+        testPlayer.setWsConnectionId("test-websocket-key");
+
+        // make a list with the testplayer in it
+        ArrayList<Player> testPlayerList = new ArrayList<Player>();
+
+        // mock the playerRepository
+        when(this.playerRepository.findByLobbyId(anyLong())).thenReturn(testPlayerList);
+
+        // make ArrayList with the testPlayer in it
+        ArrayList<String> testArrayList = new ArrayList<String>();
+        testArrayList.add("testPlayer");
+        
+        // mock the scoreboard with player1
+        ScoreBoard scoreBoard = new ScoreBoard(testArrayList);
+        scoreBoard.setCurrentCorrectGuessPerPlayer("testPlayer", true);
+        scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("testPlayer", 0);
+        scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("testPlayer", 0);
+        scoreBoard.updateTotalScores();
+
+        // override the attribute scoreBoard
+        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
+
 
         game.sendStatsToLobby();
 
+        Long gameId = 0L;
         // verify that the WebSocketService.sendToLobby() method was called with the first hint immediately
-        verify(webSocketService).sendToLobby(eq(1L), eq("/score-board"), any(GameStatsDTO.class));
+        verify(webSocketService).sendToPlayerInLobby(
+            eq("test-websocket-key"),
+            eq("/score-board"),
+            eq(gameId.toString()),
+            any(GameStatsDTO.class));    
     }
 
     @Test
     public void testSendsGameRoundDTO() {
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        // load the game class
+        Game game = new Game(
+            this.countryHandlerService, 
+            this.webSocketService, 
+            this.countryRepository, 
+            this.playerRepository,  
+            this.lobby);
 
         game.sendRoundToLobby();
 
@@ -185,7 +249,14 @@ public class GameTest {
 
     @Test
     public void testSendCorrectGuessToLobby() {
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.lobby);
+        
+        // load the game class
+        Game game = new Game(
+            this.countryHandlerService, 
+            this.webSocketService, 
+            this.countryRepository, 
+            this.playerRepository,  
+            this.lobby);
 
         game.sendCorrectGuessToLobby();
 

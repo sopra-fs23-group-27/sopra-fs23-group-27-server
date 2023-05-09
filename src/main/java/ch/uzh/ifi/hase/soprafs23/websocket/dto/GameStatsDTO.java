@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import antlr.collections.List;
 
 public class GameStatsDTO {
-    public ArrayList<String> PlayerNames;
-    public ArrayList<Integer> TotalGameScores;
-    public ArrayList<Integer> TotalCorrectGuesses;
-    public ArrayList<Integer> TotalTimeUntilCorrectGuess;
-    public ArrayList<Integer> TotalWrongGuesses;
+    private ArrayList<String> PlayerNames;
+    private ArrayList<Integer> TotalGameScores;
+    private ArrayList<Integer> TotalCorrectGuesses;
+    private ArrayList<Integer> TotalTimeUntilCorrectGuess;
+    private ArrayList<Integer> TotalWrongGuesses;
+    private Boolean isCreator;
 
     public GameStatsDTO(
         ArrayList<String> PlayerNames, 
@@ -23,6 +24,7 @@ public class GameStatsDTO {
         this.TotalCorrectGuesses = TotalCorrectGuesses;
         this.TotalTimeUntilCorrectGuess = TotalTimeUntilCorrectGuess;
         this.TotalWrongGuesses = TotalWrongGuesses;
+        this.isCreator = false;
     }
 
     public ArrayList<String> getPlayerNames() {
@@ -63,6 +65,14 @@ public class GameStatsDTO {
 
     public void setTotalWrongGuesses(ArrayList<Integer> totalWrongGuesses) {
         TotalWrongGuesses = totalWrongGuesses;
+    }
+
+    public void setIsCreator(Boolean isCreator) {
+        this.isCreator = isCreator;
+    }
+
+    public Boolean getIsCreator() {
+        return isCreator;
     }
     
 }
