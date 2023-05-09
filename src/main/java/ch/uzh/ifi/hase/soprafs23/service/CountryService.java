@@ -72,50 +72,30 @@ public class CountryService {
 
             // insert the returned values into the country object i.e the database
             Country country = countryRepository.findByCountryCode(countryCode);
-            country.setGdp(parseInt(root.get(0).get("gdp")));
-            country.setSurfaceArea(parseInt(root.get(0).get("surface_area")));
-            country.setLifeExpectancyMale(parseInt(root.get(0).get("life_expectancy_male")));
-            country.setLifeExpectancyFemale(parseInt(root.get(0).get("life_expectancy_female")));
-            country.setUnemploymentRate(parseInt(root.get(0).get("unemployment")));
-            country.setImports(parseInt(root.get(0).get("imports")));
-            country.setExports(parseInt(root.get(0).get("exports")));
-            country.setHomicideRate(parseInt(root.get(0).get("homicide_rate")));
+            country.setGdp(parseString(root.get(0).get("gdp")) + "M USD");
+            country.setSurfaceArea(parseString(root.get(0).get("surface_area")) + " sq. km");
+            country.setLifeExpectancyMale(parseString(root.get(0).get("life_expectancy_male")) + " years");
+            country.setLifeExpectancyFemale(parseString(root.get(0).get("life_expectancy_female")) + " years");
+            country.setUnemploymentRate(parseString(root.get(0).get("unemployment")) + "%");
+            country.setImports(parseString(root.get(0).get("imports")) + "M USD");
+            country.setExports(parseString(root.get(0).get("exports")) + "M USD");
+            country.setHomicideRate(parseString(root.get(0).get("homicide_rate")) + " per 100'000 people");
             country.setCurrency(parseString(root.get(0).get("currency").get("name")));
-            country.setPopulationGrowth(parseInt(root.get(0).get("pop_growth")));
-            country.setSecondarySchoolEnrollmentFemale(parseInt(root.get(0).get("secondary_school_enrollment_female")));
-            country.setSecondarySchoolEnrollmentMale(parseInt(root.get(0).get("secondary_school_enrollment_male")));
+            country.setPopulationGrowth(parseString(root.get(0).get("pop_growth")) + "%");
+            country.setSecondarySchoolEnrollmentFemale(parseString(root.get(0).get("secondary_school_enrollment_female")) + "% of people of secondary school age");
+            country.setSecondarySchoolEnrollmentMale(parseString(root.get(0).get("secondary_school_enrollment_male")) + "% of people of secondary school age");
             country.setCapital(parseString(root.get(0).get("capital")));
-            country.setCo2Emissions(parseInt(root.get(0).get("co2_emissions")));
-            country.setForestedArea(parseInt(root.get(0).get("forested_area")));
-            country.setInfantMortality(parseInt(root.get(0).get("infant_mortality")));
-            country.setPopulation(parseInt(root.get(0).get("population")));
-            country.setPopulationDensity(parseInt(root.get(0).get("pop_density")));
-            country.setInternetUsers(parseInt(root.get(0).get("internet_users")));
+            country.setCo2Emissions(parseString(root.get(0).get("co2_emissions")) + " kilotons");
+            country.setForestedArea(parseString(root.get(0).get("forested_area")) + "% of surface area");
+            country.setInfantMortality(parseString(root.get(0).get("infant_mortality")) + " per 1000 live births");
+            country.setPopulation(parseString(root.get(0).get("population")) + "000");
+            country.setPopulationDensity(parseString(root.get(0).get("pop_density"))+ " people per sq. km of land area");
+            country.setInternetUsers(parseString(root.get(0).get("internet_users")) + "% of population");
 
             // override country in database
             countryRepository.saveAndFlush(country);
         }
 
-    }
-
-    private int parseInt(JsonNode node) {
-        // helperfunction solves two purposes:
-        // 1. if the value is not available, it returns -9999
-        // 2. if the value is null, because the field is not being sent from the api, it
-        // returns -9999
-
-        try {
-            return node.asInt();
-        } catch (NumberFormatException e) {
-            log.info("At least one of the values is not available");
-            return -9999;
-        } catch (NullPointerException e) {
-            log.info("At least one of the values is not available");
-            return -9999;
-        } catch (Exception e) {
-            log.info("At least one of the values is not available");
-            return -9999;
-        }
     }
 
     private String parseString(JsonNode node) {
@@ -124,7 +104,7 @@ public class CountryService {
         // 2. if the value is null, because the field is not being sent from the api, it
         // returns "not available"
         try {
-            return node.toString();
+            return node.toString().replace("\"", "");
         } catch (NumberFormatException e) {
             log.info("At least one of the values is not available");
             return "not available";
