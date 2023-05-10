@@ -1,12 +1,8 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
@@ -14,14 +10,15 @@ import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.TimerDTO;
-
+import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
-import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
-import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class Game {
 
@@ -265,16 +262,22 @@ public class Game {
     }
 
     public Boolean validateGuess(String playerName, String guess, String wsConnectionId) {
-        // prepare the guess
-        // remove all whitespaces and make it lowercase
-        guess = guess.toLowerCase();
-        guess = guess.replaceAll("\\s+", "");
-        log.info("cleaned guess is: " + guess);
+        // clean the guess: remove all whitespaces and make it lowercase
+        String cleanedGuess = guess.toLowerCase();
+        cleanedGuess = cleanedGuess.replaceAll("\\s+", "");
+
+        // use JaroWinkler algorithm to compute the similarity between the guess and the correct guess
+        JaroWinkler jw = new JaroWinkler();
+        Double similarity = jw.similarity(cleanedGuess, this.correctGuess);
+        log.info("player's guess is: " + guess);
         log.info("correct guess is: " + this.correctGuess);
+        log.info("similarity is: " + similarity);
 
         GuessEvalDTO guessEvalDTO = new GuessEvalDTO(guess, false);
 
-        if (guess.equals(this.correctGuess)) {
+        // if the similarity is greater than 0.93, the guess is correct
+        // NOTE: this is a very high threshold, but it is necessary to avoid false positives
+        if (similarity > 0.93) {
 
             // compute the time until the correct guess
             Integer passedTime = this.computePassedTime();
@@ -289,7 +292,6 @@ public class Game {
                         this.gameId.toString(),
                         guessEvalDTO);
             }
-
 
             // write time of player to scoreBoard
             this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
