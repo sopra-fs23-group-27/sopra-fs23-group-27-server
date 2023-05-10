@@ -27,7 +27,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -422,7 +421,7 @@ class LobbyControllerTest {
         lobbyGetDTOs.add(lobbyGetDTO);
         lobbyGetDTOs.add(advancedLobbyGetDTO);
 
-        given(lobbyService.getAllPublicLobbies()).willReturn(lobbies);
+        given(lobbyService.getAllPublicAndJoinableLobbies()).willReturn(lobbies);
 
         // when/then -> do the request + validate the result
         MockHttpServletRequestBuilder getRequest = get("/lobbies")

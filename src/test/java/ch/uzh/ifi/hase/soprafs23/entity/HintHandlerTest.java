@@ -45,7 +45,7 @@ public class HintHandlerTest {
         testCountry = new Country();
         testCountry.setCountryCode("CH");
         testCountry.setName("Switzerland");
-        testCountry.setPopulation("8655"+ "000");
+        testCountry.setPopulation("8655"+ "K");
         testCountry.setCapital("Bern");
         testCountry.setCurrency("Swiss Franc");
         testCountry.setFlag("https://flagcdn.com/h240/ch.png");
@@ -110,7 +110,7 @@ public class HintHandlerTest {
         // test content of list
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("URL", "https://flagcdn.com/h240/ch.png")));
         assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Capital", "Bern")));
-        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8655000")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8655K")));
         assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "Swiss Franc")));
     }
 
@@ -136,7 +136,7 @@ public class HintHandlerTest {
         // test content of list
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("URL", "https://flagcdn.com/h240/ch.png")));
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Capital", "Bern")));
-        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8655000")));
+        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8655K")));
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "Swiss Franc")));
     }
 

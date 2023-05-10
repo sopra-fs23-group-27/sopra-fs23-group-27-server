@@ -69,7 +69,7 @@ public class CountryServiceIntegrationTest {
         assertTrue(foundCountry.getCo2Emissions().endsWith(" kilotons"));
         assertTrue(foundCountry.getForestedArea().endsWith("% of surface area"));
         assertTrue(foundCountry.getInfantMortality().endsWith(" per 1000 live births"));
-        assertTrue(foundCountry.getPopulation().endsWith("000"));
+        assertTrue(foundCountry.getPopulation().endsWith("K"));
         assertTrue(foundCountry.getPopulationDensity().endsWith(" people per sq. km of land area"));
         assertTrue(foundCountry.getInternetUsers().endsWith("% of population"));
     }
@@ -101,7 +101,7 @@ public class CountryServiceIntegrationTest {
         assertTrue(foundCountry.getCo2Emissions().endsWith(" kilotons"));
         assertTrue(foundCountry.getForestedArea().endsWith("% of surface area"));
         assertTrue(foundCountry.getInfantMortality().endsWith(" per 1000 live births"));
-        assertTrue(foundCountry.getPopulation().endsWith("000"));
+        assertTrue(foundCountry.getPopulation().endsWith("K"));
         assertTrue(foundCountry.getPopulationDensity().endsWith(" people per sq. km of land area"));
         assertTrue(foundCountry.getInternetUsers().endsWith("% of population"));
     }
@@ -132,7 +132,7 @@ public class CountryServiceIntegrationTest {
         assertTrue(foundCountry.getCo2Emissions().endsWith(" kilotons"));
         assertTrue(foundCountry.getForestedArea().endsWith("% of surface area"));
         assertTrue(foundCountry.getInfantMortality().endsWith(" per 1000 live births"));
-        assertTrue(foundCountry.getPopulation().endsWith("000"));
+        assertTrue(foundCountry.getPopulation().endsWith("K"));
         assertTrue(foundCountry.getPopulationDensity().endsWith(" people per sq. km of land area"));
         assertTrue(foundCountry.getInternetUsers().endsWith("% of population"));
     }
@@ -164,7 +164,7 @@ public class CountryServiceIntegrationTest {
         assertEquals("not available kilotons", foundCountry.getCo2Emissions());
         assertTrue(foundCountry.getForestedArea().endsWith("% of surface area"));
         assertEquals("not available per 1000 live births", foundCountry.getInfantMortality());
-        assertTrue(foundCountry.getPopulation().endsWith("000"));
+        assertTrue(foundCountry.getPopulation().endsWith("K"));
         assertTrue(foundCountry.getPopulationDensity().endsWith(" people per sq. km of land area"));
         assertTrue(foundCountry.getInternetUsers().endsWith("% of population"));
     }
