@@ -76,6 +76,11 @@ public class PlayerServiceIntegrationTest {
         assertEquals(testPlayer.getPassword(), createdPlayer.getPassword());
         assertEquals(testPlayer.getPlayerName(), createdPlayer.getPlayerName());
         assertNotNull(createdPlayer.getToken());
+        assertEquals(0, createdPlayer.getTotalCorrectGuesses());
+        assertEquals(0, createdPlayer.getTimeUntilCorrectGuess());
+        assertEquals(0, createdPlayer.getNumWrongGuesses());
+        assertEquals(0, createdPlayer.getnRoundsPlayed());
+        assertFalse(createdPlayer.getPermanent());
     }
 
     @Test
@@ -96,5 +101,49 @@ public class PlayerServiceIntegrationTest {
 
         // check that an error is thrown
         assertThrows(ResponseStatusException.class, () -> playerService.createPlayer(testPlayer2));
+    }
+
+    @Test
+    public void registerPlayer_validInputs_success() {
+        // given
+        assertNull(playerRepository.findByPlayerName("testPlayerName"));
+
+        Player testPlayer = new Player();
+        testPlayer.setPassword("password");
+        testPlayer.setPlayerName("testPlayerName");
+
+        // when
+        Player createdPlayer = playerService.registerPlayer(testPlayer);
+
+        // then
+        assertEquals(testPlayer.getId(), createdPlayer.getId());
+        assertEquals(testPlayer.getPassword(), createdPlayer.getPassword());
+        assertEquals(testPlayer.getPlayerName(), createdPlayer.getPlayerName());
+        assertEquals(0, createdPlayer.getTotalCorrectGuesses());
+        assertEquals(0, createdPlayer.getTimeUntilCorrectGuess());
+        assertEquals(0, createdPlayer.getNumWrongGuesses());
+        assertEquals(0, createdPlayer.getnRoundsPlayed());
+        assertNotNull(createdPlayer.getToken());
+        assertTrue(createdPlayer.getPermanent());
+    }
+
+    @Test
+    public void registerPlayer_duplicatePlayerName_throwsException() {
+        assertNull(playerRepository.findByPlayerName("testPlayerName"));
+
+        Player testPlayer = new Player();
+        testPlayer.setPassword("password");
+        testPlayer.setPlayerName("testPlayerName");
+        Player createdPlayer = playerService.registerPlayer(testPlayer);
+
+        // attempt to create second player with same playerName
+        Player testPlayer2 = new Player();
+
+        // change the name but forget about the playerName
+        testPlayer2.setPassword("password");
+        testPlayer2.setPlayerName("testPlayerName");
+
+        // check that an error is thrown
+        assertThrows(ResponseStatusException.class, () -> playerService.registerPlayer(testPlayer2));
     }
 }
