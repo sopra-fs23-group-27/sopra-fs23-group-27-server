@@ -6,13 +6,20 @@ import java.util.ArrayList;
 
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.WSConnectedDTO;
 
+import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 
@@ -27,284 +34,290 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameTest {
 
-    CountryHandlerService countryHandlerService;
-    WebSocketService webSocketService;
-    CountryRepository countryRepository;
-    PlayerRepository playerRepository;
-    SimpMessagingTemplate messagingTemplate;
-    ScoreBoard scoreBoard;
-    Lobby lobby;
+    @Mock
+    private CountryHandlerService countryHandlerService;
 
+    @Mock
+    private WebSocketService webSocketService;
+
+    @Mock
+    private CountryRepository countryRepository;
+
+    @Mock
+    private PlayerRepository playerRepository;
+
+    @Mock
+    private BasicLobby basicLobby;
+
+    @Mock
+    private AdvancedLobby advancedLobby;
+
+    @Mock
+    private ScoreBoard scoreBoard;
+
+    @InjectMocks
+    private Game basicGame;
+
+    @InjectMocks
+    private Game advancedGame;
 
     @BeforeEach
-    public void setUp() {
-        // mock countryHandlerService
-        this.countryHandlerService = mock(CountryHandlerService.class);
-
-        // mock webSocketService
-        this.webSocketService = mock(WebSocketService.class);
-
-        // mock countryRepository
-        this.countryRepository = mock(CountryRepository.class);
-
-        // mock playerRepository
-        this.playerRepository = mock(PlayerRepository.class);
-
-        // mock messagingTemplate
-        this.messagingTemplate = mock(SimpMessagingTemplate.class);
-
-        // Mock the WebSocketService
-        webSocketService = mock(WebSocketService.class);
-
-        // mock lobby
-        this.lobby = mock(Lobby.class);
-        when(this.lobby.getLobbyId()).thenReturn(1L);
-
-        // mock scoreBoard
-        this.scoreBoard = mock(ScoreBoard.class);
-        doNothing().when(this.scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+        basicGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, basicLobby));
+        advancedGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, advancedLobby));
     }
 
     @Test
-    public void testCorrectValidateGuess() {
+    public void testStartBasicGame() {
+        // mock endRound method
+        doNothing().when(basicGame).startRound();
+        // call the method to be tested
+        basicGame.startGame();
 
-        // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.playerRepository,  this.lobby);
-        Game spyGame = spy(game);
+        // check that the method startRound() was called
+        verify(basicGame, times(1)).startRound();
+    }
+
+    @Test
+    public void testStartAdvancedGame() {
+        // mock endRound method
+        doNothing().when(advancedGame).startRound();
+        // call the method to be tested
+        advancedGame.startGame();
+
+        // check that the method startRound() was called
+        verify(advancedGame, times(1)).startRound();
+    }
+
+    @Test
+    public void testEndBasicGame() {
+        // call the method to be tested
+        basicGame.endGame();
+
+        // check that the lobby was notified about end game
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/game-end"), anyString());
+    }
+
+    @Test
+    public void testEndAdvancedGame() {
+        // call the method to be tested
+        advancedGame.endGame();
+
+        // check that the lobby was notified about end game
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/game-end"), anyString());
+    }
+
+    @Test
+    public void testValidateGuessBasicMode_firstWrongGuess() {
+        // given
+        String playerName = "player1";
+        String guess = "Wrong Guess";
+        String wsConnectionId = "connection1";
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
 
-        // manually set start time 
-        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
-        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
+        doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
+        when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(0);
+        when(scoreBoard.getCurrentCorrectGuessPerPlayer(Mockito.anyString())).thenReturn(false);
 
-        // set attribute correctGuess (note: correctGuess is passed through lower 
-        // and a regex that removes all whitespaces)
-        ReflectionTestUtils.setField(spyGame, "correctGuess", "ch");
+        // call the method to be tested
+        basicGame.validateGuess(playerName, guess, wsConnectionId);
 
-        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true)
-        doNothing().when(spyGame).endRound();
-        assertTrue(spyGame.validateGuess("Player1", "CH", "wsConnectionId"));
-
+        // check that the methods setCurrentNumberOfWrongGuessesPerPlayer was called
+        verify(scoreBoard).setCurrentNumberOfWrongGuessesPerPlayer(playerName, 1);
+        // check that the methods setCurrentTimeUntilCorrectGuessPerPlayer and setCurrentCorrectGuessPerPlayer was not called
+        verify(scoreBoard, times(0)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
+        verify(scoreBoard, times(0)).setCurrentCorrectGuessPerPlayer(eq(playerName), anyBoolean());
     }
 
     @Test
-    public void testCorrectValidateGuessWithSpace() {
-
-        // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.playerRepository,  this.lobby);
-        Game spyGame = spy(game);
+    public void testValidateGuessBasicMode_firstCorrectGuess() {
+        // given
+        String playerName = "player1";
+        String guess = "Correct Guess";
+        String wsConnectionId = "connection1";
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "correctGuess", "correctguess");
+        ReflectionTestUtils.setField(basicGame, "startTime", 1000L);
 
-        // set attribute correctGuess
-        ReflectionTestUtils.setField(spyGame, "correctGuess", "ch");
 
-        // manually set start time 
-        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
-        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
+        doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
+        when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(0);
+        when(scoreBoard.getCurrentCorrectGuessPerPlayer(Mockito.anyString())).thenReturn(false);
 
-        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
-        doNothing().when(spyGame).endRound();
-        assertTrue(spyGame.validateGuess("Player1", "CH ", "wsConnectionId"));
+        // call the method to be tested
+        basicGame.validateGuess(playerName, guess, wsConnectionId);
+
+        // check that the methods setCurrentTimeUntilCorrectGuessPerPlayer and setCurrentCorrectGuessPerPlayer was called
+        verify(scoreBoard, times(1)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
+        verify(scoreBoard, times(1)).setCurrentCorrectGuessPerPlayer(eq(playerName), anyBoolean());
+        // check that the method setCurrentNumberOfWrongGuessesPerPlayer was not called
+        verify(scoreBoard, times(0)).setCurrentNumberOfWrongGuessesPerPlayer(eq(playerName), anyInt());
     }
 
     @Test
-    public void testLowerspacedInputValidateGuess() {
-
-        // load the game class
-        Game game = new Game(
-            this.countryHandlerService, 
-            this.webSocketService, 
-            this.countryRepository, 
-            this.playerRepository,  
-            this.lobby);
-        Game spyGame = spy(game);
+    public void testValidateGuessBasicMode_alreadySubmittedCorrectGuess() {
+        // given
+        String playerName = "player1";
+        String guess = "Any Guess";
+        String wsConnectionId = "connection1";
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
 
-        // set attribute correctGuess
-        ReflectionTestUtils.setField(spyGame, "correctGuess", "ch");
+        doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
+        when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(0);
+        when(scoreBoard.getCurrentCorrectGuessPerPlayer(Mockito.anyString())).thenReturn(true);
 
-        // manually set start time 
-        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
-        // Note that validate guess makes use uf the private computePassedTime function
-        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
+        // call the method to be tested
+        basicGame.validateGuess(playerName, guess, wsConnectionId);
 
-        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
-        doNothing().when(spyGame).endRound();
-        assertTrue(spyGame.validateGuess("Player1", "ch", "wsConnectionId"));
+        // Assert
+        verify(webSocketService, times(1)).sendToPlayerInLobby(eq(wsConnectionId), eq("/errors"), anyString(), anyString());
     }
 
     @Test
-    public void testCorrectValidateGuess_guessWithMinorTypo() {
-
-        // load the game class
-        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.playerRepository,  this.lobby);
-        Game spyGame = spy(game);
+    public void testValidateGuessBasicMode_alreadySubmittedWrongGuess() {
+        // given
+        String playerName = "player1";
+        String guess = "Any Guess";
+        String wsConnectionId = "connection1";
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
 
-        // manually set start time
-        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
-        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
+        doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
+        when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(1);
+        when(scoreBoard.getCurrentCorrectGuessPerPlayer(Mockito.anyString())).thenReturn(false);
 
-        // set attribute correctGuess (note: correctGuess is passed through lower
-        // and a regex that removes all whitespaces)
-        ReflectionTestUtils.setField(spyGame, "correctGuess", "switzerland");
+        // call the method to be tested
+        basicGame.validateGuess(playerName, guess, wsConnectionId);
 
-        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true)
-        doNothing().when(spyGame).endRound();
-        assertTrue(spyGame.validateGuess("Player1", "swizterland", "wsConnectionId"));
+        // Assert
+        verify(webSocketService, times(1)).sendToPlayerInLobby(eq(wsConnectionId), eq("/errors"), anyString(), anyString());
     }
 
     @Test
-    public void testWrongValidateGuess() {
+    public void testValidateGuesAdvancedMode_correctGuess() {
+        // given
+        String playerName = "player1";
+        String guess = "Correct Guess";
+        String wsConnectionId = "connection1";
+        String cleanedGuess = guess.toLowerCase().replaceAll("\\s+", "");
 
-        // load the game class
-        Game game = new Game(
-            this.countryHandlerService, 
-            this.webSocketService, 
-            this.countryRepository, 
-            this.playerRepository,  
-            this.lobby);
+        // mock endRound method
+        doNothing().when(advancedGame).endRound();
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(advancedGame, "correctGuess", "correctguess");
+        ReflectionTestUtils.setField(advancedGame, "startTime", 1000L);
 
-        // set attribute correctGuess
-        ReflectionTestUtils.setField(game, "correctGuess", "ch");
+        // call the method to be tested
+        advancedGame.validateGuess(playerName, guess, wsConnectionId);
 
-        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
-        assertFalse(game.validateGuess("Player1", "DE", "wsConnectionId"));
+        // check that the following methods were called
+        verify(webSocketService, times(1)).sendToPlayerInLobby(any(), any(), any(), any());
+        verify(scoreBoard, times(1)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
+        verify(scoreBoard, times(1)).setCurrentCorrectGuessPerPlayer(eq(playerName), eq(true));
+        verify(advancedGame,times(1)).endRound();
+        // check that the method setCurrentNumberOfWrongGuessesPerPlayer was not called
+        verify(scoreBoard, times(0)).setCurrentNumberOfWrongGuessesPerPlayer(eq(playerName), anyInt());
     }
-    
-    @Test
-    public void testWrongValidateGuess_guessWithMajorTypo() {
 
-        // load the game class
-        Game game = new Game(
-                this.countryHandlerService,
-                this.webSocketService,
-                this.countryRepository,
-                this.playerRepository,
-                this.lobby);
+    @Test
+    public void testValidateGuesAdvancedMode_correctGuessWithMinorTypo() {
+        // given
+        String playerName = "player1";
+        String guess = "Correct Guesss";
+        String wsConnectionId = "connection1";
+
+        // mock endRound method
+        doNothing().when(advancedGame).endRound();
 
         // override the attribute scoreBoard
-        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(advancedGame, "correctGuess", "correctguess");
+        ReflectionTestUtils.setField(advancedGame, "startTime", 1000L);
 
-        // set attribute correctGuess
-        ReflectionTestUtils.setField(game, "correctGuess", "switzerland");
+        // call the method to be tested
+        advancedGame.validateGuess(playerName, guess, wsConnectionId);
 
-        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
-        assertFalse(game.validateGuess("Player1", "swedenland", "wsConnectionId"));
+        // check that the following methods were called
+        verify(webSocketService, times(1)).sendToPlayerInLobby(any(), any(), any(), any());
+        verify(scoreBoard, times(1)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
+        verify(scoreBoard, times(1)).setCurrentCorrectGuessPerPlayer(eq(playerName), eq(true));
+        verify(advancedGame,times(1)).endRound();
+        // check that the method setCurrentNumberOfWrongGuessesPerPlayer was not called
+        verify(scoreBoard, times(0)).setCurrentNumberOfWrongGuessesPerPlayer(eq(playerName), anyInt());
     }
 
     @Test
-    public void testUpdateCorrectGuess() {
+    public void testValidateGuesAdvancedMode_wrongGuess() {
+        // given
+        String playerName = "player1";
+        String guess = "Wrong Guess";
+        String wsConnectionId = "connection1";
+        String cleanedGuess = guess.toLowerCase().replaceAll("\\s+", "");
+
+        // mock endRound method
+        doNothing().when(advancedGame).endRound();
+
+        // override the attribute scoreBoard
+        ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(advancedGame, "correctGuess", "Correct Guess");
+        ReflectionTestUtils.setField(advancedGame, "startTime", 1000L);
+
+
+        // call the method to be tested
+        advancedGame.validateGuess(playerName, guess, wsConnectionId);
+
+        // check that the following methods were called
+        verify(webSocketService, times(1)).sendToPlayerInLobby(any(), any(), any(), any());
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/guesses"),  any(GuessDTO.class));
+        verify(scoreBoard, times(1)).setCurrentNumberOfWrongGuessesPerPlayer(eq(playerName), anyInt());
+        // check that the methods setCurrentTimeUntilCorrectGuessPerPlayer, setCurrentCorrectGuessPerPlayer
+        // and endRound() were not called
+        verify(scoreBoard, times(0)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
+        verify(scoreBoard, times(0)).setCurrentCorrectGuessPerPlayer(eq(playerName), eq(true));
+        verify(advancedGame,times(0)).endRound();
+    }
+
+    @Test
+    public void testUpdateCorrectGuessBasicMode() {
 
         // mock the countryRepository
         Country testCountry = new Country();
         testCountry.setCountryCode("US");
         testCountry.setName("United States");
         when(this.countryRepository.findByCountryCode(anyString())).thenReturn(testCountry);
-        
-        // load the game class
-        Game game = new Game(
-            this.countryHandlerService, 
-            this.webSocketService, 
-            this.countryRepository, 
-            this.playerRepository,  
-            this.lobby);
 
         // override attribute correctGuess
-        ReflectionTestUtils.setField(game, "correctGuess", "ch");
+        ReflectionTestUtils.setField(basicGame, "correctGuess", "ch");
 
-        game.updateCorrectGuess("US");
+        basicGame.updateCorrectGuess("US");
 
-        assertEquals("unitedstates", ReflectionTestUtils.getField(game, "correctGuess"));
+        assertEquals("unitedstates", ReflectionTestUtils.getField(basicGame, "correctGuess"));
     }
 
     @Test
-    public void testSendsGameStatsDTO() {
-        // load the game class
-        Game game = new Game(
-            this.countryHandlerService, 
-            this.webSocketService, 
-            this.countryRepository, 
-            this.playerRepository,  
-            this.lobby);
+    public void testUpdateCorrectGuessAdvancedMode() {
 
-        Player testPlayer = new Player();
-        testPlayer.setPlayerName("testPlayer");
-        testPlayer.setCreator(false);
-        testPlayer.setWsConnectionId("test-websocket-key");
+        // mock the countryRepository
+        Country testCountry = new Country();
+        testCountry.setCountryCode("US");
+        testCountry.setName("United States");
+        when(this.countryRepository.findByCountryCode(anyString())).thenReturn(testCountry);
 
-        // make a list with the testplayer in it
-        ArrayList<Player> testPlayerList = new ArrayList<Player>();
+        // override attribute correctGuess
+        ReflectionTestUtils.setField(basicGame, "correctGuess", "ch");
 
-        // mock the playerRepository
-        when(this.playerRepository.findByLobbyId(anyLong())).thenReturn(testPlayerList);
+        basicGame.updateCorrectGuess("US");
 
-        // make ArrayList with the testPlayer in it
-        ArrayList<String> testArrayList = new ArrayList<String>();
-        testArrayList.add("testPlayer");
-        
-        // mock the scoreboard with player1
-        ScoreBoard scoreBoard = new ScoreBoard(testArrayList);
-        scoreBoard.setCurrentCorrectGuessPerPlayer("testPlayer", true);
-        scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("testPlayer", 0);
-        scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("testPlayer", 0);
-        scoreBoard.updateTotalScores();
-
-        // override the attribute scoreBoard
-        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
-
-
-        game.sendStatsToLobby();
-
-        Long gameId = 0L;
-        // verify that the WebSocketService.sendToLobby() method was called with the first hint immediately
-        //verify(webSocketService).sendToPlayerInLobby(
-            //eq("test-websocket-key"),
-            //eq("/score-board"),
-            //eq(gameId.toString()),
-            //any(GameStatsDTO.class));    
+        assertEquals("unitedstates", ReflectionTestUtils.getField(basicGame, "correctGuess"));
     }
-
-    @Test
-    public void testSendsGameRoundDTO() {
-        // load the game class
-        Game game = new Game(
-            this.countryHandlerService, 
-            this.webSocketService, 
-            this.countryRepository, 
-            this.playerRepository,  
-            this.lobby);
-
-        game.sendRoundToLobby();
-
-        verify(webSocketService).sendToLobby(eq(1L), eq("/round"), any(RoundDTO.class));
-    }
-
-    @Test
-    public void testSendCorrectGuessToLobby() {
-        
-        // load the game class
-        Game game = new Game(
-            this.countryHandlerService, 
-            this.webSocketService, 
-            this.countryRepository, 
-            this.playerRepository,  
-            this.lobby);
-
-        game.sendCorrectGuessToLobby();
-
-        verify(webSocketService).sendToLobby(eq(1L), eq("/correct-country"), any(CorrectGuessDTO.class));
-    }
-
 }
