@@ -32,7 +32,6 @@ public abstract class Lobby implements Serializable {
         this.joinedPlayerNames = new ArrayList<>();
     }
 
-
     @Transient
     public String getMode() {
         return this.getClass().getAnnotation(DiscriminatorValue.class).value();

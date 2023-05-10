@@ -166,8 +166,12 @@ public class Game {
         // inform players in lobby that game round has ended
         webSocketService.sendToLobby(this.gameId, "/round-end", "{}");
 
-        // compute the time passed since the start of the round in seconds
-        Integer passedTime = this.computePassedTime();
+        // number of second for all players that have not correctly guessed the country
+        // if the first player guessed the country correctly, the round is over. 
+        // therefore all players, who have not guessed the time correctly would get
+        // the same time as the player who guessed the country correctly
+        // to avoid this. Each player that has not guessed correctly gets the full time
+        Integer passedTime = this.lobby.getNumSeconds();
 
         // for each player that has NOT guessed the country correctly,
         // set the current guess to false
@@ -196,6 +200,9 @@ public class Game {
         // MUST BE CALLED AFTER FOR LOOP
         this.scoreBoard.updateTotalScores();
 
+        // write all stats for each player to DB.
+        this.addStatsToDB();
+
         // computes the LeaderBoardScore for each player for the current round and total rounds
         // NOTE: ALL GETTERS FOR THE CURRENT AND TOTAL LEADERBOARD CAN ONLY BE USED FROM NOW ON
         this.scoreBoard.computeLeaderBoardScore();
@@ -209,6 +216,7 @@ public class Game {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
@@ -472,5 +480,35 @@ public class Game {
 
         this.webSocketService.sendToLobby(this.gameId, "/correct-country", correctGuessDTO);
 
+    }
+
+    private void addStatsToDB() {
+
+        // load all the players to a list
+        List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
+        for(Player player : lobby) {
+
+            // update the total correct guesses. This is done after each round
+            player.setTotalCorrectGuesses(player.getTotalCorrectGuesses()+1);
+
+            // update the total wrong guesses. This is done after each round
+            player.setNumWrongGuesses(
+                player.getNumWrongGuesses() + 
+                this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
+            );
+
+            // update the total time until correct guess. This is done after each round
+            player.setTimeUntilCorrectGuess(
+                player.getTimeUntilCorrectGuess() + 
+                this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(player.getPlayerName())
+            );
+            
+            // update the number of Games played. This is done only once after the game!
+            if (this.round == this.numRounds) {
+                player.setnRoundsPlayed(
+                    player.getnRoundsPlayed() + 1
+                );
+            }
+        }
     }
 }

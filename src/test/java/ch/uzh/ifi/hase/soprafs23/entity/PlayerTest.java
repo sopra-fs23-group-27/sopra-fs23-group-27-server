@@ -55,4 +55,32 @@ public class PlayerTest {
         assertEquals(1L, player.getLobbyId());
         assertEquals("connection-id", player.getWsConnectionId());
     }
+
+    @Test
+    public void testSetAndGetTotalCorrectGuesses() {
+        Player player = new Player();
+        player.setTotalCorrectGuesses(5);
+        assertEquals(5, player.getTotalCorrectGuesses());
+    }
+
+    @Test
+    public void testSetAndGetNRoundsPlayed() {
+        Player player = new Player();
+        player.setnRoundsPlayed(10);
+        assertEquals(10, player.getnRoundsPlayed());
+    }
+
+    @Test
+    public void testSetAndGetAvgTimeUntilCorrectGuess() {
+        Player player = new Player();
+        player.setTimeUntilCorrectGuess(30);
+        assertEquals(30, player.getTimeUntilCorrectGuess());
+    }
+
+    @Test
+    public void testSetAndGetNumWrongGuesses() {
+        Player player = new Player();
+        player.setNumWrongGuesses(2);
+        assertEquals(2, player.getNumWrongGuesses());
+    }
 }

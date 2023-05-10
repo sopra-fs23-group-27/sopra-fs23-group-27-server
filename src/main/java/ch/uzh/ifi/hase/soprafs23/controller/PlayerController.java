@@ -73,6 +73,25 @@ public class PlayerController {
                 .body(playerGetDTO);
     }
 
+    @PostMapping("/registration")
+    @CrossOrigin(exposedHeaders = "*")
+    public ResponseEntity registerPlayer(@RequestBody PlayerPostDTO playerPostDTO) {
+        // convert API player to internal representation
+        Player playerInput = DTOMapper.INSTANCE.convertPlayerPostDTOtoEntity(playerPostDTO);
+
+        // create player
+        Player createdPlayer = playerService.registerPlayer(playerInput);
+
+        // convert internal representation of player back to API
+        PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(createdPlayer);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .header("Authorization", createdPlayer.getToken())
+                .body(playerGetDTO);
+    }
+
+
     @PostMapping("/login")
     @CrossOrigin(exposedHeaders = "*")
     public ResponseEntity loginPlayer(@RequestBody PlayerPostDTO playerPostDTO) {
