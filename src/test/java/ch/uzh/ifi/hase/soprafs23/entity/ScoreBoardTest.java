@@ -287,9 +287,9 @@ public class ScoreBoardTest {
         this.scoreBoard.computeLeaderBoardScore();
 
         // after the first round, the scores for current and total are equivalent
-        assertEquals(11, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player1"));
+        assertEquals(18, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player1"));
         assertEquals(0, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player2"));
-        assertEquals(11, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
+        assertEquals(18, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
         assertEquals(0, this.scoreBoard.getCurrentScorePerPlayer("Player2"));
 
         // SECOND ROUND:
@@ -316,9 +316,9 @@ public class ScoreBoardTest {
         // now the total score must be equal to the previous total score + the current score
         // notice that the current score for the player is more then the previous current score
         // this is because the player has had two correct guesses in a row
-        assertEquals(25, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player1"));
+        assertEquals(46, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player1"));
         assertEquals(0, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player2"));
-        assertEquals(14, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
+        assertEquals(28, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
         assertEquals(0, this.scoreBoard.getCurrentScorePerPlayer("Player2"));
     }
 

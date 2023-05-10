@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.*;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
@@ -29,12 +30,14 @@ public class GameService {
     private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
+    private final PlayerRepository playerRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final LobbyRepository lobbyRepository;
     private final PlayerService playerService;
 
     @Autowired
     public GameService(@Qualifier("countryRepository") CountryRepository countryRepository,
+                       @Qualifier("playerRepository") PlayerRepository playerRepository,
                        @Qualifier("lobbyRepository") LobbyRepository lobbyRepository,
                        CountryHandlerService countryHandlerService,
                        SimpMessagingTemplate messagingTemplate,
@@ -42,6 +45,7 @@ public class GameService {
                        PlayerService playerService) {
 
         this.countryRepository = countryRepository;
+        this.playerRepository = playerRepository;
         this.countryHandlerService = countryHandlerService;
         this.webSocketService = webSocketService;
         this.messagingTemplate = messagingTemplate;
@@ -71,7 +75,7 @@ public class GameService {
         // Inform all players in the lobby that the game has started
         this.webSocketService.sendToLobby(lobbyId, "/game-start", "{}");
 
-        Game game = new Game(countryHandlerService, webSocketService, countryRepository, lobby);
+        Game game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobby);
         GameRepository.addGame(lobby.getLobbyId(), game);
 
         lobby.setCurrentGameId(game.getGameId());

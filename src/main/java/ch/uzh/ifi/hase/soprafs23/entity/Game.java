@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
@@ -34,6 +35,7 @@ public class Game {
     private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
+    private final PlayerRepository playerRepository;
 
     private ScoreBoard scoreBoard;
     private HintHandler hintHandler;
@@ -57,12 +59,15 @@ public class Game {
     private int numOptions;
 
     public Game(CountryHandlerService countryHandlerService,
-                WebSocketService webSocketService, CountryRepository countryRepository,
+                WebSocketService webSocketService, 
+                CountryRepository countryRepository,
+                PlayerRepository playerRepository,
                 Lobby lobby) {
 
         this.countryHandlerService = countryHandlerService;
         this.webSocketService = webSocketService;
         this.countryRepository = countryRepository;
+        this.playerRepository = playerRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
@@ -438,7 +443,13 @@ public class Game {
         log.info("- Total correct guesses: " + gameStatsDTO.getTotalCorrectGuesses());
         log.info("- Total time until correct guess: " + gameStatsDTO.getTotalTimeUntilCorrectGuess());
         log.info("- Total wrong guesses: " + gameStatsDTO.getTotalWrongGuesses());
-        webSocketService.sendToLobby(this.gameId, "/score-board", gameStatsDTO);
+
+        List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
+        for (Player player : lobby) {
+            gameStatsDTO.setIsCreator(player.isCreator());
+            webSocketService.sendToPlayerInLobby(player.getWsConnectionId(), "/score-board",this.gameId.toString(), gameStatsDTO);
+        }
+
     }
 
     public void sendRoundToLobby() {

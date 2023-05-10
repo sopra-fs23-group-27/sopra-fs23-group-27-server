@@ -100,6 +100,4 @@ public class Player implements Serializable {
     public void setWsConnectionId(String wsConnectionId) {
         this.wsConnectionId = wsConnectionId;
     }
-
-
 }
