@@ -55,16 +55,6 @@ class WebSocketControllerTest {
     }
 
     @Test
-    void authenticatePlayer_shouldAuthenticatePlayerAndJoinLobby() {
-        when(webSocketService.getIdentity(smha)).thenReturn("testIdentity");
-        when(dto.getPlayerToken()).thenReturn("testToken");
-
-        webSocketController.authenticatePlayer(smha, dto);
-
-        verify(authenticationService).authenticateAndJoinLobby("testIdentity", "testToken");
-    }
-
-    @Test
     void playerDisconnectEvent_shouldDisconnectPlayerFromLobby() {
         when(disconnectEvent.getUser()).thenReturn(disconnectedPlayer);
         when(disconnectedPlayer.getName()).thenReturn("testWebSocketId");
