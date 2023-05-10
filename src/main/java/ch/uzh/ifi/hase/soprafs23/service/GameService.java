@@ -27,6 +27,7 @@ import java.util.HashMap;
 public class GameService {
 
     private final Logger log = LoggerFactory.getLogger(GameService.class);
+
     private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
@@ -83,7 +84,6 @@ public class GameService {
         this.lobbyRepository.flush();
         this.sendLobbySettings(lobbyId.intValue());
         game.startGame();
-
     }
 
     public void sendLobbySettings(Integer lobbyId, SimpMessageHeaderAccessor smha) {
@@ -119,7 +119,6 @@ public class GameService {
         log.info("Sending lobby settings to lobby id: " + lobbyId + " :");
         log.info("Player-role map: " + lobbySettingsDTO.getPlayerRoleMap().toString());
         this.webSocketService.sendToLobby(lobbyId.longValue(), "/lobby-settings", lobbySettingsDTO);
-
     }
 
     public void sendLobbySettings(Integer lobbyId) {
@@ -154,8 +153,5 @@ public class GameService {
         log.info("Sending lobby settings to lobby id: " + lobbyId + " :");
         log.info("Player-role map: " + lobbySettingsDTO.getPlayerRoleMap().toString());
         this.webSocketService.sendToLobby(lobbyId.longValue(), "/lobby-settings", lobbySettingsDTO);
-
     }
-
-
 }

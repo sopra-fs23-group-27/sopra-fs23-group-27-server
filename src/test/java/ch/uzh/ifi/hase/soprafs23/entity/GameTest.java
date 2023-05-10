@@ -140,6 +140,29 @@ public class GameTest {
     }
 
     @Test
+    public void testCorrectValidateGuess_guessWithMinorTypo() {
+
+        // load the game class
+        Game game = new Game(this.countryHandlerService, this.webSocketService, this.countryRepository, this.playerRepository,  this.lobby);
+        Game spyGame = spy(game);
+
+        // override the attribute scoreBoard
+        ReflectionTestUtils.setField(spyGame, "scoreBoard", scoreBoard);
+
+        // manually set start time
+        // (this must be done because startRound() was not called and therefore the attibute startTime is not set)
+        ReflectionTestUtils.setField(spyGame, "startTime", 1000L);
+
+        // set attribute correctGuess (note: correctGuess is passed through lower
+        // and a regex that removes all whitespaces)
+        ReflectionTestUtils.setField(spyGame, "correctGuess", "switzerland");
+
+        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, true)
+        doNothing().when(spyGame).endRound();
+        assertTrue(spyGame.validateGuess("Player1", "swizterland", "wsConnectionId"));
+    }
+
+    @Test
     public void testWrongValidateGuess() {
 
         // load the game class
@@ -158,6 +181,27 @@ public class GameTest {
 
         // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
         assertFalse(game.validateGuess("Player1", "DE", "wsConnectionId"));
+    }
+    
+    @Test
+    public void testWrongValidateGuess_guessWithMajorTypo() {
+
+        // load the game class
+        Game game = new Game(
+                this.countryHandlerService,
+                this.webSocketService,
+                this.countryRepository,
+                this.playerRepository,
+                this.lobby);
+
+        // override the attribute scoreBoard
+        ReflectionTestUtils.setField(game, "scoreBoard", scoreBoard);
+
+        // set attribute correctGuess
+        ReflectionTestUtils.setField(game, "correctGuess", "switzerland");
+
+        // mock this function to return void this.scoreBoard.setCurrentCorrectGuessPerPlayer(PlayerName, false)
+        assertFalse(game.validateGuess("Player1", "swedenland", "wsConnectionId"));
     }
 
     @Test
