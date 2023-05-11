@@ -36,15 +36,13 @@ public class PlayerService {
     private final LobbyRepository lobbyRepository;
 
     private final PlayerStats PlayerStats;
-    private WebSocketService webSocketService;
 
     @Autowired
     public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository,
-                         LobbyRepository lobbyRepository, WebSocketService webSocketService) {
+                         LobbyRepository lobbyRepository) {
         this.playerRepository = playerRepository;
         this.lobbyRepository = lobbyRepository;
         this.PlayerStats = new PlayerStats(); // Can be changed
-        this.webSocketService = webSocketService;
     }
 
     public List<Player> getPlayers(String token) {
@@ -65,8 +63,8 @@ public class PlayerService {
     public Player getPlayerByWsConnectionId(String wsConnectionId) {
         Player player = this.playerRepository.findByWsConnectionId(wsConnectionId);
         if (player == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Player with wsConnectionId " + wsConnectionId + " does not exist");
+            log.debug("Player with wsConnectionId {} does not exist." +
+                    "Returning NULL player.", wsConnectionId);
         }
         return player;
     }
@@ -206,7 +204,7 @@ public class PlayerService {
         }
     }
 
-    public void joinLobby(String wsConnectionId, AuthenticateDTO dto) {
+/*    public void joinLobby(String wsConnectionId, AuthenticateDTO dto) {
         Player player = playerRepository.findByToken(dto.getPlayerToken());
         if (player == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -232,5 +230,5 @@ public class PlayerService {
         webSocketService.wait(500);
 
         webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
-    }
+    }*/
 }

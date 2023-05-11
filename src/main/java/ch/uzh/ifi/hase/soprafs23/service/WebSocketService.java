@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
+import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
-import ch.uzh.ifi.hase.soprafs23.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -12,19 +14,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
 public class WebSocketService {
 
+    Logger log = LoggerFactory.getLogger(WebSocketService.class);
     private PlayerRepository playerRepository;
+    private final LobbyService lobbyService;
+
+    private final Map<String, Timer> playersToBeDisconnected = new HashMap<>();
 
     @Autowired
     protected SimpMessagingTemplate simpMessagingTemplate;
 
-    public WebSocketService(@Qualifier("playerRepository") PlayerRepository playerRepository) {
+    public WebSocketService(@Qualifier("playerRepository") PlayerRepository playerRepository,
+                            @Lazy LobbyService lobbyService) {
         this.playerRepository = playerRepository;
+        this.lobbyService = lobbyService;
     }
 
     public void sendToPlayerInLobby(String wsConnectionId, String path, String lobbyId, Object dto) {
@@ -58,4 +66,41 @@ public class WebSocketService {
         }
     }
 
+    public void initDisconnectionProcedureByWsId(String wsConnectionId) {
+        Player player = this.playerRepository.findByWsConnectionId(wsConnectionId);
+        String playerToken = player.getToken();
+
+        this.playersToBeDisconnected.put(playerToken, new Timer());
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                log.info("Lobby " + player.getLobbyId() + ": Reconnection time of Player with WsId" + player.getWsConnectionId() + " is over.");
+                lobbyService.disconnectPlayer(playerToken);
+                playersToBeDisconnected.remove(playerToken);
+            }
+        };
+        this.playersToBeDisconnected.get(playerToken).schedule(timerTask, 1000);
+    }
+
+    public Boolean isPlayerReconnecting(String playerToken) {
+        return playersToBeDisconnected.containsKey(playerToken);
+    }
+
+    public void initReconnectionProcedure(String newWsConnectionId, String playerToken) {
+
+        if (this.playersToBeDisconnected.containsKey(playerToken)) {
+            Player player = this.playerRepository.findByToken(playerToken);
+            if (player != null) {
+                this.playersToBeDisconnected.get(playerToken).cancel();
+                this.playersToBeDisconnected.remove(playerToken);
+                player.setWsConnectionId(newWsConnectionId);
+                this.playerRepository.save(player);
+                this.playerRepository.flush();
+                log.info("Lobby " + player.getLobbyId() + ": Player " + player.getPlayerName() + " is reconnected. The new" +
+                        "websocketId is: " + newWsConnectionId);
+
+            }
+
+        }
+    }
 }

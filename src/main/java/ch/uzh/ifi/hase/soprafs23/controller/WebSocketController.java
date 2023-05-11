@@ -24,21 +24,27 @@ public class WebSocketController {
 
     private final AuthenticationService authenticationService;
     private final WebSocketService webSocketService;
-    private final LobbyService lobbyService;
+
 
     public WebSocketController(AuthenticationService authenticationService,
-                               WebSocketService webSocketService,
-                               LobbyService lobbyService) {
+                               WebSocketService webSocketService) {
         this.authenticationService = authenticationService;
         this.webSocketService = webSocketService;
-        this.lobbyService = lobbyService;
     }
 
     @MessageMapping("/authentication")
     public synchronized void authenticatePlayer(SimpMessageHeaderAccessor smha, AuthenticateDTO dto) {
-        log.info("Player " + webSocketService.getIdentity(smha) + ": Connection established");
 
-        authenticationService.authenticateAndJoinLobby(webSocketService.getIdentity(smha), dto.getPlayerToken());
+        if (this.webSocketService.isPlayerReconnecting(dto.getPlayerToken())) {
+            log.info("Authentication Event: Previous Player (token: " + dto.getPlayerToken() + ") is reconnecting with" +
+                    " new websocketId: " + webSocketService.getIdentity(smha));
+            this.webSocketService.initReconnectionProcedure(webSocketService.getIdentity(smha), dto.getPlayerToken());
+        }
+        else {
+            log.info("Authentication Event: New Player with websocketId: " + webSocketService.getIdentity(smha) + " connected");
+            this.authenticationService.authenticateAndJoinLobby(webSocketService.getIdentity(smha), dto.getPlayerToken());
+        }
+
     }
 
 
@@ -47,9 +53,10 @@ public class WebSocketController {
         Principal disconnectedPlayer = disconnectEvent.getUser();
         if (disconnectedPlayer != null) {
             String wsConnectionId = disconnectedPlayer.getName();
-            log.info("Disconnect Event: Player with websocketId " + wsConnectionId + " disconnected");
+            log.info("Disconnect Event: Player with websocketId " + wsConnectionId + " disconnected." +
+                    " Initiating disconnection procedure.");
 
-            this.lobbyService.disconnectPlayer(wsConnectionId);
+            this.webSocketService.initDisconnectionProcedureByWsId(wsConnectionId);
         }
     }
 
