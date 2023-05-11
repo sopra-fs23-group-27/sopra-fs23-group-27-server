@@ -124,7 +124,6 @@ public class Game {
             log.info("No new round can be started since numRounds is reached." +
                     " Initiate Game loop end for lobbyId: " + this.gameId);
             this.endGame();
-            return;
         }
         startTimer(this.numSeconds, this);
         webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
@@ -133,22 +132,19 @@ public class Game {
         String currentCountryCode = this.allCountryCodes.get(this.round);
         updateCorrectGuess(currentCountryCode);
         log.info("Correct guess for round " + (this.round + 1) + " is: " + this.correctGuess);
-        // init procedure for a new round
 
         // init hints for new round given country code
-        hintHandler = new HintHandler(
-                currentCountryCode, lobby, countryRepository, webSocketService
-        );
+        if (hintHandler == null) {
+            hintHandler = new HintHandler(
+                    currentCountryCode, lobby, countryRepository, webSocketService
+            );
+        }
         hintHandler.setHints();
 
         hintHandler.sendRequiredDetailsViaWebSocket();
 
-
         // start the timer
-
         this.startTime = System.currentTimeMillis();
-        // call endRound if the timer runs out
-
     }
 
     public void endRound() {
@@ -238,6 +234,8 @@ public class Game {
         if (this.round.equals(this.numRounds)) {
             this.endGame();
         }
+        // set hintHandler again to null
+        this.hintHandler = null;
     }
 
     public void updateCorrectGuess(String countryCode) {
@@ -390,7 +388,7 @@ public class Game {
         this.startTime = null;
     }
 
-    public void startTimer(int seconds, Game game) {
+    private void startTimer(int seconds, Game game) {
         this.timer = new Timer();
         final int remainingTime = seconds;
 
@@ -428,7 +426,7 @@ public class Game {
         this.timer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
     }
 
-    public void stopTimer() {
+    private void stopTimer() {
         this.timer.cancel();
     }
 

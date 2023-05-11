@@ -20,7 +20,6 @@ public class HintHandler {
     private String countryCode;
 
     private Lobby lobby;
-    private Long lobbyId;
     private int numHints;
     private int numChoices;
 
@@ -34,7 +33,6 @@ public class HintHandler {
                        WebSocketService webSocketService) {
         this.countryCode = countryCode;
         this.lobby = lobby;
-        this.lobbyId = lobby.getLobbyId();
         this.numHints = determineNumHints(lobby);
         this.numChoices = determineNumOptions(lobby);
         this.countryRepository = countryRepository;
@@ -84,7 +82,7 @@ public class HintHandler {
             e.printStackTrace();
         }
         log.info("FLAG-URL: " + url);
-        webSocketService.sendToLobby(lobbyId, "/flag-in-round", flagDTO);
+        webSocketService.sendToLobby(lobby.getLobbyId(), "/flag-in-round", flagDTO);
 
         // if game mode is advanced, send remaining hints every hintInterval
         // seconds starting after firstHintAfter seconds
@@ -242,7 +240,7 @@ public class HintHandler {
                     String nextHint = hints.remove(0).toString();
                     HintDTO hintDTO = new HintDTO(nextHint);
                     log.info("Hint: " + nextHint);
-                    webSocketService.sendToLobby(lobbyId, "/hints-in-round", hintDTO);
+                    webSocketService.sendToLobby(lobby.getLobbyId(), "/hints-in-round", hintDTO);
 
                 }
                 else {
@@ -273,7 +271,7 @@ public class HintHandler {
 
         // send choices via websocket
         ChoicesDTO choicesDTO = new ChoicesDTO(choices);
-        webSocketService.sendToLobby(lobbyId, "/choices-in-round", choicesDTO);
+        webSocketService.sendToLobby(lobby.getLobbyId(), "/choices-in-round", choicesDTO);
     }
 }
 

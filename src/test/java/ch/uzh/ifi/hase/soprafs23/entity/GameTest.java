@@ -3,34 +3,24 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Timer;
 
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.WSConnectedDTO;
 
-import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-
+import org.mockito.*;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 
-
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doNothing;
 
 public class GameTest {
 
@@ -54,6 +44,9 @@ public class GameTest {
 
     @Mock
     private ScoreBoard scoreBoard;
+
+    @Mock
+    private HintHandler hintHandler;
 
     @InjectMocks
     private Game basicGame;
@@ -106,6 +99,188 @@ public class GameTest {
 
         // check that the lobby was notified about end game
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/game-end"), anyString());
+    }
+
+    @Test
+    public void testStartRoundBasicMode_firstRound() throws Exception {
+        // given
+        ArrayList<String> allCountryCodes = new ArrayList();
+        allCountryCodes.add("CH");
+        allCountryCodes.add("US");
+        allCountryCodes.add("DE");
+        allCountryCodes.add("FR");
+        allCountryCodes.add("IT");
+
+        // Override game attributes
+        ReflectionTestUtils.setField(basicGame, "allCountryCodes", allCountryCodes);
+        ReflectionTestUtils.setField(basicGame, "correctGuess", "switzerland");
+        ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
+
+        // Mock the country class
+        Country country = mock(Country.class);
+
+        // Mock some repository methods and service methods
+        when(countryHandlerService.sourceCountryInfo(5)).thenReturn(allCountryCodes);
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
+        when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
+        doNothing().when(basicGame).updateCorrectGuess(anyString());
+
+        // Mock the behavior of the HintHandler methods
+        doNothing().when(hintHandler).setHints();
+        doNothing().when(hintHandler).sendRequiredDetailsViaWebSocket();
+
+        // call the method to be tested
+        basicGame.startRound();
+
+        // check that this is the first round
+        assertEquals(0, ReflectionTestUtils.getField(basicGame, "round"));
+        // check that correct guess has been updated
+        assertEquals("switzerland", ReflectionTestUtils.getField(basicGame, "correctGuess"));
+
+        // check the following methods were called
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
+        verify(basicGame, times(1)).updateCorrectGuess(anyString());
+        verify(hintHandler, times(1)).setHints();
+        verify(hintHandler, times(1)).sendRequiredDetailsViaWebSocket();
+
+        // check that the following methods were not called
+        verify(basicGame, times(0)).endGame();
+    }
+
+    @Test
+    public void testStartRoundBasicMode_lastRound() throws Exception {
+        // given
+        ArrayList<String> allCountryCodes = new ArrayList();
+        allCountryCodes.add("CH");
+        allCountryCodes.add("US");
+        allCountryCodes.add("DE");
+        allCountryCodes.add("FR");
+        allCountryCodes.add("IT");
+
+        // Override game attributes
+        ReflectionTestUtils.setField(basicGame, "allCountryCodes", allCountryCodes);
+        ReflectionTestUtils.setField(basicGame, "correctGuess", "italy");
+        ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
+        ReflectionTestUtils.setField(basicGame, "round", 4);
+
+        // Mock the country class
+        Country country = mock(Country.class);
+
+        // Mock some repository methods and service methods
+        when(countryHandlerService.sourceCountryInfo(5)).thenReturn(allCountryCodes);
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
+        when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
+        doNothing().when(basicGame).updateCorrectGuess(anyString());
+
+        // Mock the behavior of the HintHandler methods
+        doNothing().when(hintHandler).setHints();
+        doNothing().when(hintHandler).sendRequiredDetailsViaWebSocket();
+
+        // call the method to be tested
+        basicGame.startRound();
+
+        // check that this is the last round
+        assertEquals(4, ReflectionTestUtils.getField(basicGame, "round"));
+        // check that correct guess has been updated
+        assertEquals("italy", ReflectionTestUtils.getField(basicGame, "correctGuess"));
+
+        // check the following methods were called
+        verify(basicGame, times(1)).endGame();
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
+        verify(basicGame, times(1)).updateCorrectGuess(anyString());
+        verify(hintHandler, times(1)).setHints();
+        verify(hintHandler, times(1)).sendRequiredDetailsViaWebSocket();
+    }
+
+    @Test
+    public void testStartRoundAdvancedMode_firstRound() throws Exception {
+        // given
+        ArrayList<String> allCountryCodes = new ArrayList();
+        allCountryCodes.add("CH");
+        allCountryCodes.add("US");
+        allCountryCodes.add("DE");
+        allCountryCodes.add("FR");
+        allCountryCodes.add("IT");
+
+        // Override game attributes
+        ReflectionTestUtils.setField(advancedGame, "allCountryCodes", allCountryCodes);
+        ReflectionTestUtils.setField(advancedGame, "correctGuess", "switzerland");
+        ReflectionTestUtils.setField(advancedGame, "hintHandler", hintHandler);
+
+        // Mock the country class
+        Country country = mock(Country.class);
+
+        // Mock some repository methods and service methods
+        when(countryHandlerService.sourceCountryInfo(5)).thenReturn(allCountryCodes);
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
+        when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
+        doNothing().when(advancedGame).updateCorrectGuess(anyString());
+
+        // Mock the behavior of the HintHandler methods
+        doNothing().when(hintHandler).setHints();
+        doNothing().when(hintHandler).sendRequiredDetailsViaWebSocket();
+
+        // call the method to be tested
+        advancedGame.startRound();
+
+        // check that this is the first round
+        assertEquals(0, ReflectionTestUtils.getField(advancedGame, "round"));
+        // check that correct guess has been updated
+        assertEquals("switzerland", ReflectionTestUtils.getField(advancedGame, "correctGuess"));
+
+        // check the following methods were called
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
+        verify(advancedGame, times(1)).updateCorrectGuess(anyString());
+        verify(hintHandler, times(1)).setHints();
+        verify(hintHandler, times(1)).sendRequiredDetailsViaWebSocket();
+
+        // check that the following methods were not called
+        verify(advancedGame, times(0)).endGame();
+    }
+
+    @Test
+    public void testStartRoundAdvancedMode_lastRound() throws Exception {
+        // given
+        ArrayList<String> allCountryCodes = new ArrayList();
+        allCountryCodes.add("CH");
+        allCountryCodes.add("US");
+        allCountryCodes.add("DE");
+        allCountryCodes.add("FR");
+        allCountryCodes.add("IT");
+
+        // Override game attributes
+        ReflectionTestUtils.setField(advancedGame, "allCountryCodes", allCountryCodes);
+        ReflectionTestUtils.setField(advancedGame, "correctGuess", "italy");
+        ReflectionTestUtils.setField(advancedGame, "hintHandler", hintHandler);
+        ReflectionTestUtils.setField(advancedGame, "round", 4);
+
+        // Mock the country class
+        Country country = mock(Country.class);
+
+        // Mock some repository methods and service methods
+        when(countryHandlerService.sourceCountryInfo(5)).thenReturn(allCountryCodes);
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
+        when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
+        doNothing().when(advancedGame).updateCorrectGuess(anyString());
+
+        // Mock the behavior of the HintHandler methods
+        doNothing().when(hintHandler).setHints();
+        doNothing().when(hintHandler).sendRequiredDetailsViaWebSocket();
+
+        // call the method to be tested
+        advancedGame.startRound();
+
+        // check that this is the last round
+        assertEquals(4, ReflectionTestUtils.getField(advancedGame, "round"));
+        // check that correct guess has been updated
+        assertEquals("italy", ReflectionTestUtils.getField(advancedGame, "correctGuess"));
+
+        // check the following methods were called
+        verify(advancedGame, times(1)).endGame();
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
+        verify(advancedGame, times(1)).updateCorrectGuess(anyString());
+        verify(hintHandler, times(1)).setHints();
+        verify(hintHandler, times(1)).sendRequiredDetailsViaWebSocket();
     }
 
     @Test
@@ -319,5 +494,101 @@ public class GameTest {
         basicGame.updateCorrectGuess("US");
 
         assertEquals("unitedstates", ReflectionTestUtils.getField(basicGame, "correctGuess"));
+    }
+
+    @Test
+    public void testEndRoundBasicMode_firstRound(){
+        // given
+        ArrayList<String> playerNames = new ArrayList();
+        playerNames.add("player1");
+        playerNames.add("player2");
+        playerNames.add("player3");
+        playerNames.add("player4");
+        playerNames.add("player5");
+
+        // Override game attributes
+        ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "playerNames", playerNames);
+        ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
+        ReflectionTestUtils.setField(basicGame, "timer", new Timer());
+
+        // Mock some repository methods and service methods
+        doNothing().when(hintHandler).stopSendingHints();
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
+        doNothing().when(webSocketService).sendToPlayerInLobby(anyString(), anyString(), anyString(), any());
+        doNothing().when(scoreBoard).updateTotalScores();
+        doNothing().when(scoreBoard).computeLeaderBoardScore();
+
+        basicGame.endRound();
+
+        // check whether the followin methods were called
+        verify(hintHandler, times(1)).stopSendingHints();
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-end"), eq("{}"));
+        verify(scoreBoard, times(5)).getCurrentCorrectGuessPerPlayer(anyString());
+        verify(scoreBoard,times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));
+        verify(scoreBoard, times(5)).setCurrentTimeUntilCorrectGuessPerPlayer(anyString(), anyInt());
+        verify(scoreBoard, times(5)).getCurrentNumberOfWrongGuessesPerPlayer(anyString());
+        // is zero because no guesses have been submitted yet
+        verify(scoreBoard, times(0)).setCurrentNumberOfWrongGuessesPerPlayer(anyString(), eq(0));
+        verify(scoreBoard, times(1)).updateTotalScores();
+        verify(scoreBoard, times(1)).computeLeaderBoardScore();
+        verify(scoreBoard, times(1)).resetAllCurrentScores();
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/correct-country"), any(CorrectGuessDTO.class));
+        verify(basicGame, times(0)).endGame();
+
+        // check whether the attribute round was incremented
+        assertEquals(1, ReflectionTestUtils.getField(basicGame, "round"));
+        assertEquals(null, ReflectionTestUtils.getField(basicGame, "correctGuess"));
+        assertEquals(null, ReflectionTestUtils.getField(basicGame, "currentCountry"));
+        assertEquals(null, ReflectionTestUtils.getField(basicGame, "startTime"));
+        assertEquals(null, ReflectionTestUtils.getField(basicGame, "hintHandler"));
+    }
+
+    @Test
+    public void testEndRoundAdvancedMode_firstRound(){
+        // given
+        ArrayList<String> playerNames = new ArrayList();
+        playerNames.add("player1");
+        playerNames.add("player2");
+        playerNames.add("player3");
+        playerNames.add("player4");
+        playerNames.add("player5");
+
+        // Override game attributes
+        ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(advancedGame, "playerNames", playerNames);
+        ReflectionTestUtils.setField(advancedGame, "hintHandler", hintHandler);
+        ReflectionTestUtils.setField(advancedGame, "timer", new Timer());
+
+        // Mock some repository methods and service methods
+        doNothing().when(hintHandler).stopSendingHints();
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
+        doNothing().when(webSocketService).sendToPlayerInLobby(anyString(), anyString(), anyString(), any());
+        doNothing().when(scoreBoard).updateTotalScores();
+        doNothing().when(scoreBoard).computeLeaderBoardScore();
+
+        advancedGame.endRound();
+
+        // check whether the followin methods were called
+        verify(hintHandler, times(1)).stopSendingHints();
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-end"), eq("{}"));
+        verify(scoreBoard, times(5)).getCurrentCorrectGuessPerPlayer(anyString());
+        verify(scoreBoard,times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));
+        verify(scoreBoard, times(5)).setCurrentTimeUntilCorrectGuessPerPlayer(anyString(), anyInt());
+        verify(scoreBoard, times(5)).getCurrentNumberOfWrongGuessesPerPlayer(anyString());
+        // is zero because no guesses have been submitted yet
+        verify(scoreBoard, times(0)).setCurrentNumberOfWrongGuessesPerPlayer(anyString(), eq(0));
+        verify(scoreBoard, times(1)).updateTotalScores();
+        verify(scoreBoard, times(1)).computeLeaderBoardScore();
+        verify(scoreBoard, times(1)).resetAllCurrentScores();
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/correct-country"), any(CorrectGuessDTO.class));
+        verify(advancedGame, times(0)).endGame();
+
+        // check whether the attribute round was incremented
+        assertEquals(1, ReflectionTestUtils.getField(advancedGame, "round"));
+        assertEquals(null, ReflectionTestUtils.getField(advancedGame, "correctGuess"));
+        assertEquals(null, ReflectionTestUtils.getField(advancedGame, "currentCountry"));
+        assertEquals(null, ReflectionTestUtils.getField(advancedGame, "startTime"));
+        assertEquals(null, ReflectionTestUtils.getField(advancedGame, "hintHandler"));
     }
 }
