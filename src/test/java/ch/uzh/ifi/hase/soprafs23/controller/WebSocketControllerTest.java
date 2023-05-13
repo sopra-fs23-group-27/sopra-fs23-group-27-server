@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
-import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +26,6 @@ class WebSocketControllerTest {
     @Mock
     WebSocketService webSocketService;
 
-    @Mock
-    LobbyService lobbyService;
 
     @Mock
     SimpMessageHeaderAccessor smha;
@@ -51,7 +48,7 @@ class WebSocketControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        webSocketController = new WebSocketController(authenticationService, webSocketService, lobbyService);
+        webSocketController = new WebSocketController(authenticationService, webSocketService);
     }
 
     @Test
@@ -61,6 +58,6 @@ class WebSocketControllerTest {
 
         webSocketController.playerDisconnectEvent(disconnectEvent);
 
-        verify(lobbyService).disconnectPlayer("testWebSocketId");
+        verify(webSocketService).initDisconnectionProcedureByWsId("testWebSocketId");
     }
 }
