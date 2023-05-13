@@ -18,6 +18,7 @@ public abstract class Lobby implements Serializable {
     private String lobbyName;
     private boolean isPublic;
     private int numSeconds;
+    private int numRounds;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> joinedPlayerNames;
@@ -67,6 +68,14 @@ public abstract class Lobby implements Serializable {
 
     public void setIsPublic(boolean aPublic) {
         isPublic = aPublic;
+    }
+
+    public int getNumRounds() {
+        return numRounds;
+    }
+
+    public void setNumRounds(int numRounds) {
+        this.numRounds = numRounds;
     }
 
     public int getNumSeconds() {

@@ -116,6 +116,7 @@ public class LobbyServiceIntegrationTest {
         assertEquals(foundBasicLobby.getLobbyId(), testBasicLobbyCreated.getLobbyId());
         assertEquals(foundBasicLobby.getLobbyName(), testBasicLobbyCreated.getLobbyName());
         assertEquals(foundBasicLobby.getNumSeconds(), testBasicLobbyCreated.getNumSeconds());
+        assertEquals(foundBasicLobby.getNumRounds(), testBasicLobbyCreated.getNumRounds());
         assertEquals(foundBasicLobby.getIsPublic(), testBasicLobbyCreated.getIsPublic());
         assertEquals(foundBasicLobby.getNumOptions(), testBasicLobbyCreated.getNumOptions());
         assertEquals(foundBasicLobby.getLobbyCreatorPlayerToken(), testBasicLobbyCreated.getLobbyCreatorPlayerToken());
@@ -144,6 +145,7 @@ public class LobbyServiceIntegrationTest {
         assertEquals(foundAdvancedLobby.getLobbyId(), testAdvancedLobbyCreated.getLobbyId());
         assertEquals(foundAdvancedLobby.getLobbyName(), testAdvancedLobbyCreated.getLobbyName());
         assertEquals(foundAdvancedLobby.getNumSeconds(), testAdvancedLobbyCreated.getNumSeconds());
+        assertEquals(foundAdvancedLobby.getNumRounds(), testAdvancedLobbyCreated.getNumRounds());
         assertEquals(foundAdvancedLobby.getNumSecondsUntilHint(), testAdvancedLobbyCreated.getNumSecondsUntilHint());
         assertEquals(foundAdvancedLobby.getHintInterval(), testAdvancedLobbyCreated.getHintInterval());
         assertEquals(foundAdvancedLobby.getMaxNumGuesses(), testAdvancedLobbyCreated.getMaxNumGuesses());

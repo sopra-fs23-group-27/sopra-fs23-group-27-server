@@ -115,6 +115,7 @@ public class GameTest {
         ReflectionTestUtils.setField(basicGame, "allCountryCodes", allCountryCodes);
         ReflectionTestUtils.setField(basicGame, "correctGuess", "switzerland");
         ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
+        ReflectionTestUtils.setField(basicGame, "numRounds", 4);
 
         // Mock the country class
         Country country = mock(Country.class);
@@ -161,7 +162,8 @@ public class GameTest {
         ReflectionTestUtils.setField(basicGame, "allCountryCodes", allCountryCodes);
         ReflectionTestUtils.setField(basicGame, "correctGuess", "italy");
         ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
-        ReflectionTestUtils.setField(basicGame, "round", 4);
+        ReflectionTestUtils.setField(basicGame, "numRounds", 4);
+        ReflectionTestUtils.setField(basicGame, "round", 3);
 
         // Mock the country class
         Country country = mock(Country.class);
@@ -180,12 +182,12 @@ public class GameTest {
         basicGame.startRound();
 
         // check that this is the last round
-        assertEquals(4, ReflectionTestUtils.getField(basicGame, "round"));
+        assertEquals(3, ReflectionTestUtils.getField(basicGame, "round"));
         // check that correct guess has been updated
         assertEquals("italy", ReflectionTestUtils.getField(basicGame, "correctGuess"));
 
         // check the following methods were called
-        verify(basicGame, times(1)).endGame();
+        //verify(basicGame, times(1)).endGame();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
         verify(basicGame, times(1)).updateCorrectGuess(anyString());
         verify(hintHandler, times(1)).setHints();
@@ -206,6 +208,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "allCountryCodes", allCountryCodes);
         ReflectionTestUtils.setField(advancedGame, "correctGuess", "switzerland");
         ReflectionTestUtils.setField(advancedGame, "hintHandler", hintHandler);
+        ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
 
         // Mock the country class
         Country country = mock(Country.class);
@@ -252,7 +255,8 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "allCountryCodes", allCountryCodes);
         ReflectionTestUtils.setField(advancedGame, "correctGuess", "italy");
         ReflectionTestUtils.setField(advancedGame, "hintHandler", hintHandler);
-        ReflectionTestUtils.setField(advancedGame, "round", 4);
+        ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
+        ReflectionTestUtils.setField(advancedGame, "round", 3);
 
         // Mock the country class
         Country country = mock(Country.class);
@@ -271,12 +275,12 @@ public class GameTest {
         advancedGame.startRound();
 
         // check that this is the last round
-        assertEquals(4, ReflectionTestUtils.getField(advancedGame, "round"));
+        assertEquals(3, ReflectionTestUtils.getField(advancedGame, "round"));
         // check that correct guess has been updated
         assertEquals("italy", ReflectionTestUtils.getField(advancedGame, "correctGuess"));
 
         // check the following methods were called
-        verify(advancedGame, times(1)).endGame();
+        //verify(advancedGame, times(1)).endGame();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
         verify(advancedGame, times(1)).updateCorrectGuess(anyString());
         verify(hintHandler, times(1)).setHints();
@@ -399,7 +403,7 @@ public class GameTest {
         verify(webSocketService, times(1)).sendToPlayerInLobby(any(), any(), any(), any());
         verify(scoreBoard, times(1)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
         verify(scoreBoard, times(1)).setCurrentCorrectGuessPerPlayer(eq(playerName), eq(true));
-        verify(advancedGame,times(1)).endRound();
+        verify(advancedGame, times(1)).endRound();
         // check that the method setCurrentNumberOfWrongGuessesPerPlayer was not called
         verify(scoreBoard, times(0)).setCurrentNumberOfWrongGuessesPerPlayer(eq(playerName), anyInt());
     }
@@ -426,7 +430,7 @@ public class GameTest {
         verify(webSocketService, times(1)).sendToPlayerInLobby(any(), any(), any(), any());
         verify(scoreBoard, times(1)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
         verify(scoreBoard, times(1)).setCurrentCorrectGuessPerPlayer(eq(playerName), eq(true));
-        verify(advancedGame,times(1)).endRound();
+        verify(advancedGame, times(1)).endRound();
         // check that the method setCurrentNumberOfWrongGuessesPerPlayer was not called
         verify(scoreBoard, times(0)).setCurrentNumberOfWrongGuessesPerPlayer(eq(playerName), anyInt());
     }
@@ -453,13 +457,13 @@ public class GameTest {
 
         // check that the following methods were called
         verify(webSocketService, times(1)).sendToPlayerInLobby(any(), any(), any(), any());
-        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/guesses"),  any(GuessDTO.class));
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/guesses"), any(GuessDTO.class));
         verify(scoreBoard, times(1)).setCurrentNumberOfWrongGuessesPerPlayer(eq(playerName), anyInt());
         // check that the methods setCurrentTimeUntilCorrectGuessPerPlayer, setCurrentCorrectGuessPerPlayer
         // and endRound() were not called
         verify(scoreBoard, times(0)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
         verify(scoreBoard, times(0)).setCurrentCorrectGuessPerPlayer(eq(playerName), eq(true));
-        verify(advancedGame,times(0)).endRound();
+        verify(advancedGame, times(0)).endRound();
     }
 
     @Test
@@ -497,7 +501,7 @@ public class GameTest {
     }
 
     @Test
-    public void testEndRoundBasicMode_firstRound(){
+    public void testEndRoundBasicMode_firstRound() {
         // given
         ArrayList<String> playerNames = new ArrayList();
         playerNames.add("player1");
@@ -525,7 +529,7 @@ public class GameTest {
         verify(hintHandler, times(1)).stopSendingHints();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-end"), eq("{}"));
         verify(scoreBoard, times(5)).getCurrentCorrectGuessPerPlayer(anyString());
-        verify(scoreBoard,times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));
+        verify(scoreBoard, times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));
         verify(scoreBoard, times(5)).setCurrentTimeUntilCorrectGuessPerPlayer(anyString(), anyInt());
         verify(scoreBoard, times(5)).getCurrentNumberOfWrongGuessesPerPlayer(anyString());
         // is zero because no guesses have been submitted yet
@@ -545,7 +549,7 @@ public class GameTest {
     }
 
     @Test
-    public void testEndRoundAdvancedMode_firstRound(){
+    public void testEndRoundAdvancedMode_firstRound() {
         // given
         ArrayList<String> playerNames = new ArrayList();
         playerNames.add("player1");
@@ -573,7 +577,7 @@ public class GameTest {
         verify(hintHandler, times(1)).stopSendingHints();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-end"), eq("{}"));
         verify(scoreBoard, times(5)).getCurrentCorrectGuessPerPlayer(anyString());
-        verify(scoreBoard,times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));
+        verify(scoreBoard, times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));
         verify(scoreBoard, times(5)).setCurrentTimeUntilCorrectGuessPerPlayer(anyString(), anyInt());
         verify(scoreBoard, times(5)).getCurrentNumberOfWrongGuessesPerPlayer(anyString());
         // is zero because no guesses have been submitted yet

@@ -95,6 +95,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.lobbyName", is(basicLobby.getLobbyName())))
                 .andExpect(jsonPath("$.numOptions", is(basicLobby.getNumOptions())))
                 .andExpect(jsonPath("$.numSeconds", is(basicLobby.getNumSeconds())))
+                .andExpect(jsonPath("$.numRounds", is(basicLobby.getNumRounds())))
                 .andExpect(jsonPath("$.isPublic", is(basicLobby.getIsPublic())));
     }
 
@@ -202,6 +203,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.lobbyId", is(advancedLobby.getLobbyId().intValue())))
                 .andExpect(jsonPath("$.lobbyName", is(advancedLobby.getLobbyName())))
                 .andExpect(jsonPath("$.numSeconds", is(advancedLobby.getNumSeconds())))
+                .andExpect(jsonPath("$.numRounds", is(advancedLobby.getNumRounds())))
                 .andExpect(jsonPath("$.numSecondsUntilHint", is(advancedLobby.getNumSecondsUntilHint())))
                 .andExpect(jsonPath("$.hintInterval", is(advancedLobby.getHintInterval())))
                 .andExpect(jsonPath("$.maxNumGuesses", is(advancedLobby.getMaxNumGuesses())))
@@ -434,12 +436,14 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$[0].lobbyName", is(basicLobby.getLobbyName())))
                 .andExpect(jsonPath("$[0].numOptions", is(basicLobby.getNumOptions())))
                 .andExpect(jsonPath("$[0].numSeconds", is(basicLobby.getNumSeconds())))
+                .andExpect(jsonPath("$[0].numRounds", is(basicLobby.getNumRounds())))
                 .andExpect(jsonPath("$[0].isPublic", is(basicLobby.getIsPublic())))
                 .andExpect(jsonPath("$[1].lobbyId", is(advancedLobby.getLobbyId().intValue())))
                 .andExpect(jsonPath("$[1].lobbyName", is(advancedLobby.getLobbyName())))
                 .andExpect(jsonPath("$[1].hintInterval", is(advancedLobby.getHintInterval())))
                 .andExpect(jsonPath("$[1].numSecondsUntilHint", is(advancedLobby.getNumSecondsUntilHint())))
                 .andExpect(jsonPath("$[1].numSeconds", is(advancedLobby.getNumSeconds())))
+                .andExpect(jsonPath("$[1].numRounds", is(advancedLobby.getNumRounds())))
                 .andExpect(jsonPath("$[1].isPublic", is(advancedLobby.getIsPublic())));
     }
 
@@ -477,6 +481,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.lobbyName", is(lobby.getLobbyName())))
                 .andExpect(jsonPath("$.numOptions", is(lobby.getNumOptions())))
                 .andExpect(jsonPath("$.numSeconds", is(lobby.getNumSeconds())))
+                .andExpect(jsonPath("$.numRounds", is(lobby.getNumRounds())))
                 .andExpect(jsonPath("$.isPublic", is(lobby.getIsPublic())));
     }
 
@@ -516,6 +521,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.hintInterval", is(lobby.getHintInterval())))
                 .andExpect(jsonPath("$.numSecondsUntilHint", is(lobby.getNumSecondsUntilHint())))
                 .andExpect(jsonPath("$.numSeconds", is(lobby.getNumSeconds())))
+                .andExpect(jsonPath("$.numRounds", is(lobby.getNumRounds())))
                 .andExpect(jsonPath("$.isPublic", is(lobby.getIsPublic())));
     }
 

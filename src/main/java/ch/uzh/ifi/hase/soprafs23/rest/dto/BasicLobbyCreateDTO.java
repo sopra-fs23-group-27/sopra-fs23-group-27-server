@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.rest.dto;
 public class BasicLobbyCreateDTO {
 
     private boolean isPublic = true;
+    private int numRounds = 4;
     private int numOptions = 4;
     private int numSeconds = 30;
     private String lobbyName;
@@ -14,6 +15,14 @@ public class BasicLobbyCreateDTO {
 
     public void setIsPublic(boolean aPublic) {
         isPublic = aPublic;
+    }
+
+    public int getNumRounds() {
+        return numRounds;
+    }
+
+    public void setNumRounds(int numRounds) {
+        this.numRounds = numRounds;
     }
 
     public int getNumOptions() {

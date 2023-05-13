@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.rest.dto;
 public class AdvancedLobbyCreateDTO {
 
     private boolean isPublic = true;
+    private int numRounds = 4;
     private int numSeconds = 30;
     private int numSecondsUntilHint = 10;
     private int hintInterval = 5;
@@ -15,6 +16,14 @@ public class AdvancedLobbyCreateDTO {
 
     public void setIsPublic(boolean aPublic) {
         isPublic = aPublic;
+    }
+
+    public int getNumRounds() {
+        return numRounds;
+    }
+
+    public void setNumRounds(int numRounds) {
+        this.numRounds = numRounds;
     }
 
     public int getNumSeconds() {

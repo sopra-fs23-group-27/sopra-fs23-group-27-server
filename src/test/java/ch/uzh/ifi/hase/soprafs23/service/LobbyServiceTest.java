@@ -65,6 +65,7 @@ public class LobbyServiceTest {
         basicLobbyCreateDTO.setLobbyName("testBasicLobby");
         basicLobbyCreateDTO.setIsPublic(true);
         basicLobbyCreateDTO.setNumSeconds(10);
+        basicLobbyCreateDTO.setNumRounds(4);
         basicLobbyCreateDTO.setNumOptions(4);
 
         // create basicLobby
@@ -72,6 +73,7 @@ public class LobbyServiceTest {
         basicLobby.setLobbyName("testBasicLobby");
         basicLobby.setIsPublic(true);
         basicLobby.setNumSeconds(10);
+        basicLobby.setNumRounds(4);
         ((BasicLobby) basicLobby).setNumOptions(4);
         basicLobby.setLobbyCreatorPlayerToken(testPlayer1.getToken());
         basicLobby.addPlayerToLobby(testPlayer1.getPlayerName());
@@ -81,6 +83,7 @@ public class LobbyServiceTest {
         advancedLobbyCreateDTO.setLobbyName("testAdvancedLobby");
         advancedLobbyCreateDTO.setIsPublic(true);
         advancedLobbyCreateDTO.setNumSeconds(50);
+        advancedLobbyCreateDTO.setNumRounds(4);
         advancedLobbyCreateDTO.setNumSecondsUntilHint(10);
         advancedLobbyCreateDTO.setHintInterval(5);
         advancedLobbyCreateDTO.setMaxNumGuesses(10);
@@ -90,13 +93,14 @@ public class LobbyServiceTest {
         advancedLobby.setLobbyName("testAdvancedLobby");
         advancedLobby.setIsPublic(true);
         advancedLobby.setNumSeconds(50);
+        advancedLobby.setNumRounds(4);
         ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(10);
         ((AdvancedLobby) advancedLobby).setHintInterval(5);
         ((AdvancedLobby) advancedLobby).setMaxNumGuesses(10);
         advancedLobby.setLobbyCreatorPlayerToken(testPlayer1.getToken());
         advancedLobby.addPlayerToLobby(testPlayer1.getPlayerName());
 
-        // when -> any object is being save in the userRepository -> return the dummy testUser
+        // when -> any object is being saved in the userRepository -> return the dummy testUser
         Mockito.doNothing().when(webSocketService).sendToLobby(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.when(playerService.getPlayerByToken(Mockito.anyString())).thenReturn(testPlayer1);
         Mockito.when(playerRepository.save(Mockito.any())).thenReturn(testPlayer1);
@@ -124,6 +128,7 @@ public class LobbyServiceTest {
         assertEquals(testBasicLobbyCreated.getLobbyName(), basicLobbyCreateDTO.getLobbyName());
         assertEquals(testBasicLobbyCreated.getIsPublic(), basicLobbyCreateDTO.getIsPublic());
         assertEquals(testBasicLobbyCreated.getNumSeconds(), basicLobbyCreateDTO.getNumSeconds());
+        assertEquals(testBasicLobbyCreated.getNumRounds(), basicLobbyCreateDTO.getNumRounds());
         assertEquals(testBasicLobbyCreated.getNumOptions(), basicLobbyCreateDTO.getNumOptions());
         assertEquals(testBasicLobbyCreated.getLobbyCreatorPlayerToken(), testPlayer1.getToken());
         assertEquals(testBasicLobbyCreated.getJoinedPlayerNames().get(0), testPlayer1.getPlayerName());
@@ -156,6 +161,7 @@ public class LobbyServiceTest {
         assertEquals(testBasicLobbyCreated.getIsPublic(), basicLobbyCreateDTO.getIsPublic());
         assertFalse(testBasicLobbyCreated.getIsPublic());
         assertEquals(testBasicLobbyCreated.getNumSeconds(), basicLobbyCreateDTO.getNumSeconds());
+        assertEquals(testBasicLobbyCreated.getNumRounds(), basicLobbyCreateDTO.getNumRounds());
         assertEquals(testBasicLobbyCreated.getNumOptions(), basicLobbyCreateDTO.getNumOptions());
         assertEquals(testBasicLobbyCreated.getLobbyCreatorPlayerToken(), testPlayer1.getToken());
         assertEquals(testBasicLobbyCreated.getJoinedPlayerNames().get(0), testPlayer1.getPlayerName());
@@ -183,6 +189,7 @@ public class LobbyServiceTest {
         assertEquals(testAdvancedLobbyCreated.getLobbyName(), advancedLobbyCreateDTO.getLobbyName());
         assertEquals(testAdvancedLobbyCreated.getIsPublic(), advancedLobbyCreateDTO.getIsPublic());
         assertEquals(testAdvancedLobbyCreated.getNumSeconds(), advancedLobbyCreateDTO.getNumSeconds());
+        assertEquals(testAdvancedLobbyCreated.getNumRounds(), advancedLobbyCreateDTO.getNumRounds());
         assertEquals(testAdvancedLobbyCreated.getNumSecondsUntilHint(), advancedLobbyCreateDTO.getNumSecondsUntilHint());
         assertEquals(testAdvancedLobbyCreated.getHintInterval(), advancedLobbyCreateDTO.getHintInterval());
         assertEquals(testAdvancedLobbyCreated.getMaxNumGuesses(), advancedLobbyCreateDTO.getMaxNumGuesses());
@@ -217,6 +224,7 @@ public class LobbyServiceTest {
         assertEquals(testAdvancedLobbyCreated.getIsPublic(), advancedLobbyCreateDTO.getIsPublic());
         assertFalse(testAdvancedLobbyCreated.getIsPublic());
         assertEquals(testAdvancedLobbyCreated.getNumSeconds(), advancedLobbyCreateDTO.getNumSeconds());
+        assertEquals(testAdvancedLobbyCreated.getNumRounds(), advancedLobbyCreateDTO.getNumRounds());
         assertEquals(testAdvancedLobbyCreated.getNumSecondsUntilHint(), advancedLobbyCreateDTO.getNumSecondsUntilHint());
         assertEquals(testAdvancedLobbyCreated.getHintInterval(), advancedLobbyCreateDTO.getHintInterval());
         assertEquals(testAdvancedLobbyCreated.getMaxNumGuesses(), advancedLobbyCreateDTO.getMaxNumGuesses());
@@ -249,7 +257,7 @@ public class LobbyServiceTest {
         Mockito.when(lobbyRepository.findAllByIsPublicAndIsJoinable(true, true)).thenReturn(testLobbies);
 
         // call method to test
-        List<Lobby> allFoundPublicAndJoinableLobbies= lobbyService.getAllPublicAndJoinableLobbies();
+        List<Lobby> allFoundPublicAndJoinableLobbies = lobbyService.getAllPublicAndJoinableLobbies();
 
         // then
         assertEquals(allFoundPublicAndJoinableLobbies.size(), 2);

@@ -10,6 +10,7 @@ public class LobbyGetDTO {
     private boolean isPublic;
     private int numOptions;
     private int numSeconds;
+    private int numRounds;
     private int numSecondsUntilHint;
     private int hintInterval;
     private int maxNumGuesses;
@@ -56,6 +57,14 @@ public class LobbyGetDTO {
 
     public void setNumOptions(int numOptions) {
         this.numOptions = numOptions;
+    }
+
+    public int getNumRounds() {
+        return numRounds;
+    }
+
+    public void setNumRounds(int numRounds) {
+        this.numRounds = numRounds;
     }
 
     public int getNumSeconds() {

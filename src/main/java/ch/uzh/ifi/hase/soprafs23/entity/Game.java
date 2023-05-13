@@ -55,7 +55,7 @@ public class Game {
     private int numOptions;
 
     public Game(CountryHandlerService countryHandlerService,
-                WebSocketService webSocketService, 
+                WebSocketService webSocketService,
                 CountryRepository countryRepository,
                 PlayerRepository playerRepository,
                 Lobby lobby) {
@@ -67,7 +67,7 @@ public class Game {
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
-        this.numRounds = 4;
+        this.numRounds = lobby.getNumRounds();
 
         // set variables depending on lobby type
         if (lobby instanceof BasicLobby) {
@@ -124,6 +124,7 @@ public class Game {
             log.info("No new round can be started since numRounds is reached." +
                     " Initiate Game loop end for lobbyId: " + this.gameId);
             this.endGame();
+            return;
         }
         startTimer(this.numSeconds, this);
         webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
@@ -293,9 +294,9 @@ public class Game {
 
             // If game is in advanced mode: send guessEvalDTO to client
             this.webSocketService.sendToPlayerInLobby(wsConnectionId,
-                "/guess-evaluation",
-                this.gameId.toString(),
-                guessEvalDTO);
+                    "/guess-evaluation",
+                    this.gameId.toString(),
+                    guessEvalDTO);
 
             // write time of player to scoreBoard
             this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
@@ -466,7 +467,7 @@ public class Game {
         List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
         for (Player player : lobby) {
             gameStatsDTO.setIsCreator(player.isCreator());
-            webSocketService.sendToPlayerInLobby(player.getWsConnectionId(), "/score-board",this.gameId.toString(), gameStatsDTO);
+            webSocketService.sendToPlayerInLobby(player.getWsConnectionId(), "/score-board", this.gameId.toString(), gameStatsDTO);
         }
 
     }
@@ -497,27 +498,27 @@ public class Game {
 
         // load all the players to a list
         List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
-        for(Player player : lobby) {
+        for (Player player : lobby) {
 
             // update the total correct guesses. This is done after each round
-            player.setTotalCorrectGuesses(player.getTotalCorrectGuesses()+1);
+            player.setTotalCorrectGuesses(player.getTotalCorrectGuesses() + 1);
 
             // update the total wrong guesses. This is done after each round
             player.setNumWrongGuesses(
-                player.getNumWrongGuesses() + 
-                this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
+                    player.getNumWrongGuesses() +
+                            this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
             );
 
             // update the total time until correct guess. This is done after each round
             player.setTimeUntilCorrectGuess(
-                player.getTimeUntilCorrectGuess() + 
-                this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(player.getPlayerName())
+                    player.getTimeUntilCorrectGuess() +
+                            this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(player.getPlayerName())
             );
-            
+
             // update the number of Games played. This is done only once after the game!
             if (this.round == this.numRounds) {
                 player.setnRoundsPlayed(
-                    player.getnRoundsPlayed() + 1
+                        player.getnRoundsPlayed() + 1
                 );
             }
         }
