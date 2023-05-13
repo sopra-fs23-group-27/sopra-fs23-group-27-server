@@ -205,7 +205,7 @@ public class ScoreBoard {
                 //  of wrong guesses, the number of wrong guesses is divided by 5)
 
 
-                Integer score = (3 * this.totalCorrectGuessesInARow.get(playerName))
+                Integer score = (10 * this.totalCorrectGuessesInARow.get(playerName))
                         + (100 / this.currentTimeUntilCorrectGuess.get(playerName))
                         - (this.currentNumberOfWrongGuesses.get(playerName) / 5);
 

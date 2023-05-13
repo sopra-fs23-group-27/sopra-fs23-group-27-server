@@ -45,6 +45,22 @@ public class Player implements Serializable {
     @Column
     private Long lobbyId;
 
+    // new fields for player stats
+    @Column
+    private int totalCorrectGuesses;
+
+    @Column
+    private int nRoundsPlayed;
+
+    @Column
+    private int TimeUntilCorrectGuess;
+
+    @Column
+    private int numWrongGuesses;
+
+    @Column
+    private Boolean isPermanent;
+
     public Long getId() {
         return id;
     }
@@ -101,5 +117,44 @@ public class Player implements Serializable {
         this.wsConnectionId = wsConnectionId;
     }
 
+    public int getTotalCorrectGuesses() {
+        return totalCorrectGuesses;
+    }
+
+    public void setTotalCorrectGuesses(int totalCorrectGuesses) {
+        this.totalCorrectGuesses = totalCorrectGuesses;
+    }
+
+    public int getnRoundsPlayed() {
+        return nRoundsPlayed;
+    }
+
+    public void setnRoundsPlayed(int nRoundsPlayed) {
+        this.nRoundsPlayed = nRoundsPlayed;
+    }
+
+    public int getTimeUntilCorrectGuess() {
+        return TimeUntilCorrectGuess;
+    }
+
+    public void setTimeUntilCorrectGuess(int avgTimeUntilCorrectGuess) {
+        this.TimeUntilCorrectGuess = avgTimeUntilCorrectGuess;
+    }
+
+    public int getNumWrongGuesses() {
+        return numWrongGuesses;
+    }
+
+    public void setNumWrongGuesses(int numWrongGuesses) {
+        this.numWrongGuesses = numWrongGuesses;
+    }
+
+    public void setPermanent(Boolean permanent) {
+        isPermanent = permanent;
+    }
+
+    public Boolean getPermanent() {
+        return isPermanent;
+    }
 
 }

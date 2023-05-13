@@ -162,7 +162,98 @@ public class LobbyRepositoryIntegrationTest {
         assertEquals(allAdvancedFound.get(0).getLobbyName(), advancedLobby.getLobbyName());
         assertEquals(allAdvancedFound.get(0).getIsPublic(), advancedLobby.getIsPublic());
         assertEquals(allAdvancedFound.get(0).getJoinedPlayerNames(), advancedLobby.getJoinedPlayerNames());
+    }
+
+    @Test
+    public void findAllPublicAndJoinableBasicAndAdvancedLobbies_success() {
+        // create basic lobby that is public and joinable
+        BasicLobby testBasicLobbyPublicAndJoinable = new BasicLobby();
+
+        List<String> joinedPlayerNamesBasicLobbyPublicAndJoinable = List.of(
+                "testPlayer1_BasicLobbyPublicAndJoinable",
+                "testPlayer2_BasicLobbyPublicAndJoinable",
+                "testPlayer3_BasicLobbyPublicAndJoinable");
+
+        testBasicLobbyPublicAndJoinable.setLobbyName("testBasicLobbyPublicAndJoinable");
+        testBasicLobbyPublicAndJoinable.setIsPublic(true);
+        testBasicLobbyPublicAndJoinable.setJoinedPlayerNames(joinedPlayerNamesBasicLobbyPublicAndJoinable);
+        testBasicLobbyPublicAndJoinable.setJoinable(true);
+
+        entityManager.persist(testBasicLobbyPublicAndJoinable);
+        entityManager.flush();
+
+        // create basic lobby that is private and joinable
+        BasicLobby testBasicLobbyPrivateAndJoinable = new BasicLobby();
+
+        List<String> joinedPlayerNamesBasicLobbyPrivateAndJoinable = List.of(
+                "testPlayer1_BasicLobbyPrivateAndJoinable",
+                "testPlayer2_BasicLobbyPrivateAndJoinable",
+                "testPlayer3_BasicLobbyPrivateAndJoinable");
+
+        testBasicLobbyPrivateAndJoinable.setLobbyName("testBasicLobbyPrivateAndJoinable");
+        testBasicLobbyPrivateAndJoinable.setIsPublic(false);
+        testBasicLobbyPrivateAndJoinable.setJoinedPlayerNames(joinedPlayerNamesBasicLobbyPrivateAndJoinable);
+        testBasicLobbyPrivateAndJoinable.setJoinable(true);
+
+        entityManager.persist(testBasicLobbyPrivateAndJoinable);
+        entityManager.flush();
+
+        // create basic lobby that is public and but not joinable
+        BasicLobby testBasicLobbyPublicAndNonJoinable = new BasicLobby();
+
+        List<String> joinedPlayerNamesBasicLobbyPublicAndNonJoinable = List.of(
+                "testPlayer1_BasicLobbyPublicAndNonJoinable",
+                "testPlayer2_BasicLobbyPublicAndNonJoinable",
+                "testPlayer3_BasicLobbyPublicAndNonJoinable");
+
+        testBasicLobbyPublicAndNonJoinable.setLobbyName("testBasicLobbyPublicAndNonJoinable");
+        testBasicLobbyPublicAndNonJoinable.setIsPublic(true);
+        testBasicLobbyPublicAndNonJoinable.setJoinedPlayerNames(joinedPlayerNamesBasicLobbyPublicAndNonJoinable);
+        testBasicLobbyPublicAndNonJoinable.setJoinable(false);
+
+        entityManager.persist(testBasicLobbyPublicAndNonJoinable);
+        entityManager.flush();
+
+        // create advanced lobby that is public and joinable
+        AdvancedLobby testAdvancedLobbyPublicAndJoinable = new AdvancedLobby();
+
+        List<String> joinedPlayerNamesAdvancedLobbyPublicAndJoinable = List.of(
+                "testPlayer1_AdvancedLobbyPublicAndJoinable",
+                "testPlayer2_AdvancedLobbyPublicAndJoinable",
+                "testPlayer3_AdvancedLobbyPublicAndJoinable");
+
+        testAdvancedLobbyPublicAndJoinable.setLobbyName("testAdvancedLobbyPublicAndJoinable");
+        testAdvancedLobbyPublicAndJoinable.setIsPublic(true);
+        testAdvancedLobbyPublicAndJoinable.setJoinedPlayerNames(joinedPlayerNamesAdvancedLobbyPublicAndJoinable);
+        testAdvancedLobbyPublicAndJoinable.setJoinable(true);
+
+        entityManager.persist(testAdvancedLobbyPublicAndJoinable);
+        entityManager.flush();
+
+        // create advanced lobby that is public but not joinable
+        AdvancedLobby testAdvancedLobbyPublicAndNonJoinable = new AdvancedLobby();
+
+        List<String> joinedPlayerNamesAdvancedLobbyPublicAndNonJoinable = List.of(
+                "testPlayer1_AdvancedLobbyPublicAndNonJoinable",
+                "testPlayer2_AdvancedLobbyPublicAndNonJoinable",
+                "testPlayer3_AdvancedLobbyPublicAndNonJoinable");
+
+        testAdvancedLobbyPublicAndNonJoinable.setLobbyName("testAdvancedLobbyPublicAndNonJoinable");
+        testAdvancedLobbyPublicAndNonJoinable.setIsPublic(true);
+        testAdvancedLobbyPublicAndNonJoinable.setJoinedPlayerNames(joinedPlayerNamesAdvancedLobbyPublicAndNonJoinable);
+        testAdvancedLobbyPublicAndNonJoinable.setJoinable(false);
+
+        entityManager.persist(testAdvancedLobbyPublicAndNonJoinable);
+        entityManager.flush();
 
 
+        // find all basic and advanced lobbies that are public and joinable
+        List<Lobby> lobbiesFound = lobbyRepository.findAllByIsPublicAndIsJoinable(true, true);
+
+        // test if all lobbies found are public and joinable
+        assertEquals(2, lobbiesFound.size());
+
+        assertTrue(lobbiesFound.get(0).isJoinable());
+        assertTrue(lobbiesFound.get(1).isJoinable());
     }
 }

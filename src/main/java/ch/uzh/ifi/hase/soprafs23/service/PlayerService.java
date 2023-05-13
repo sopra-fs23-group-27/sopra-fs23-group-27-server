@@ -35,14 +35,12 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
     private final LobbyRepository lobbyRepository;
 
-    private final PlayerStats PlayerStats;
 
     @Autowired
     public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository,
                          LobbyRepository lobbyRepository) {
         this.playerRepository = playerRepository;
         this.lobbyRepository = lobbyRepository;
-        this.PlayerStats = new PlayerStats(); // Can be changed
     }
 
     public List<Player> getPlayers(String token) {
@@ -69,6 +67,36 @@ public class PlayerService {
         return player;
     }
 
+    public Player registerPlayer(Player newPlayer) {
+        // NOTE: This function can only be used if the player has not 
+        // already played a game.
+        // if the player has already played a game, the "registration process"
+        // can be done via a simple update of the player's password
+
+        // create basic authentication token
+        String playerName = newPlayer.getPlayerName();
+        String password = newPlayer.getPassword();
+        String encodeBytes = Base64.getEncoder().encodeToString((playerName + ":" + password).getBytes());
+
+        newPlayer.setToken("Basic " + encodeBytes);
+
+        // add default stats
+        newPlayer.setTotalCorrectGuesses(0);
+        newPlayer.setNumWrongGuesses(0);
+        newPlayer.setTimeUntilCorrectGuess(0);
+        newPlayer.setnRoundsPlayed(0);
+        newPlayer.setPermanent(true);
+
+        checkIfPlayerNameExists(newPlayer.getPlayerName());
+        // saves the given entity but data is only persisted in the database once
+        // flush() is called
+        newPlayer = playerRepository.save(newPlayer);
+        playerRepository.flush();
+
+        log.debug("Created Information for Player: {}", newPlayer);
+        return newPlayer;
+    }
+
     public Player createPlayer(Player newPlayer) {
 
         // create basic authentication token
@@ -77,6 +105,13 @@ public class PlayerService {
         String encodeBytes = Base64.getEncoder().encodeToString((playerName + ":" + password).getBytes());
 
         newPlayer.setToken("Basic " + encodeBytes);
+
+        // add default stats
+        newPlayer.setTotalCorrectGuesses(0);
+        newPlayer.setNumWrongGuesses(0);
+        newPlayer.setTimeUntilCorrectGuess(0);
+        newPlayer.setnRoundsPlayed(0);
+        newPlayer.setPermanent(false);
 
         checkIfPlayerNameExists(newPlayer.getPlayerName());
         // saves the given entity but data is only persisted in the database once
@@ -154,6 +189,13 @@ public class PlayerService {
 
         playerToBeUpdated.setToken("Basic " + encodeBytes);
 
+        if (playerToBeUpdated.getPermanent() == false) {
+            // this code is true under the following condition:
+            // A player that updates his profile is always permanent!
+
+            playerToBeUpdated.setPermanent(true);
+        }
+
         playerToBeUpdated = playerRepository.save(playerToBeUpdated);
         playerRepository.flush();
         return playerToBeUpdated;
@@ -203,32 +245,4 @@ public class PlayerService {
                     "Error: You are unauthorized to perform this action.");
         }
     }
-
-/*    public void joinLobby(String wsConnectionId, AuthenticateDTO dto) {
-        Player player = playerRepository.findByToken(dto.getPlayerToken());
-        if (player == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Player with token " + dto.getPlayerToken() + " not found. Please authenticate first.");
-        }
-
-        player.setWsConnectionId(wsConnectionId);
-        playerRepository.saveAndFlush(player);
-
-        Long lobbyId = player.getLobbyId();
-        Lobby lobby = lobbyRepository.findByLobbyId(lobbyId);
-
-        LobbyGetDTO lobbyGetDTO = null;
-        if (lobby instanceof BasicLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
-        }
-        else if (lobby instanceof AdvancedLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
-        }
-
-        webSocketService.sendToPlayerInLobby(wsConnectionId, "/register", lobbyId.toString(), lobbyGetDTO);
-
-        webSocketService.wait(500);
-
-        webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
-    }*/
 }

@@ -45,26 +45,26 @@ public class HintHandlerTest {
         testCountry = new Country();
         testCountry.setCountryCode("CH");
         testCountry.setName("Switzerland");
-        testCountry.setPopulation(8000000);
+        testCountry.setPopulation("8655"+ "K");
         testCountry.setCapital("Bern");
-        testCountry.setCurrency("CHF");
+        testCountry.setCurrency("Swiss Franc");
         testCountry.setFlag("https://flagcdn.com/h240/ch.png");
-        testCountry.setGdp(-9999);
-        testCountry.setSurfaceArea(-9999);
-        testCountry.setLifeExpectancyMale(-9999);
-        testCountry.setLifeExpectancyFemale(-9999);
-        testCountry.setUnemploymentRate(-9999);
-        testCountry.setImports(-9999);
-        testCountry.setExports(-9999);
-        testCountry.setHomicideRate(-9999);
-        testCountry.setPopulationGrowth(-9999);
-        testCountry.setSecondarySchoolEnrollmentFemale(-9999);
-        testCountry.setSecondarySchoolEnrollmentMale(-9999);
-        testCountry.setCo2Emissions(-9999);
-        testCountry.setForestedArea(-9999);
-        testCountry.setInfantMortality(-9999);
-        testCountry.setPopulationDensity(-9999);
-        testCountry.setInternetUsers(-9999);
+        testCountry.setGdp("-9999");
+        testCountry.setSurfaceArea("-9999");
+        testCountry.setLifeExpectancyMale("-9999");
+        testCountry.setLifeExpectancyFemale("-9999");
+        testCountry.setUnemploymentRate("-9999");
+        testCountry.setImports("-9999");
+        testCountry.setExports("-9999");
+        testCountry.setHomicideRate("-9999");
+        testCountry.setPopulationGrowth("-9999");
+        testCountry.setSecondarySchoolEnrollmentFemale("-9999");
+        testCountry.setSecondarySchoolEnrollmentMale("-9999");
+        testCountry.setCo2Emissions("-9999");
+        testCountry.setForestedArea("-9999");
+        testCountry.setInfantMortality("not available");
+        testCountry.setPopulationDensity("not available");
+        testCountry.setInternetUsers("not available");
 
         testCountryNamesList = new ArrayList<>();
         testCountryNamesList.add("Switzerland");
@@ -110,8 +110,8 @@ public class HintHandlerTest {
         // test content of list
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("URL", "https://flagcdn.com/h240/ch.png")));
         assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Capital", "Bern")));
-        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8000000")));
-        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "CHF")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8655K")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "Swiss Franc")));
     }
 
     @Test
@@ -136,8 +136,8 @@ public class HintHandlerTest {
         // test content of list
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("URL", "https://flagcdn.com/h240/ch.png")));
         assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Capital", "Bern")));
-        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8000000")));
-        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "CHF")));
+        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8655K")));
+        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "Swiss Franc")));
     }
 
     @Test

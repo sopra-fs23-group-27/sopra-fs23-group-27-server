@@ -20,7 +20,6 @@ public class HintHandler {
     private String countryCode;
 
     private Lobby lobby;
-    private Long lobbyId;
     private int numHints;
     private int numChoices;
 
@@ -34,7 +33,6 @@ public class HintHandler {
                        WebSocketService webSocketService) {
         this.countryCode = countryCode;
         this.lobby = lobby;
-        this.lobbyId = lobby.getLobbyId();
         this.numHints = determineNumHints(lobby);
         this.numChoices = determineNumOptions(lobby);
         this.countryRepository = countryRepository;
@@ -50,6 +48,10 @@ public class HintHandler {
     public void setHints() {
         List<HashMap.Entry<String, String>> attributeList = getAndShuffleAllAttributes();
 
+        // if there are less attributes than the calculated number of hints, set numHints to the number of attributes
+        if (attributeList.size() < numHints) {
+            this.numHints = attributeList.size();
+        }
         this.hints = attributeList.subList(0, numHints);
 
     }
@@ -80,7 +82,7 @@ public class HintHandler {
             e.printStackTrace();
         }
         log.info("FLAG-URL: " + url);
-        webSocketService.sendToLobby(lobbyId, "/flag-in-round", flagDTO);
+        webSocketService.sendToLobby(lobby.getLobbyId(), "/flag-in-round", flagDTO);
 
         // if game mode is advanced, send remaining hints every hintInterval
         // seconds starting after firstHintAfter seconds
@@ -93,8 +95,7 @@ public class HintHandler {
             sendChoices();
         }
     }
-
-
+    
     public void stopSendingHints() {
         this.timer.cancel();
     }
@@ -163,13 +164,15 @@ public class HintHandler {
      * @param countryAttributes HashMap containing all country attributes
      */
     private void filter(HashMap<String, String> countryAttributes) {
-//        countryAttributes.removeAll(Collections.singleton(null));
-        while (countryAttributes.values().remove(null)) ;
-        while (countryAttributes.values().remove("not available")) {
+        // Iterate over the entries and remove those with values containing the substring
+        Iterator<Map.Entry<String, String>> iterator = countryAttributes.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            String value = entry.getValue();
+            if (value.contains("not available") || value.contains("-9999") || value.isEmpty()) {
+                iterator.remove();
+            }
         }
-        while (countryAttributes.values().remove("-9999")) {
-        }
-
     }
 
     /**
@@ -237,7 +240,7 @@ public class HintHandler {
                     String nextHint = hints.remove(0).toString();
                     HintDTO hintDTO = new HintDTO(nextHint);
                     log.info("Hint: " + nextHint);
-                    webSocketService.sendToLobby(lobbyId, "/hints-in-round", hintDTO);
+                    webSocketService.sendToLobby(lobby.getLobbyId(), "/hints-in-round", hintDTO);
 
                 }
                 else {
@@ -268,7 +271,7 @@ public class HintHandler {
 
         // send choices via websocket
         ChoicesDTO choicesDTO = new ChoicesDTO(choices);
-        webSocketService.sendToLobby(lobbyId, "/choices-in-round", choicesDTO);
+        webSocketService.sendToLobby(lobby.getLobbyId(), "/choices-in-round", choicesDTO);
     }
 }
 

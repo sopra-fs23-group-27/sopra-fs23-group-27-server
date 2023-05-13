@@ -1,27 +1,26 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
-import java.io.IOException;
+import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
+import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.TimerDTO;
+import info.debatty.java.stringsimilarity.JaroWinkler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.TimerDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
-import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 public class Game {
-
     // This class is the Game object as in the UML diagram
     // This object is not connected to the database
     // here, the game logic is implemented
@@ -32,6 +31,7 @@ public class Game {
     private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
+    private final PlayerRepository playerRepository;
 
     private ScoreBoard scoreBoard;
     private HintHandler hintHandler;
@@ -55,12 +55,15 @@ public class Game {
     private int numOptions;
 
     public Game(CountryHandlerService countryHandlerService,
-                WebSocketService webSocketService, CountryRepository countryRepository,
+                WebSocketService webSocketService, 
+                CountryRepository countryRepository,
+                PlayerRepository playerRepository,
                 Lobby lobby) {
 
         this.countryHandlerService = countryHandlerService;
         this.webSocketService = webSocketService;
         this.countryRepository = countryRepository;
+        this.playerRepository = playerRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
@@ -121,7 +124,6 @@ public class Game {
             log.info("No new round can be started since numRounds is reached." +
                     " Initiate Game loop end for lobbyId: " + this.gameId);
             this.endGame();
-            return;
         }
         startTimer(this.numSeconds, this);
         webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
@@ -130,22 +132,19 @@ public class Game {
         String currentCountryCode = this.allCountryCodes.get(this.round);
         updateCorrectGuess(currentCountryCode);
         log.info("Correct guess for round " + (this.round + 1) + " is: " + this.correctGuess);
-        // init procedure for a new round
 
         // init hints for new round given country code
-        hintHandler = new HintHandler(
-                currentCountryCode, lobby, countryRepository, webSocketService
-        );
+        if (hintHandler == null) {
+            hintHandler = new HintHandler(
+                    currentCountryCode, lobby, countryRepository, webSocketService
+            );
+        }
         hintHandler.setHints();
 
         hintHandler.sendRequiredDetailsViaWebSocket();
 
-
         // start the timer
-
         this.startTime = System.currentTimeMillis();
-        // call endRound if the timer runs out
-
     }
 
     public void endRound() {
@@ -159,8 +158,12 @@ public class Game {
         // inform players in lobby that game round has ended
         webSocketService.sendToLobby(this.gameId, "/round-end", "{}");
 
-        // compute the time passed since the start of the round in seconds
-        Integer passedTime = this.computePassedTime();
+        // number of second for all players that have not correctly guessed the country
+        // if the first player guessed the country correctly, the round is over. 
+        // therefore all players, who have not guessed the time correctly would get
+        // the same time as the player who guessed the country correctly
+        // to avoid this. Each player that has not guessed correctly gets the full time
+        Integer passedTime = this.lobby.getNumSeconds();
 
         // for each player that has NOT guessed the country correctly,
         // set the current guess to false
@@ -189,6 +192,9 @@ public class Game {
         // MUST BE CALLED AFTER FOR LOOP
         this.scoreBoard.updateTotalScores();
 
+        // write all stats for each player to DB.
+        this.addStatsToDB();
+
         // computes the LeaderBoardScore for each player for the current round and total rounds
         // NOTE: ALL GETTERS FOR THE CURRENT AND TOTAL LEADERBOARD CAN ONLY BE USED FROM NOW ON
         this.scoreBoard.computeLeaderBoardScore();
@@ -202,11 +208,15 @@ public class Game {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
         // send round to lobby
         this.sendRoundToLobby();
+
+        // send the correct Guess of the previous round to Lobby
+        this.sendCorrectGuessToLobby();
 
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
@@ -224,6 +234,8 @@ public class Game {
         if (this.round.equals(this.numRounds)) {
             this.endGame();
         }
+        // set hintHandler again to null
+        this.hintHandler = null;
     }
 
     public void updateCorrectGuess(String countryCode) {
@@ -246,17 +258,32 @@ public class Game {
 
     }
 
-    public Boolean validateGuess(String playerName, String guess, String wsConnectionId) {
-        // prepare the guess
-        // remove all whitespaces and make it lowercase
-        guess = guess.toLowerCase();
-        guess = guess.replaceAll("\\s+", "");
-        log.info("cleaned guess is: " + guess);
+    public synchronized void validateGuess(String playerName, String guess, String wsConnectionId) {
+        // clean the guess: remove all whitespaces and make it lowercase
+        String cleanedGuess = guess.toLowerCase();
+        cleanedGuess = cleanedGuess.replaceAll("\\s+", "");
+
+        if (lobby instanceof BasicLobby) {
+            validateGuessBasicMode(playerName, guess, wsConnectionId, cleanedGuess);
+        }
+        else {
+            validateGuessAdvancedMode(playerName, guess, wsConnectionId, cleanedGuess);
+        }
+    }
+
+    private void validateGuessAdvancedMode(String playerName, String guess, String wsConnectionId, String cleanedGuess) {
+        // use JaroWinkler algorithm to compute the similarity between the guess and the correct guess
+        JaroWinkler jw = new JaroWinkler();
+        Double similarity = jw.similarity(cleanedGuess, this.correctGuess);
+        log.info("player's guess is: " + guess);
         log.info("correct guess is: " + this.correctGuess);
+        log.info("similarity is: " + similarity);
 
         GuessEvalDTO guessEvalDTO = new GuessEvalDTO(guess, false);
 
-        if (guess.equals(this.correctGuess)) {
+        // if the similarity is greater than 0.93, the guess is correct
+        // NOTE: this is a very high threshold, but it is necessary to avoid false positives
+        if (similarity > 0.93) {
 
             // compute the time until the correct guess
             Integer passedTime = this.computePassedTime();
@@ -265,13 +292,10 @@ public class Game {
             guessEvalDTO.setIsCorrect(true);
 
             // If game is in advanced mode: send guessEvalDTO to client
-            if (this.lobby instanceof AdvancedLobby) {
-                this.webSocketService.sendToPlayerInLobby(wsConnectionId,
-                        "/guess-evaluation",
-                        this.gameId.toString(),
-                        guessEvalDTO);
-            }
-
+            this.webSocketService.sendToPlayerInLobby(wsConnectionId,
+                "/guess-evaluation",
+                this.gameId.toString(),
+                guessEvalDTO);
 
             // write time of player to scoreBoard
             this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
@@ -283,46 +307,52 @@ public class Game {
 
             // end the round since one player has submitted the correct guess
             this.endRound();
-
-
-/*            // check if all players have submitted the correct guess and the round is over
-            for (String playerNameList : this.playerNames) {
-                if (!this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerNameList)) {
-                    break;
-                }
-                else {
-                    // if all players have submitted the correct guess, end the round
-                    log.info("all players have submitted the correct guess; end of round");
-                    this.endRound();
-                }
-            }*/
-
-            return true;
         }
         else {
+            // send guessEvalDTO to client
+            webSocketService.sendToPlayerInLobby(wsConnectionId,
+                    "/guess-evaluation",
+                    this.gameId.toString(),
+                    guessEvalDTO);
 
-            // If game is in advanced mode:
-            // - send guessEvalDTO to client
-            // - send GuessDTO to client
-            if (this.lobby instanceof AdvancedLobby) {
-
-                // send guessEvalDTO to client
-                this.webSocketService.sendToPlayerInLobby(wsConnectionId,
-                        "/guess-evaluation",
-                        this.gameId.toString(),
-                        guessEvalDTO);
-
-                // send GuessDTO to client
-                GuessDTO guessDTO = new GuessDTO(playerName, guess);
-                webSocketService.sendToLobby(this.gameId, "/guesses", guessDTO);
-            }
+            // send GuessDTO to client
+            GuessDTO guessDTO = new GuessDTO(playerName, guess);
+            webSocketService.sendToLobby(this.gameId, "/guesses", guessDTO);
 
 
             // increment the number of wrong guesses by 1
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
                     playerName,
                     this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
-            return false;
+        }
+    }
+
+    private void validateGuessBasicMode(String playerName, String guess, String wsConnectionId, String cleanedGuess) {
+        // check if player has already submitted a guess
+        if (scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) > 0 || scoreBoard.getCurrentCorrectGuessPerPlayer(playerName)) {
+            // Player has already made a guess, send an error message back to the player
+            String errorMessage = String.format("You have already submitted a guess. Your guess was %s", guess);
+            webSocketService.sendToPlayerInLobby(wsConnectionId, "/errors", this.gameId.toString(), errorMessage);
+        }
+        // if this is the first guess and the guess is correct, write the time until the correct guess to the scoreBoard
+        else if (cleanedGuess.equals(this.correctGuess)) {
+
+            // compute the time until the correct guess
+            Integer passedTime = this.computePassedTime();
+
+            // write time of player to scoreBoard
+            this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+            log.info(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName).toString());
+
+            // write correct guess to scoreBoard
+            this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, true);
+            log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName).toString());
+        }
+        else {
+            // increment the number of wrong guesses by 1
+            this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
+                    playerName,
+                    this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
         }
     }
 
@@ -340,7 +370,6 @@ public class Game {
     }
 
     private Integer computePassedTime() {
-
         // stop the timer
         Long endTime = System.currentTimeMillis();
 
@@ -359,8 +388,7 @@ public class Game {
         this.startTime = null;
     }
 
-
-    public void startTimer(int seconds, Game game) {
+    private void startTimer(int seconds, Game game) {
         this.timer = new Timer();
         final int remainingTime = seconds;
 
@@ -398,12 +426,11 @@ public class Game {
         this.timer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
     }
 
-
-    public void stopTimer() {
+    private void stopTimer() {
         this.timer.cancel();
     }
 
-    public void sendStatsToLobby() {
+    private void sendStatsToLobby() {
 
         // Init Arrays for the mapping into a JSON object
         ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
@@ -435,10 +462,16 @@ public class Game {
         log.info("- Total correct guesses: " + gameStatsDTO.getTotalCorrectGuesses());
         log.info("- Total time until correct guess: " + gameStatsDTO.getTotalTimeUntilCorrectGuess());
         log.info("- Total wrong guesses: " + gameStatsDTO.getTotalWrongGuesses());
-        webSocketService.sendToLobby(this.gameId, "/score-board", gameStatsDTO);
+
+        List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
+        for (Player player : lobby) {
+            gameStatsDTO.setIsCreator(player.isCreator());
+            webSocketService.sendToPlayerInLobby(player.getWsConnectionId(), "/score-board",this.gameId.toString(), gameStatsDTO);
+        }
+
     }
 
-    public void sendRoundToLobby() {
+    private void sendRoundToLobby() {
 
         // create a DTO for the current round and pass it the current round
         RoundDTO roundDTO = new RoundDTO(this.round);
@@ -447,5 +480,46 @@ public class Game {
         // send the round to the frontend on endpoint /round
         log.info("Sending round info to lobby: " + roundDTO.getRound());
         this.webSocketService.sendToLobby(this.gameId, "/round", roundDTO);
+    }
+
+    private void sendCorrectGuessToLobby() {
+
+        // create a DTO for the current round and pass it the current round
+        CorrectGuessDTO correctGuessDTO = new CorrectGuessDTO(this.correctGuess);
+
+        log.info("Sending correct guess to lobby: " + this.correctGuess);
+
+        this.webSocketService.sendToLobby(this.gameId, "/correct-country", correctGuessDTO);
+
+    }
+
+    private void addStatsToDB() {
+
+        // load all the players to a list
+        List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
+        for(Player player : lobby) {
+
+            // update the total correct guesses. This is done after each round
+            player.setTotalCorrectGuesses(player.getTotalCorrectGuesses()+1);
+
+            // update the total wrong guesses. This is done after each round
+            player.setNumWrongGuesses(
+                player.getNumWrongGuesses() + 
+                this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
+            );
+
+            // update the total time until correct guess. This is done after each round
+            player.setTimeUntilCorrectGuess(
+                player.getTimeUntilCorrectGuess() + 
+                this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(player.getPlayerName())
+            );
+            
+            // update the number of Games played. This is done only once after the game!
+            if (this.round == this.numRounds) {
+                player.setnRoundsPlayed(
+                    player.getnRoundsPlayed() + 1
+                );
+            }
+        }
     }
 }
