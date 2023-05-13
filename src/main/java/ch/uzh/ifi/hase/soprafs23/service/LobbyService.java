@@ -27,7 +27,6 @@ public class LobbyService {
     private final LobbyRepository lobbyRepository;
     private final PlayerRepository playerRepository;
     private final PlayerService playerService;
-    private WebSocketService webSocketService;
     private final GameService gameService;
 
 
@@ -35,12 +34,10 @@ public class LobbyService {
     public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository,
                         @Qualifier("playerRepository") PlayerRepository playerRepository,
                         PlayerService playerService,
-                        WebSocketService webSocketService,
                         GameService gameService) {
         this.lobbyRepository = lobbyRepository;
         this.playerRepository = playerRepository;
         this.playerService = playerService;
-        this.webSocketService = webSocketService;
         this.gameService = gameService;
 
     }
@@ -161,26 +158,6 @@ public class LobbyService {
         return lobbyGetDTO;
     }
 
-    public Lobby leaveLobby(Lobby lobby, String playerToken) {
-        Player player = this.playerService.getPlayerByToken(playerToken);
-
-        // check if player is in the lobby
-        if (!Objects.equals(lobby.getLobbyId(), player.getLobbyId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Player is not part of this lobby");
-        }
-
-        lobby.removePlayerFromLobby(player.getPlayerName());
-        player.setLobbyId(null);
-
-        Lobby savedLobby = this.lobbyRepository.save(lobby);
-        this.lobbyRepository.flush();
-
-        this.playerRepository.save(player);
-        this.playerRepository.flush();
-
-        return savedLobby;
-    }
 
     public void startGame(Long lobbyId, String playerToken) {
 
@@ -205,20 +182,88 @@ public class LobbyService {
         this.gameService.startGame(lobby);
     }
 
-    public void disconnectPlayer(String wsConnectionId) {
-        Player player = this.playerService.getPlayerByWsConnectionId(wsConnectionId);
+    public Lobby leaveLobby(Lobby lobby, String playerToken) {
+        Player player = this.playerService.getPlayerByToken(playerToken);
+
+        // check if player is in the lobby
+        if (!Objects.equals(lobby.getLobbyId(), player.getLobbyId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Player is not part of this lobby");
+        }
+
+        lobby.removePlayerFromLobby(player.getPlayerName());
+        player.setLobbyId(null);
+
+        Lobby savedLobby = this.lobbyRepository.save(lobby);
+        this.lobbyRepository.flush();
+
+        this.playerRepository.save(player);
+        this.playerRepository.flush();
+
+        return savedLobby;
+    }
+
+    public synchronized void disconnectPlayer(String playerToken) {
+        Player player = this.playerService.getPlayerByToken(playerToken);
+        if (player == null) {
+            log.info("Player with playerToken {} is not a registered player." +
+                    "Returning without action taken.", playerToken);
+            return;
+        }
         Lobby lobby = getLobbyById(player.getLobbyId());
 
         if (lobby != null) {
             lobby.removePlayerFromLobby(player.getPlayerName());
-            this.lobbyRepository.save(lobby);
+            if (playerToken.equals(lobby.getLobbyCreatorPlayerToken())) {
+                if (lobby.getJoinedPlayerNames().size() > 0) {
+                    lobby = changeLobbyCreator(lobby);
+                    this.lobbyRepository.save(lobby);
+                }
+                else {
+                    log.info("Lobby {} has been deleted due to websocket disconnect of last player in the lobby.",
+                            lobby.getLobbyId());
+                    this.lobbyRepository.delete(lobby);
+                }
+            }
             this.lobbyRepository.flush();
 
-            player.setLobbyId(null);
-            this.playerRepository.save(player);
+            if (true) { // TODO: delete player only if player is not a registered player
+                log.info("Player {} has been deleted since he is not a registered player.",
+                        player.getPlayerName());
+                this.playerRepository.delete(player);
+            }
+            else {
+                player.setLobbyId(null);
+                player.setCreator(false);
+                this.playerRepository.save(player);
+            }
+
             this.playerRepository.flush();
+
+            log.info("Player {} has been removed from lobby {} due to websocket disconnect",
+                    player.getPlayerName(), lobby.getLobbyId());
+
+            this.gameService.sendLobbySettings(lobby.getLobbyId().intValue());
         }
+
     }
+
+
+    private Lobby changeLobbyCreator(Lobby lobby) {
+        String newCreatorUsername = lobby.getJoinedPlayerNames().get(0);
+
+        Player newCreator = this.playerRepository.findByPlayerName(newCreatorUsername);
+        lobby.setLobbyCreatorPlayerToken(newCreator.getToken());
+        newCreator.setCreator(true);
+        this.playerRepository.save(newCreator);
+        this.playerRepository.flush();
+        log.info("Lobby {}: Player {} has been set as new lobby creator.",
+                lobby.getLobbyId(), newCreatorUsername);
+        Lobby savedLobby = this.lobbyRepository.save(lobby);
+        this.lobbyRepository.flush();
+        return savedLobby;
+    }
+
 
     public void checkIfLobbyIsJoinable(Long lobbyId, String privateLobbyKey) {
         Lobby lobby = getLobbyById(lobbyId);
