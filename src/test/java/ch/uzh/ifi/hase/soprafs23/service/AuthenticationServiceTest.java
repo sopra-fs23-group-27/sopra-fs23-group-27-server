@@ -25,6 +25,8 @@ class AuthenticationServiceTest {
     private WebSocketService webSocketService;
     @Mock
     private PlayerService playerService;
+    @Mock
+    private GameService gameService;
 
     @InjectMocks
     private Player testPlayer;
@@ -119,9 +121,11 @@ class AuthenticationServiceTest {
                 eq("/authentication"),
                 eq(lobbyId.toString()),
                 Mockito.any(WSConnectedDTO.class));
-        Mockito.verify(webSocketService).sendToLobby(
+/*        Mockito.verify(webSocketService).sendToLobby(
                 eq(lobbyId),
                 eq("/lobby-settings"),
-                Mockito.any());
+                Mockito.any());*/
+        Mockito.verify(gameService).sendLobbySettings(
+                eq(lobbyId.intValue()));
     }
 }
