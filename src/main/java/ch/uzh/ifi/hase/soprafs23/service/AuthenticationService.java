@@ -25,13 +25,16 @@ public class AuthenticationService {
     private final WebSocketService webSocketService;
     private final PlayerService playerService;
     private final LobbyService lobbyService;
+    private final GameService gameService;
 
     private final Map<String, Long> authenticatedJoins = new HashMap<>();
 
-    public AuthenticationService(WebSocketService webSocketService, PlayerService playerService, LobbyService lobbyService) {
+    public AuthenticationService(WebSocketService webSocketService, PlayerService playerService, LobbyService lobbyService,
+                                 GameService gameService) {
         this.webSocketService = webSocketService;
         this.playerService = playerService;
         this.lobbyService = lobbyService;
+        this.gameService = gameService;
     }
 
     public void addToAuthenticatedJoins(String playerToken, Long lobbyId) {
@@ -75,7 +78,8 @@ public class AuthenticationService {
         // wait for player to subscribe to channels
         webSocketService.wait(500);
         // send initial lobby-state packet
-        this.webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
+        //this.webSocketService.sendToLobby(lobbyId, "/lobby-settings", lobbyGetDTO);
+        this.gameService.sendLobbySettings(lobbyId.intValue());
 
         log.info("Lobby " + lobbyId + ": Player " + wsConnectionId + " joined");
 
