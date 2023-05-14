@@ -180,15 +180,15 @@ public class CountryServiceIntegrationTest {
         advancedLobby.setLobbyName("testBasicLobby");
         advancedLobby.setLobbyId(1L);
         advancedLobby.setIsPublic(true);
-        advancedLobby.setNumSeconds(65);
-        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
-        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+        advancedLobby.setNumSeconds(15);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(1);
+        ((AdvancedLobby) advancedLobby).setHintInterval(1);
 
         countryService.sourceAPI("AD");
 
         Country foundCountry = countryRepository.findByCountryCode("AD");
 
-        hintHandler = new HintHandler(foundCountry.getCountryCode(), advancedLobby,  countryRepository, webSocketService);
+        hintHandler = new HintHandler(foundCountry.getCountryCode(), advancedLobby, countryRepository, webSocketService);
 
         // Call the setHints() method
         hintHandler.setHints();
@@ -217,7 +217,7 @@ public class CountryServiceIntegrationTest {
         hintHandler.sendRequiredDetailsViaWebSocket();
 
         // wait for 65 seconds to ensure all four hints are sent
-        Thread.sleep(65000);
+        Thread.sleep(14000);
 
         // verify that sendToLobby was called 3 times with the expected parameters
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
@@ -235,15 +235,15 @@ public class CountryServiceIntegrationTest {
         advancedLobby.setLobbyName("testBasicLobby");
         advancedLobby.setLobbyId(1L);
         advancedLobby.setIsPublic(true);
-        advancedLobby.setNumSeconds(75);
-        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
-        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+        advancedLobby.setNumSeconds(20);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(1);
+        ((AdvancedLobby) advancedLobby).setHintInterval(1);
 
         countryService.sourceAPI("AD");
 
         Country foundCountry = countryRepository.findByCountryCode("AD");
 
-        hintHandler = new HintHandler(foundCountry.getCountryCode(), advancedLobby,  countryRepository, webSocketService);
+        hintHandler = new HintHandler(foundCountry.getCountryCode(), advancedLobby, countryRepository, webSocketService);
 
         // Call the setHints() method
         hintHandler.setHints();
@@ -272,7 +272,7 @@ public class CountryServiceIntegrationTest {
         hintHandler.sendRequiredDetailsViaWebSocket();
 
         // wait for 75 seconds to ensure all four hints are sent
-        Thread.sleep(75000);
+        Thread.sleep(20000);
 
         // verify that sendToLobby was called 3 times with the expected parameters
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));

@@ -45,7 +45,7 @@ public class HintHandlerTest {
         testCountry = new Country();
         testCountry.setCountryCode("CH");
         testCountry.setName("Switzerland");
-        testCountry.setPopulation("8655"+ "K");
+        testCountry.setPopulation("8655" + "K");
         testCountry.setCapital("Bern");
         testCountry.setCurrency("Swiss Franc");
         testCountry.setFlag("https://flagcdn.com/h240/ch.png");
@@ -97,7 +97,7 @@ public class HintHandlerTest {
         basicLobby.setNumSeconds(10);
         ((BasicLobby) basicLobby).setNumOptions(4);
 
-        hintHandler = new HintHandler("CH", basicLobby,  countryRepository, webSocketService);
+        hintHandler = new HintHandler("CH", basicLobby, countryRepository, webSocketService);
 
         // Call the setHints() method
         hintHandler.setHints();
@@ -119,11 +119,11 @@ public class HintHandlerTest {
         advancedLobby = new AdvancedLobby();
         advancedLobby.setLobbyName("testBasicLobby");
         advancedLobby.setIsPublic(true);
-        advancedLobby.setNumSeconds(20);
-        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
-        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+        advancedLobby.setNumSeconds(4);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(1);
+        ((AdvancedLobby) advancedLobby).setHintInterval(1);
 
-        hintHandler = new HintHandler("CH", advancedLobby,  countryRepository, webSocketService);
+        hintHandler = new HintHandler("CH", advancedLobby, countryRepository, webSocketService);
 
         // Call the setHints() method
         hintHandler.setHints();
@@ -146,11 +146,11 @@ public class HintHandlerTest {
         advancedLobby.setLobbyId(1L);
         advancedLobby.setLobbyName("testAdvancedLobby");
         advancedLobby.setIsPublic(true);
-        advancedLobby.setNumSeconds(20);
-        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
-        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+        advancedLobby.setNumSeconds(4);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(1);
+        ((AdvancedLobby) advancedLobby).setHintInterval(1);
 
-        hintHandler = new HintHandler("CH", advancedLobby,  countryRepository, webSocketService);
+        hintHandler = new HintHandler("CH", advancedLobby, countryRepository, webSocketService);
 
         // Call the setHints() method
         hintHandler.setHints();
@@ -168,10 +168,10 @@ public class HintHandlerTest {
         basicLobby.setLobbyId(1L);
         basicLobby.setLobbyName("testBasicLobby");
         basicLobby.setIsPublic(true);
-        basicLobby.setNumSeconds(10);
+        basicLobby.setNumSeconds(2);
         ((BasicLobby) basicLobby).setNumOptions(4);
 
-        hintHandler = new HintHandler("CH", basicLobby,  countryRepository, webSocketService);
+        hintHandler = new HintHandler("CH", basicLobby, countryRepository, webSocketService);
 
         // Call the setHints() method
         hintHandler.setHints();
@@ -180,7 +180,7 @@ public class HintHandlerTest {
         hintHandler.sendRequiredDetailsViaWebSocket();
 
         // wait for 20 seconds to ensure all four hints are sent
-        Thread.sleep(10000);
+        Thread.sleep(2000);
 
         // verify that the WebSocketService.sendToLobby() method was called immediately and sent flag and n options
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
@@ -195,11 +195,11 @@ public class HintHandlerTest {
         advancedLobby.setLobbyId(1L);
         advancedLobby.setLobbyName("testAdvancedLobby");
         advancedLobby.setIsPublic(true);
-        advancedLobby.setNumSeconds(20);
-        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(5);
-        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+        advancedLobby.setNumSeconds(4);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(1);
+        ((AdvancedLobby) advancedLobby).setHintInterval(1);
 
-        hintHandler = new HintHandler("CH", advancedLobby,  countryRepository, webSocketService);
+        hintHandler = new HintHandler("CH", advancedLobby, countryRepository, webSocketService);
 
         // Call the setHints() method
         hintHandler.setHints();
@@ -208,7 +208,7 @@ public class HintHandlerTest {
         hintHandler.sendRequiredDetailsViaWebSocket();
 
         // wait for 20 seconds to ensure all four hints are sent
-        Thread.sleep(20000);
+        Thread.sleep(4000);
 
         // verify that sendToLobby was called 3 times with the expected parameters
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
