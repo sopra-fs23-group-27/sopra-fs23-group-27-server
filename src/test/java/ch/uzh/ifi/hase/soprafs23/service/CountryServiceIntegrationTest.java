@@ -35,7 +35,7 @@ public class CountryServiceIntegrationTest {
     @Mock
     private WebSocketService webSocketService;
 
-    HintHandler hintHandler;
+    private HintHandler hintHandler;
     private Lobby advancedLobby;
 
     @AfterEach
