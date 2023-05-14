@@ -74,7 +74,7 @@ public class GameServiceTest {
         advancedLobby.setLobbyName("testAdvancedLobby");
         advancedLobby.setLobbyCreatorPlayerToken("testAdvancedToken");
 
-        game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, basicLobby);
+        game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, basicLobby);
         GameRepository.addGame(basicLobby.getLobbyId(), game);
 
         smha = mock(SimpMessageHeaderAccessor.class);

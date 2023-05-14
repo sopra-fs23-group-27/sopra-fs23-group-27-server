@@ -97,6 +97,11 @@ public class PlayerService {
         return newPlayer;
     }
 
+    public void deletePlayer(Player player) {
+        this.playerRepository.delete(player);
+        this.playerRepository.flush();
+    }
+
     public Player createPlayer(Player newPlayer) {
 
         // create basic authentication token

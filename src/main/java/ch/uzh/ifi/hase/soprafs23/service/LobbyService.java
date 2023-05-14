@@ -182,7 +182,7 @@ public class LobbyService {
         this.gameService.startGame(lobby);
     }
 
-    public Lobby leaveLobby(Lobby lobby, String playerToken) {
+    public synchronized Lobby leaveLobby(Lobby lobby, String playerToken) {
         Player player = this.playerService.getPlayerByToken(playerToken);
 
         // check if player is in the lobby
@@ -191,14 +191,45 @@ public class LobbyService {
                     "Player is not part of this lobby");
         }
 
+        Lobby savedLobby = removePlayerFromLobby(player, lobby);
+
+        return savedLobby;
+    }
+
+    private Lobby removePlayerFromLobby(Player player, Lobby lobby) {
+        String playerToken = player.getToken();
+
+        // remove player from lobby
         lobby.removePlayerFromLobby(player.getPlayerName());
+
+        // remove player from game
+        if (!lobby.isJoinable()) {
+            this.gameService.removePlayerFromGame(lobby.getCurrentGameId(), player.getPlayerName());
+        }
+
+        // check if player was the lobby creator; if yes, change lobby creator
+        if (playerToken.equals(lobby.getLobbyCreatorPlayerToken())) {
+            if (lobby.getJoinedPlayerNames().size() > 0) {
+                lobby = changeLobbyCreator(lobby);
+                this.lobbyRepository.save(lobby);
+            }
+            else {
+                log.info("Lobby {} has been deleted since last player left the lobby.",
+                        lobby.getLobbyId());
+                this.lobbyRepository.delete(lobby);
+            }
+        }
+
         player.setLobbyId(null);
+        player.setCreator(false);
+
+        this.playerRepository.save(player);
+        this.playerRepository.flush();
 
         Lobby savedLobby = this.lobbyRepository.save(lobby);
         this.lobbyRepository.flush();
 
-        this.playerRepository.save(player);
-        this.playerRepository.flush();
+        this.gameService.sendLobbySettings(savedLobby.getLobbyId().intValue());
 
         return savedLobby;
     }
@@ -210,40 +241,19 @@ public class LobbyService {
                     "Returning without action taken.", playerToken);
             return;
         }
+
+
         Lobby lobby = getLobbyById(player.getLobbyId());
-
         if (lobby != null) {
-            lobby.removePlayerFromLobby(player.getPlayerName());
-            if (playerToken.equals(lobby.getLobbyCreatorPlayerToken())) {
-                if (lobby.getJoinedPlayerNames().size() > 0) {
-                    lobby = changeLobbyCreator(lobby);
-                    this.lobbyRepository.save(lobby);
-                }
-                else {
-                    log.info("Lobby {} has been deleted due to websocket disconnect of last player in the lobby.",
-                            lobby.getLobbyId());
-                    this.lobbyRepository.delete(lobby);
-                }
-            }
-            this.lobbyRepository.flush();
+            log.info("Player {} is removed from lobby {} due to websocket disconnect", player.getPlayerName(), lobby.getLobbyId());
 
-            if (true) { // TODO: delete player only if player is not a registered player
-                log.info("Player {} has been deleted since he is not a registered player.",
-                        player.getPlayerName());
-                this.playerRepository.delete(player);
-            }
-            else {
-                player.setLobbyId(null);
-                player.setCreator(false);
-                this.playerRepository.save(player);
-            }
+            Lobby savedLobby = removePlayerFromLobby(player, lobby);
+        }
 
-            this.playerRepository.flush();
+        if (true) { // TODO: delete player only if player is not a registered player
+            log.info("Player {} is deleted since he is not a registered player.", player.getPlayerName());
 
-            log.info("Player {} has been removed from lobby {} due to websocket disconnect",
-                    player.getPlayerName(), lobby.getLobbyId());
-
-            this.gameService.sendLobbySettings(lobby.getLobbyId().intValue());
+            this.playerService.deletePlayer(player);
         }
 
     }

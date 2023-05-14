@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.Timer;
 
+import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
@@ -37,6 +38,9 @@ public class GameTest {
     private PlayerRepository playerRepository;
 
     @Mock
+    private LobbyRepository lobbyRepository;
+
+    @Mock
     private BasicLobby basicLobby;
 
     @Mock
@@ -57,8 +61,8 @@ public class GameTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        basicGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, basicLobby));
-        advancedGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, advancedLobby));
+        basicGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, basicLobby));
+        advancedGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, advancedLobby));
     }
 
     @Test

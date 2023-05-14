@@ -76,7 +76,7 @@ public class GameService {
         // Inform all players in the lobby that the game has started
         this.webSocketService.sendToLobby(lobbyId, "/game-start", "{}");
 
-        Game game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobby);
+        Game game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, lobby);
         GameRepository.addGame(lobby.getLobbyId(), game);
 
         lobby.setCurrentGameId(game.getGameId());
@@ -153,5 +153,10 @@ public class GameService {
         log.info("Sending lobby settings to lobby id: " + lobbyId + " :");
         log.info("Player-role map: " + lobbySettingsDTO.getPlayerRoleMap().toString());
         this.webSocketService.sendToLobby(lobbyId.longValue(), "/lobby-settings", lobbySettingsDTO);
+    }
+
+    public void removePlayerFromGame(Long gameId, String playerName) {
+        Game game = GameRepository.findByLobbyId(gameId);
+        game.removePlayer(playerName);
     }
 }

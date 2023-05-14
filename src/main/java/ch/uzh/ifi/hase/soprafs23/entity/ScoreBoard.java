@@ -114,6 +114,22 @@ public class ScoreBoard {
 
     // ---------------------------------------------------------------------------------
 
+    public void removePlayer(String playerName) {
+        this.playerNames.remove(playerName);
+
+        this.currentCorrectGuess.remove(playerName);
+        this.totalCorrectGuesses.remove(playerName);
+        this.totalCorrectGuessesInARow.remove(playerName);
+
+        this.currentTimeUntilCorrectGuess.remove(playerName);
+        this.totalTimeUntilCorrectGuess.remove(playerName);
+
+        this.currentNumberOfWrongGuesses.remove(playerName);
+        this.totalNumberOfWrongGuesses.remove(playerName);
+
+        this.leaderBoardTotalScore.remove(playerName);
+    }
+
     public void resetAllTotalScores() {
         // This function resets all HashMaps that store the total scores.
         // This can be used if the game is restarted with the same settings

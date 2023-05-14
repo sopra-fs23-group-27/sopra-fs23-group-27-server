@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
@@ -32,6 +33,7 @@ public class Game {
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
     private final PlayerRepository playerRepository;
+    private final LobbyRepository lobbyRepository;
 
     private ScoreBoard scoreBoard;
     private HintHandler hintHandler;
@@ -58,12 +60,14 @@ public class Game {
                 WebSocketService webSocketService,
                 CountryRepository countryRepository,
                 PlayerRepository playerRepository,
+                LobbyRepository lobbyRepository,
                 Lobby lobby) {
 
         this.countryHandlerService = countryHandlerService;
         this.webSocketService = webSocketService;
         this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
+        this.lobbyRepository = lobbyRepository;
         this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
@@ -108,6 +112,11 @@ public class Game {
 
     }
 
+    public void removePlayer(String playerName) {
+        this.playerNames.remove(playerName);
+        this.scoreBoard.removePlayer(playerName);
+    }
+
     public void startGame() {
         log.info("Game loop started for lobbyId: " + this.gameId);
         startRound();
@@ -117,6 +126,11 @@ public class Game {
         // Inform all players in the lobby that the game has ended
         log.info("Game loop ended for lobbyId: " + this.gameId);
         this.webSocketService.sendToLobby(this.gameId, "/game-end", "{}");
+
+        this.lobby.setJoinable(true);
+        this.lobby.setCurrentGameId(null);
+        this.lobbyRepository.save(this.lobby);
+        this.lobbyRepository.flush();
     }
 
     public void startRound() {
@@ -397,7 +411,7 @@ public class Game {
         TimerDTO timerDTO = new TimerDTO(remainingTime);
         try {
             webSocketService.sendToLobby(game.getGameId(), "/timer", timerDTO);
-            log.info("TimerDTO sent to lobby. Remaining time: " + remainingTime + " seconds.");
+            //log.info("TimerDTO sent to lobby. Remaining time: " + remainingTime + " seconds.");
         }
         catch (Exception e) {
             e.printStackTrace();
