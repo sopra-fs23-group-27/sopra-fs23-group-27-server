@@ -430,7 +430,7 @@ public class Game {
                     TimerDTO timerDTO = new TimerDTO(currentRemainingTime);
                     try {
                         webSocketService.sendToLobby(game.getGameId(), "/timer", timerDTO);
-                        log.info("TimerDTO sent to lobby. Remaining time: " + currentRemainingTime + " seconds.");
+                        //log.info("TimerDTO sent to lobby. Remaining time: " + currentRemainingTime + " seconds.");
                     }
                     catch (Exception e) {
                         e.printStackTrace();

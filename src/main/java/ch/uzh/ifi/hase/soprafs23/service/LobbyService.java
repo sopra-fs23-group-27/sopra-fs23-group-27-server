@@ -5,11 +5,13 @@ import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.RemoveDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -192,6 +194,22 @@ public class LobbyService {
         }
 
         Lobby savedLobby = removePlayerFromLobby(player, lobby);
+
+        return savedLobby;
+    }
+
+    public synchronized Lobby kickPlayerFromLobby(Integer lobbyId, RemoveDTO removeDTO, String wsConnectionId) {
+        Lobby lobby = getLobbyById(lobbyId);
+        Player requester = this.playerService.getPlayerByWsConnectionId(wsConnectionId);
+        String playerTokenToBeKicked = this.playerRepository.findByPlayerName(removeDTO.getPlayerName()).getToken();
+
+        // check if requester is the lobby creator
+        if (!lobby.getLobbyCreatorPlayerToken().equals(requester.getToken())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You are not the lobby creator. Only the creator can kick players.");
+        }
+
+        Lobby savedLobby = leaveLobby(lobby, playerTokenToBeKicked);
 
         return savedLobby;
     }

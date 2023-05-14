@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
+import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
+import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import org.mockito.Mockito;
 
 import org.junit.jupiter.api.Test;
@@ -26,13 +28,19 @@ public class GameControllerTest {
     private GameService gameService;
 
     @Mock
+    private WebSocketService webSocketService;
+
+    @Mock
+    private LobbyService lobbyService;
+
+    @Mock
     private SimpMessageHeaderAccessor smha;
 
     private GameController gameController;
 
     public GameControllerTest() {
         MockitoAnnotations.openMocks(this);
-        this.gameController = new GameController(gameService);
+        this.gameController = new GameController(gameService, webSocketService, lobbyService);
     }
 
     @Test
