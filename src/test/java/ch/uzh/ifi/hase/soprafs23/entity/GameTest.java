@@ -191,7 +191,7 @@ public class GameTest {
         assertEquals("italy", ReflectionTestUtils.getField(basicGame, "correctGuess"));
 
         // check the following methods were called
-        //verify(basicGame, times(1)).endGame();
+        verify(basicGame, times(0)).endGame();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
         verify(basicGame, times(1)).updateCorrectGuess(anyString());
         verify(hintHandler, times(1)).setHints();
@@ -284,7 +284,7 @@ public class GameTest {
         assertEquals("italy", ReflectionTestUtils.getField(advancedGame, "correctGuess"));
 
         // check the following methods were called
-        //verify(advancedGame, times(1)).endGame();
+        verify(advancedGame, times(0)).endGame();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-start"), eq("{}"));
         verify(advancedGame, times(1)).updateCorrectGuess(anyString());
         verify(hintHandler, times(1)).setHints();
