@@ -30,9 +30,9 @@ public class HintHandlerTest {
     @Mock
     WebSocketService webSocketService;
 
-    HintHandler hintHandler;
-    Country testCountry;
-    List<String> testCountryNamesList;
+    private HintHandler hintHandler;
+    private Country testCountry;
+    private List<String> testCountryNamesList;
     private Lobby basicLobby;
     private Lobby advancedLobby;
 
@@ -141,7 +141,56 @@ public class HintHandlerTest {
     }
 
     @Test
-    public void testSendRequiredDetailsViaWebSocket() {
+    public void testSetHints_AdvancedMode_NumSecondsUntilHintLargerThanNumSeconds() {
+        advancedLobby = new AdvancedLobby();
+        advancedLobby.setLobbyName("testBasicLobby");
+        advancedLobby.setIsPublic(true);
+        advancedLobby.setNumSeconds(1);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(2);
+        ((AdvancedLobby) advancedLobby).setHintInterval(1);
+
+        hintHandler = new HintHandler("CH", advancedLobby, countryRepository, webSocketService);
+
+        // Call the setHints() method
+        hintHandler.setHints();
+
+        // Assert that the hints list is not nulll and has the correct size
+        // and contains the correct attributes
+        assertNotNull(hintHandler.getHints());
+        assertEquals(1, hintHandler.getHints().size());
+
+        // test content of list
+        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("URL", "https://flagcdn.com/h240/ch.png")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Capital", "Bern")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Population", "8655K")));
+        assertFalse(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("Currency", "Swiss Franc")));
+    }
+
+    @Test
+    public void testSetHints_AdvancedMode_HintIntervalLargerThanNumSeconds() {
+        advancedLobby = new AdvancedLobby();
+        advancedLobby.setLobbyName("testBasicLobby");
+        advancedLobby.setIsPublic(true);
+        advancedLobby.setNumSeconds(5);
+        ((AdvancedLobby) advancedLobby).setNumSecondsUntilHint(2);
+        ((AdvancedLobby) advancedLobby).setHintInterval(5);
+
+        hintHandler = new HintHandler("CH", advancedLobby, countryRepository, webSocketService);
+
+        // Call the setHints() method
+        hintHandler.setHints();
+
+        // Assert that the hints list is not nulll and has the correct size
+        // and contains the correct attributes
+        assertNotNull(hintHandler.getHints());
+        assertEquals(2, hintHandler.getHints().size());
+
+        // test content of list
+        assertTrue(hintHandler.getHints().contains(new AbstractMap.SimpleEntry<>("URL", "https://flagcdn.com/h240/ch.png")));
+    }
+
+    @Test
+    public void testSendRequiredDetailsViaWebSocket_AdvancedMode() {
         advancedLobby = new AdvancedLobby();
         advancedLobby.setLobbyId(1L);
         advancedLobby.setLobbyName("testAdvancedLobby");

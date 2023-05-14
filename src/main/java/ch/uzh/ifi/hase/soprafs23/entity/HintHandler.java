@@ -107,10 +107,20 @@ public class HintHandler {
             int numSecondsUntilHint = ((AdvancedLobby) lobby).getNumSecondsUntilHint();
             int hintInterval = ((AdvancedLobby) lobby).getHintInterval();
 
-            // user integer division to determine number of hints, add 1 to account for flag
-            int nHints = ((numSeconds - numSecondsUntilHint) / hintInterval) + 1;
-
-            return nHints;
+            // ensure that number of hints is at least 1
+            if (numSecondsUntilHint >= numSeconds) {
+                int nHints = 1;
+                return nHints;
+            }
+            else if (numSecondsUntilHint < numSeconds && hintInterval >= numSeconds) {
+                int nHints = 2;
+                return nHints;
+            }
+            else {
+                // user integer division to determine number of hints, add 1 to account for flag
+                int nHints = ((numSeconds - numSecondsUntilHint) / hintInterval) + 1;
+                return nHints;
+            }
         }
         else {
             return 1;
