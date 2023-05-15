@@ -198,10 +198,12 @@ public class LobbyService {
         return savedLobby;
     }
 
-    public synchronized Lobby kickPlayerFromLobby(Integer lobbyId, RemoveDTO removeDTO, String wsConnectionId) {
+    public synchronized String kickPlayerFromLobby(Integer lobbyId, RemoveDTO removeDTO, String wsConnectionId) {
         Lobby lobby = getLobbyById(lobbyId);
         Player requester = this.playerService.getPlayerByWsConnectionId(wsConnectionId);
-        String playerTokenToBeKicked = this.playerRepository.findByPlayerName(removeDTO.getPlayerName()).getToken();
+        Player playerToBeKicked = this.playerRepository.findByPlayerName(removeDTO.getPlayerName());
+        String playerTokenToBeKicked = playerToBeKicked.getToken();
+        String playerWsConnectionIdToBeKicked = playerToBeKicked.getWsConnectionId();
 
         // check if requester is the lobby creator
         if (!lobby.getLobbyCreatorPlayerToken().equals(requester.getToken())) {
@@ -211,7 +213,7 @@ public class LobbyService {
 
         Lobby savedLobby = leaveLobby(lobby, playerTokenToBeKicked);
 
-        return savedLobby;
+        return playerWsConnectionIdToBeKicked;
     }
 
     private Lobby removePlayerFromLobby(Player player, Lobby lobby) {

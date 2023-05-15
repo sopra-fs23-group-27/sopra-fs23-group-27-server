@@ -59,8 +59,8 @@ public class GameController {
                                       SimpMessageHeaderAccessor smha,
                                       @Payload RemoveDTO removeDTO) {
         String wsConnectionId = WebSocketService.getIdentity(smha);
-        lobbyService.kickPlayerFromLobby(lobbyId, removeDTO, wsConnectionId);
-        this.webSocketService.sendToPlayer(wsConnectionId, "/removed-from-lobby", "{}");
+        String playerWsConnectionIdToBeKicked = lobbyService.kickPlayerFromLobby(lobbyId, removeDTO, wsConnectionId);
+        this.webSocketService.sendToPlayer(playerWsConnectionIdToBeKicked, "/removed-from-lobby", "{}");
     }
 
 }
