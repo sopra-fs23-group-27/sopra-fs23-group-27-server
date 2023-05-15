@@ -153,7 +153,7 @@ public class Player implements Serializable {
         isPermanent = permanent;
     }
 
-    public Boolean getPermanent() {
+    public Boolean isPermanent() {
         return isPermanent;
     }
 

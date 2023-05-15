@@ -268,7 +268,7 @@ public class LobbyService {
             Lobby savedLobby = removePlayerFromLobby(player, lobby);
         }
 
-        if (true) { // TODO: delete player only if player is not a registered player
+        if (!player.isPermanent()) {
             log.info("Player {} is deleted since he is not a registered player.", player.getPlayerName());
 
             this.playerService.deletePlayer(player);

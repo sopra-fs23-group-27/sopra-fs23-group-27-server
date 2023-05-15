@@ -11,8 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -80,7 +78,7 @@ public class PlayerServiceIntegrationTest {
         assertEquals(0, createdPlayer.getTimeUntilCorrectGuess());
         assertEquals(0, createdPlayer.getNumWrongGuesses());
         assertEquals(0, createdPlayer.getnRoundsPlayed());
-        assertFalse(createdPlayer.getPermanent());
+        assertFalse(createdPlayer.isPermanent());
     }
 
     @Test
@@ -124,7 +122,7 @@ public class PlayerServiceIntegrationTest {
         assertEquals(0, createdPlayer.getNumWrongGuesses());
         assertEquals(0, createdPlayer.getnRoundsPlayed());
         assertNotNull(createdPlayer.getToken());
-        assertTrue(createdPlayer.getPermanent());
+        assertTrue(createdPlayer.isPermanent());
     }
 
     @Test
