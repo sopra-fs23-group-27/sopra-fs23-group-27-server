@@ -164,7 +164,9 @@ public class Game {
 
     public void endRound() {
         // Stop the timer
-        hintHandler.stopSendingHints();
+        if (lobby instanceof AdvancedLobby) {
+            hintHandler.stopSendingHints();
+        }
         this.stopTimer();
 
         // end procedure for a round

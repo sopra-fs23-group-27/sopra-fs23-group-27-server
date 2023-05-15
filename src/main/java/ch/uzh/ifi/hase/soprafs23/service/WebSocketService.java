@@ -40,6 +40,11 @@ public class WebSocketService {
         this.simpMessagingTemplate.convertAndSendToUser(wsConnectionId, "/queue/lobbies/" + lobbyId + path, dto);
     }
 
+    public void sendToPlayer(String wsConnectionId, String path, Object dto) {
+
+        this.simpMessagingTemplate.convertAndSendToUser(wsConnectionId, "/queue" + path, dto);
+    }
+
     public void sendToLobby(Long lobbyId, String path, Object dto) {
         List<Player> lobby = this.playerRepository.findByLobbyId(lobbyId);
         for (Player player : lobby) {
