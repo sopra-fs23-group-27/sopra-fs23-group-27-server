@@ -3,10 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.service;
 import ch.uzh.ifi.hase.soprafs23.entity.*;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +31,6 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final LobbyRepository lobbyRepository;
-
 
     @Autowired
     public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository,
@@ -194,7 +190,7 @@ public class PlayerService {
 
         playerToBeUpdated.setToken("Basic " + encodeBytes);
 
-        if (playerToBeUpdated.getPermanent() == false) {
+        if (playerToBeUpdated.isPermanent() == false) {
             // this code is true under the following condition:
             // A player that updates his profile is always permanent!
 
