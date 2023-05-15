@@ -9,6 +9,11 @@ public class PlayerGetDTO {
 
     private Long id;
     private String playerName;
+    private Integer nRoundsPlayed;
+    private Integer overallTotalNumberOfCorrectGuesses;
+    private Integer overallTotalNumberOfWrongGuesses;
+    private Integer overallTotalTimeUntilCorrectGuess;
+
 
     public Long getId() {
         return id;
@@ -30,6 +35,40 @@ public class PlayerGetDTO {
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
+    }
+
+
+    // playerstats
+    public Integer getnRoundsPlayed() {
+        return nRoundsPlayed;
+    }
+
+    public void setnRoundsPlayed(Integer nRoundsPlayed) {
+        this.nRoundsPlayed = nRoundsPlayed;
+    }
+
+    public Integer getOverallTotalNumberOfCorrectGuesses() {
+        return overallTotalNumberOfCorrectGuesses;
+    }
+
+    public void setOverallTotalNumberOfCorrectGuesses(Integer overallTotalNumberOfCorrectGuesses) {
+        this.overallTotalNumberOfCorrectGuesses = overallTotalNumberOfCorrectGuesses;
+    }
+
+    public Integer getOverallTotalNumberOfWrongGuesses() {
+        return overallTotalNumberOfWrongGuesses;
+    }
+
+    public void setOverallTotalNumberOfWrongGuesses(Integer overallTotalNumberOfWrongGuesses) {
+        this.overallTotalNumberOfWrongGuesses = overallTotalNumberOfWrongGuesses;
+    }
+
+    public Integer getOverallTotalTimeUntilCorrectGuess() {
+        return overallTotalTimeUntilCorrectGuess;
+    }
+
+    public void setOverallTotalTimeUntilCorrectGuess(Integer overallTotalTimeUntilCorrectGuess) {
+        this.overallTotalTimeUntilCorrectGuess = overallTotalTimeUntilCorrectGuess;
     }
 
 }
