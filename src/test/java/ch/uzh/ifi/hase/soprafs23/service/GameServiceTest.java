@@ -41,6 +41,9 @@ public class GameServiceTest {
     private LobbyRepository lobbyRepository;
 
     @Mock
+    private GameRepository gameRepository;
+
+    @Mock
     private SimpMessagingTemplate messagingTemplate;
 
     @Mock
@@ -57,8 +60,6 @@ public class GameServiceTest {
 
     private Lobby basicLobby;
     private Lobby advancedLobby;
-    private Game game;
-    private SimpMessageHeaderAccessor smha;
 
     @BeforeEach
     public void setup() {
@@ -74,11 +75,59 @@ public class GameServiceTest {
         advancedLobby.setLobbyName("testAdvancedLobby");
         advancedLobby.setLobbyCreatorPlayerToken("testAdvancedToken");
 
-        game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, basicLobby);
-        GameRepository.addGame(basicLobby.getLobbyId(), game);
-
-        smha = mock(SimpMessageHeaderAccessor.class);
-        when(WebSocketService.getIdentity(smha)).thenReturn("testConnectionId");
+        gameService = spy(new GameService(
+                countryRepository,
+                playerRepository,
+                lobbyRepository,
+                countryHandlerService,
+                messagingTemplate,
+                webSocketService,
+                playerService));
     }
 
+    @Test
+    public void testStartGame_basicMode(){
+        // given
+        Long lobbyId = basicLobby.getLobbyId();
+
+        Game basicGame = mock(Game.class);
+        doNothing().when(basicGame).startGame();
+
+        // mock repositories and services
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), anyString());
+        doNothing().when(gameService).sendLobbySettings(anyInt());
+        when(lobbyRepository.save(any())).thenReturn(basicLobby);
+
+        // call method to be tested
+        gameService.startGame(basicLobby);
+
+        // then
+
+        verify(webSocketService, times(1)).sendToLobby(eq(lobbyId), eq("/game-start"), eq("{}"));
+        verify(gameService, times(1)).sendLobbySettings(eq(lobbyId.intValue()));
+        verify(gameRepository, times(1)).addGame(eq(lobbyId), any(Game.class));
+    }
+
+    @Test
+    public void testStartGame_advancedMode(){
+        // given
+        Long lobbyId = advancedLobby.getLobbyId();
+
+        Game basicGame = mock(Game.class);
+        doNothing().when(basicGame).startGame();
+
+        // mock repositories and services
+        doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), anyString());
+        doNothing().when(gameService).sendLobbySettings(anyInt());
+        when(lobbyRepository.save(any())).thenReturn(advancedLobby);
+
+        // call method to be tested
+        gameService.startGame(advancedLobby);
+
+        // then
+
+        verify(webSocketService, times(1)).sendToLobby(eq(lobbyId), eq("/game-start"), eq("{}"));
+        verify(gameService, times(1)).sendLobbySettings(eq(lobbyId.intValue()));
+        verify(gameRepository, times(1)).addGame(eq(lobbyId), any(Game.class));
+    }
 }
