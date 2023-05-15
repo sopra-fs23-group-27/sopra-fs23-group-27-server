@@ -10,10 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-<<<<<<< HEAD
 import org.mockito.Spy;
-=======
->>>>>>> main
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,16 +18,14 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-<<<<<<< HEAD
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-=======
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
->>>>>>> main
+
 
 public class PlayerServiceTest {
 
@@ -172,10 +167,6 @@ public class PlayerServiceTest {
         assertThrows(ResponseStatusException.class, () -> playerService.createPlayer(testPlayer));
     }
 
-<<<<<<< HEAD
-    
-
-=======
     @Test void updatePlayer_updateUsernameAndPassword_validInputs_success() {
         // given
         testPlayer.setPermanent(false);
@@ -356,5 +347,4 @@ public class PlayerServiceTest {
         // then -> attempt to find non-existent player -> check that an error is thrown
         assertThrows(ResponseStatusException.class, ()  -> playerService.checkIfPlayerIdExists(testPlayer.getId()));
     }
->>>>>>> main
 }
