@@ -608,7 +608,6 @@ public class GameTest {
         ReflectionTestUtils.setField(basicGame, "timer", new Timer());
 
         // Mock some repository methods and service methods
-        doNothing().when(hintHandler).stopSendingHints();
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         doNothing().when(webSocketService).sendToPlayerInLobby(anyString(), anyString(), anyString(), any());
         doNothing().when(scoreBoard).updateTotalScores();
@@ -617,7 +616,6 @@ public class GameTest {
         basicGame.endRound();
 
         // check whether the followin methods were called
-        verify(hintHandler, times(1)).stopSendingHints();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-end"), eq("{}"));
         verify(scoreBoard, times(5)).getCurrentCorrectGuessPerPlayer(anyString());
         verify(scoreBoard, times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));
@@ -656,7 +654,6 @@ public class GameTest {
         ReflectionTestUtils.setField(basicGame, "timer", new Timer());
 
         // Mock some repository methods and service methods
-        doNothing().when(hintHandler).stopSendingHints();
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         doNothing().when(webSocketService).sendToPlayerInLobby(anyString(), anyString(), anyString(), any());
         doNothing().when(scoreBoard).updateTotalScores();
@@ -665,7 +662,6 @@ public class GameTest {
         basicGame.endRound();
 
         // check whether the followin methods were called
-        verify(hintHandler, times(1)).stopSendingHints();
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/round-end"), eq("{}"));
         verify(scoreBoard, times(5)).getCurrentCorrectGuessPerPlayer(anyString());
         verify(scoreBoard, times(5)).setCurrentCorrectGuessPerPlayer(anyString(), eq(false));

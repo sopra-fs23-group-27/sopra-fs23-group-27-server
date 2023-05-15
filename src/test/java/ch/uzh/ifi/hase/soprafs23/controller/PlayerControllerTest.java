@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.controller;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPostDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
+import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -42,6 +43,9 @@ public class PlayerControllerTest {
 
     @MockBean
     private PlayerService playerService;
+
+    @MockBean
+    private LobbyService lobbyService;
 
     @Test
     public void givenPlayer_whenGetPlayer_thenReturnJsonArray() throws Exception {
@@ -97,7 +101,6 @@ public class PlayerControllerTest {
                 .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
     }
 
-
     ////////// MAPPING 2 //////////
     @Test
     public void createPlayer_invalidInput_409thrown() throws Exception {
@@ -125,7 +128,6 @@ public class PlayerControllerTest {
                 .andExpect(status().isConflict())
                 .andExpect(status().reason(is(errorMessage)));
     }
-
 
     ////////// MAPPING 3 //////////
     @Test
@@ -158,7 +160,6 @@ public class PlayerControllerTest {
                 .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
     }
 
-
     ////////// MAPPING 4 //////////
     @Test
     public void getPlayerProfile_invalidPlayerId_404thrown() throws Exception {
@@ -182,7 +183,6 @@ public class PlayerControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(status().reason(is(errorMessage)));
     }
-
 
     ////////// MAPPING 5 //////////
     @Test
@@ -222,7 +222,6 @@ public class PlayerControllerTest {
                 .andExpect(jsonPath("$").doesNotExist());
     }
 
-
     ////////// MAPPING 6a //////////
     @Test
     public void updatePlayerProfile_invalidPlayerId_404thrown() throws Exception {
@@ -253,7 +252,6 @@ public class PlayerControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(status().reason(is(errorMessage)));
     }
-
 
     ////////// MAPPING 6b //////////
     @Test
@@ -288,6 +286,308 @@ public class PlayerControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(status().reason(is(errorMessage)));
     }
+
+    @Test
+    public void registerPlayer_validInput_playerRegistred() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        String validToken = player.getToken();
+
+        PlayerPostDTO playerPostDTO = new PlayerPostDTO();
+        playerPostDTO.setPassword("password");
+        playerPostDTO.setPlayerName("testPlayerName");
+
+        given(playerService.registerPlayer(Mockito.any())).willReturn(player);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/registration")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPostDTO));
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Authorization", validToken))
+                .andExpect(jsonPath("$.id", is(player.getId().intValue())))
+                .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
+    }
+
+    @Test
+    public void registerPlayer_invalidInput_409thrown() throws Exception {
+        // given
+        String errorMessage = "Error: The playerName provided is already taken and cannot be used. " +
+                "Please select another playerName!";
+
+        ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
+
+        PlayerPostDTO playerPostDTO = new PlayerPostDTO();
+        playerPostDTO.setPassword("password");
+        playerPostDTO.setPlayerName("testPlayerName");
+
+        // when the mock object (playerService) is called for createPlayer() method with any parameters,
+        // then it will return the object "conflictException"
+        given(playerService.registerPlayer(Mockito.any())).willThrow(conflictException);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/registration")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPostDTO));
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
+    public void loginPlayer_validInput() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        String validToken = player.getToken();
+
+        PlayerPostDTO playerPostDTO = new PlayerPostDTO();
+        playerPostDTO.setPassword("password");
+        playerPostDTO.setPlayerName("testPlayerName");
+
+        given(playerService.loginPlayer(Mockito.any())).willReturn(player);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPostDTO));
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isOk())
+                .andExpect(header().string("Authorization", validToken))
+                .andExpect(jsonPath("$.id", is(player.getId().intValue())))
+                .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
+    }
+
+    @Test
+    public void loginPlayer_invalidInput_401thrown() throws Exception {
+        // given
+        String errorMessage = "The password provided is not correct. Please try again.";
+
+        ResponseStatusException unauthorizedException = new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
+
+        PlayerPostDTO playerPostDTO = new PlayerPostDTO();
+        playerPostDTO.setPassword("wrongPassword");
+        playerPostDTO.setPlayerName("testPlayerName");
+
+        given(playerService.loginPlayer(Mockito.any())).willThrow(unauthorizedException);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPostDTO));
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isUnauthorized())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
+    public void loginPlayer_invalidInput_404thrown() throws Exception {
+        // given
+        String errorMessage = "The playerName provided does not exist. Please register first.";
+
+        ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+
+        PlayerPostDTO playerPostDTO = new PlayerPostDTO();
+        playerPostDTO.setPassword("Password");
+        playerPostDTO.setPlayerName("testPlayerName");
+
+        given(playerService.loginPlayer(Mockito.any())).willThrow(notFoundException);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPostDTO));
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isNotFound())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
+    public void logoutPlayer_validInput() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        Long validPlayerId = player.getId();
+        String validToken = player.getToken();
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/players/{playerId}/logout", validPlayerId)
+                .header("Authorization", validToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void logoutPlayer_invalidInput_401thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        Long validPlayerId = 1L;
+        String invalidToken = "invalidToken";
+
+        // given
+        String errorMessage = "You are unauthorized to perform this action since your provided token is not valid.";
+
+        ResponseStatusException unauthorizedException = new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
+
+        Mockito.doThrow(unauthorizedException).when(playerService).prepareLogoutPlayer(Mockito.anyLong(), Mockito.any());
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/players/{playerId}/logout", validPlayerId)
+                .header("Authorization", invalidToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isUnauthorized())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
+    public void logoutPlayer_invalidInput_404thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        Long invalidPlayerId = 0L;
+        String validToken = player.getToken();
+
+        // given
+        String errorMessage = "Error: The player with playerId " + invalidPlayerId + " does not exist.";
+
+        ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+
+        Mockito.doThrow(notFoundException).when(playerService).prepareLogoutPlayer(Mockito.anyLong(), Mockito.any());
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/players/{playerId}/logout", invalidPlayerId)
+                .header("Authorization", validToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isNotFound())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
+    public void deletePlayer_validInput() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        Long validPlayerId = player.getId();
+        String validToken = player.getToken();
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = delete("/players/{playerId}", validPlayerId)
+                .header("Authorization", validToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void deletePlayer_invalidInput_401thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        Long validPlayerId = 1L;
+        String invalidToken = "invalidToken";
+
+        // given
+        String errorMessage = "You are unauthorized to perform this action since your provided token is not valid.";
+
+        ResponseStatusException unauthorizedException = new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
+
+        Mockito.doThrow(unauthorizedException).when(playerService).deletePlayer(Mockito.anyLong(), Mockito.anyString());
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = delete("/players/{playerId}", validPlayerId)
+                .header("Authorization", invalidToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isUnauthorized())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
+    public void deletePlayer_invalidInput_404thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+
+        // valid token
+        Long invalidPlayerId = 0L;
+        String validToken = player.getToken();
+
+        // given
+        String errorMessage = "Error: The player with playerId " + invalidPlayerId + " does not exist.";
+
+        ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+
+        Mockito.doThrow(notFoundException).when(playerService).deletePlayer(Mockito.anyLong(), Mockito.anyString());
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = delete("/players/{playerId}", invalidPlayerId)
+                .header("Authorization", validToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isNotFound())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
 
     /**
      * Helper Method to convert playerPostDTO into a JSON string such that the input

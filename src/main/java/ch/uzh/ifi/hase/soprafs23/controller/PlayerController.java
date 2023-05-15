@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPostDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,11 @@ import java.util.List;
 public class PlayerController {
 
     private final PlayerService playerService;
+    private final LobbyService lobbyService;
 
-    PlayerController(PlayerService playerService) {
+    PlayerController(PlayerService playerService, LobbyService lobbyService) {
         this.playerService = playerService;
+        this.lobbyService = lobbyService;
     }
 
     @GetMapping("/players")
@@ -91,7 +94,6 @@ public class PlayerController {
                 .body(playerGetDTO);
     }
 
-
     @PostMapping("/login")
     @CrossOrigin(exposedHeaders = "*")
     public ResponseEntity loginPlayer(@RequestBody PlayerPostDTO playerPostDTO) {
@@ -112,18 +114,21 @@ public class PlayerController {
     }
 
     @PostMapping("/players/{playerId}/logout")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public PlayerGetDTO logoutPlayer(@PathVariable Long playerId,
-                                     @RequestHeader("Authorization") String token) {
+    @CrossOrigin(exposedHeaders = "*")
+    public ResponseEntity logoutPlayer(@PathVariable Long playerId,
+                                       @RequestHeader("Authorization") String token) {
 
-        // logout player
-        Player loggedOutPlayer = playerService.logoutPlayer(playerId, token);
+        // prepare logout player (check if player exists and is authorized)
+        playerService.prepareLogoutPlayer(playerId, token);
 
-        // convert internal representation of player back to API
-        return DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(loggedOutPlayer);
+        // logout player. This end the websocket connection and remove the player from the lobby
+        // Non-registered players will be deleted
+        lobbyService.disconnectPlayer(token);
+
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
     }
-
 
     @PutMapping("/players/{playerId}")
     @CrossOrigin(exposedHeaders = "*")
@@ -140,6 +145,19 @@ public class PlayerController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .header("Authorization", updatedPlayer.getToken())
+                .build();
+    }
+
+    @DeleteMapping("/players/{playerId}")
+    @CrossOrigin(exposedHeaders = "*")
+    public ResponseEntity deletePlayer(
+            @PathVariable Long playerId, @RequestHeader("Authorization") String token) {
+
+        // delete non registered player
+        playerService.deletePlayer(playerId, token);
+
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
                 .build();
     }
 }

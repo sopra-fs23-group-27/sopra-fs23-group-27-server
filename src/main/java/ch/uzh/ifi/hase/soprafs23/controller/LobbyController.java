@@ -27,7 +27,6 @@ public class LobbyController {
         this.authenticationService = authenticationService;
     }
 
-
     @PostMapping("/lobbies/basic")
     public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO,
                                            @RequestHeader("Authorization") String playerToken) {
@@ -56,7 +55,6 @@ public class LobbyController {
                 .status(HttpStatus.CREATED)
                 .body(lobbyGetDTO);
     }
-
 
     @GetMapping("/lobbies")
     public ResponseEntity getAllPublicAndJoinableLobbies() {
@@ -94,7 +92,6 @@ public class LobbyController {
                 .status(HttpStatus.OK)
                 .body(lobbyGetDTO);
     }
-
 
     @PutMapping("/lobbies/{lobbyId}/join")
     @ResponseStatus(HttpStatus.NO_CONTENT)
