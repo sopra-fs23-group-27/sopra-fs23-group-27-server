@@ -98,6 +98,19 @@ public class PlayerService {
         this.playerRepository.flush();
     }
 
+    public void deletePlayer(long playerId, String token) {
+        // check if player exists
+        checkIfPlayerIdExists(playerId);
+
+        Player player = playerRepository.findById(playerId);
+
+        // check if token is valid
+        checkIfPlayerTokenIsValid(token, player);
+
+        // delete player
+        deletePlayer(player);
+    }
+
     public Player createPlayer(Player newPlayer) {
 
         // create basic authentication token
@@ -152,9 +165,10 @@ public class PlayerService {
         return playerByPlayerName;
     }
 
-    public Player logoutPlayer(long playerId, String token) {
+    public void prepareLogoutPlayer(long playerId, String token) {
 
         checkIfPlayerIdExists(playerId);
+
         Player existingPlayer = playerRepository.findById(playerId);
 
         // check if token is valid
@@ -163,7 +177,6 @@ public class PlayerService {
         existingPlayer = playerRepository.save(existingPlayer);
         playerRepository.flush();
 
-        return existingPlayer;
     }
 
     public Player updatePlayer(long playerId, PlayerPutDTO playerUpdateRequest, String token) {
@@ -224,7 +237,7 @@ public class PlayerService {
         }
     }
 
-    public void checkIfPlayerIdExists(long playerId) {
+    public void checkIfPlayerIdExists(long playerId)    {
         Player playerById = playerRepository.findById(playerId);
         if (playerById == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
