@@ -372,7 +372,7 @@ public class Game {
                     this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
         }
 
-        //if all players have given a guess.. end round
+        //if all players have given a guess --> end round
         Boolean allPlayersHaveGuessed = false;
         for (String player : this.playerNames) {
             if (scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player) > 0 || scoreBoard.getCurrentCorrectGuessPerPlayer(player)) {
