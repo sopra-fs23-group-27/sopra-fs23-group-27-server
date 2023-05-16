@@ -350,21 +350,6 @@ public class Game {
             // Player has already made a guess, send an error message back to the player
             String errorMessage = String.format("You have already submitted a guess. Your guess was %s", guess);
             webSocketService.sendToPlayerInLobby(wsConnectionId, "/errors", this.gameId.toString(), errorMessage);
-
-            //if all players have given a guess.. end round
-            Boolean allPlayersHaveGuessed = false;
-            for (String player : this.playerNames) {
-                if (scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player) > 0 || scoreBoard.getCurrentCorrectGuessPerPlayer(player)) {
-                    allPlayersHaveGuessed = true;
-                }
-                else {
-                    allPlayersHaveGuessed = false;
-                    break;
-                }
-            }
-            if (allPlayersHaveGuessed) {
-                this.endRound();
-            }
         }
         // if this is the first guess and the guess is correct, write the time until the correct guess to the scoreBoard
         else if (cleanedGuess.equals(this.correctGuess)) {
@@ -385,6 +370,21 @@ public class Game {
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
                     playerName,
                     this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
+        }
+
+        //if all players have given a guess.. end round
+        Boolean allPlayersHaveGuessed = false;
+        for (String player : this.playerNames) {
+            if (scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player) > 0 || scoreBoard.getCurrentCorrectGuessPerPlayer(player)) {
+                allPlayersHaveGuessed = true;
+            }
+            else {
+                allPlayersHaveGuessed = false;
+                break;
+            }
+        }
+        if (allPlayersHaveGuessed) {
+            this.endRound();
         }
     }
 
