@@ -47,7 +47,15 @@ public class PlayerService {
     public Player getPlayerById(long playerId, String token) {
         checkIfTokenExists(token);
         checkIfPlayerIdExists(playerId);
-        return this.playerRepository.findById(playerId);
+
+        // find player in the database
+        Player player = playerRepository.findById(playerId);
+
+        // check if player is allowed to retrieve this information
+        // players are only allowed to retrieve their own information
+        checkIfPlayerTokenIsValid(token, player);
+
+        return player;
     }
 
     public Player getPlayerByToken(String token) {
@@ -172,7 +180,6 @@ public class PlayerService {
 
         existingPlayer = playerRepository.save(existingPlayer);
         playerRepository.flush();
-
     }
 
     public Player updatePlayer(long playerId, PlayerPutDTO playerUpdateRequest, String token) {

@@ -53,6 +53,7 @@ public class PlayerControllerTest {
         Player player = new Player();
         player.setPassword("password");
         player.setPlayerName("firstname@lastname");
+        player.setToken("validToken");
 
         // this mocks the PlayerService -> we define above what the playerService should
         // return when getPlayerById() is called
@@ -61,11 +62,55 @@ public class PlayerControllerTest {
         // when
         MockHttpServletRequestBuilder getRequest = get("/players/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "someToken");
+                .header("Authorization", "validToken");
 
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
+    }
+
+    @Test
+    public void getPlayer_401thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setPassword("password");
+        player.setPlayerName("firstname@lastname");
+        player.setToken("validToken");
+
+        // mock playerservice
+        String errorMessage = "You are unauthorized to perform this action since your provided token is not valid.";
+        ResponseStatusException unauthorizedException = new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
+        doThrow(unauthorizedException).when(playerService).getPlayerById(anyLong(), anyString());
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/players/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "invalidToken");
+
+        // then
+        mockMvc.perform(getRequest).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getPlayer_404thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setPassword("password");
+        player.setPlayerName("firstname@lastname");
+        player.setToken("validToken");
+
+        // mock playerservice
+        String errorMessage = "Error: The player with playerId 0 does not exist.";
+        ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+        doThrow(notFoundException).when(playerService).getPlayerById(anyLong(), anyString());
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/players/0")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "validToken");
+
+        // then
+        mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
 
     ////////// MAPPING 1 //////////
@@ -269,7 +314,6 @@ public class PlayerControllerTest {
 
         // valid playerId
         long validPlayerId = player.getId();
-
 
         String errorMessage = "You are unauthorized to perform this action since your provided token is not valid.";
         ResponseStatusException unauthorizedException = new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);

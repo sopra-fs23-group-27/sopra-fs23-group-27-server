@@ -43,6 +43,62 @@ public class PlayerServiceTest {
     }
 
     @Test
+    public void getPlayerById_success(){
+        // given
+        testPlayer.setToken("validToken");
+
+        // mock playerRepository
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+        when(playerRepository.existsByToken(Mockito.anyString())).thenReturn(true);
+
+        // call method to be tested
+        Player foundPlayer = playerService.getPlayerById(1L, "validToken");
+
+        // then testPlayer and foundPlayer should be the same
+        assertEquals(foundPlayer.getId(), testPlayer.getId());
+        assertEquals(foundPlayer.getPlayerName(), testPlayer.getPlayerName());
+        assertEquals(foundPlayer.getPassword(), testPlayer.getPassword());
+        assertEquals(foundPlayer.getToken(), testPlayer.getToken());
+    }
+
+    @Test
+    public void getPlayerById_tokenDoesNotExist_401thrown(){
+        // given
+        testPlayer.setToken("validToken");
+
+        // mock playerRepository
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+
+        // call method to be tested
+        assertThrows(ResponseStatusException.class, () -> playerService.getPlayerById(1L, "nonExistingToken"));
+    }
+
+    @Test
+    public void getPlayerById_invalidToken_401thrown(){
+        // given
+        testPlayer.setToken("validToken");
+
+        // mock playerRepository
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+        when(playerRepository.existsByToken(Mockito.anyString())).thenReturn(true);
+
+        // call method to be tested
+        assertThrows(ResponseStatusException.class, () -> playerService.getPlayerById(1L, "invalidToken"));
+    }
+
+    @Test
+    public void getPlayerById_idDoesNotExist_404thrown(){
+        // given
+        testPlayer.setToken("validToken");
+
+        // mock playerRepository
+        when(playerRepository.existsByToken(Mockito.anyString())).thenReturn(true);
+
+        // call method to be tested
+        assertThrows(ResponseStatusException.class, () -> playerService.getPlayerById(0L, "nonExistingToken"));
+    }
+
+    @Test
     public void getPlayerByToken_success(){
         // given
         testPlayer.setToken("testToken");
@@ -336,4 +392,74 @@ public class PlayerServiceTest {
         // then -> attempt to find non-existent player -> check that an error is thrown
         assertThrows(ResponseStatusException.class, ()  -> playerService.checkIfPlayerIdExists(testPlayer.getId()));
     }
+
+    @Test
+    public void prepareLogoutPlayer_success() {
+        // given
+        testPlayer.setToken("validToken");
+
+        // when
+        when(playerRepository.findByToken(Mockito.anyString())).thenReturn(testPlayer);
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+
+        // then
+        assertDoesNotThrow(() -> playerService.prepareLogoutPlayer(testPlayer.getId(), "validToken"));
+        verify(playerRepository, times(1)).save(testPlayer);
+    }
+
+    @Test
+    public void prepareLogoutPlayer_401thrown() {
+        // given
+        testPlayer.setToken("validToken");
+
+        // when
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+
+        // then
+        assertThrows(ResponseStatusException.class, () -> playerService.prepareLogoutPlayer(0L, "invalidToken"));
+    }
+
+    @Test
+    public void prepareLogoutPlayer_404thrown() {
+        // given
+        testPlayer.setToken("validToken");
+
+        // then
+        assertThrows(ResponseStatusException.class, () -> playerService.prepareLogoutPlayer(0L, "validToken"));
+    }
+
+    @Test
+    public void deletePlayer_success() {
+        // given
+        testPlayer.setToken("validToken");
+
+        // when
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+
+        // then
+        assertDoesNotThrow(() -> playerService.deletePlayer(testPlayer.getId(), "validToken"));
+        verify(playerRepository, times(1)).delete(testPlayer);
+    }
+
+    @Test
+    public void deletePlayer_401thrown() {
+        // given
+        testPlayer.setToken("validToken");
+
+        // when
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+
+        // then
+        assertThrows(ResponseStatusException.class, () -> playerService.deletePlayer(testPlayer.getId(), "invalidToken"));
+    }
+
+    @Test
+    public void deletePlayer_404thrown() {
+        // given
+        testPlayer.setToken("validToken");
+
+        // then
+        assertThrows(ResponseStatusException.class, () -> playerService.deletePlayer(testPlayer.getId(), "validToken"));
+    }
+
 }
