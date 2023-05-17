@@ -273,7 +273,7 @@ public class LobbyService {
         if (!player.isPermanent()) {
             log.info("Player {} is deleted since he is not a registered player.", player.getPlayerName());
 
-            this.playerService.deletePlayer(player);
+            this.playerService.deletePlayer(player.getId(), player.getToken());
         }
 
     }
