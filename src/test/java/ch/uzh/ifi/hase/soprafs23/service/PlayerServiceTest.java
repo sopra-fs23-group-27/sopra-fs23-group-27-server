@@ -462,4 +462,29 @@ public class PlayerServiceTest {
         assertThrows(ResponseStatusException.class, () -> playerService.deletePlayer(testPlayer.getId(), "validToken"));
     }
 
+    @Test
+    public void checkIfPlayerIsAlreadyInLobby_success() {
+        // given
+        testPlayer.setToken("validToken");
+        testPlayer.setLobbyId(null);
+
+        //when
+        when(playerRepository.findByToken(Mockito.anyString())).thenReturn(testPlayer);
+
+        // then
+        assertDoesNotThrow(() -> playerService.checkIfPlayerIsAlreadyInLobby("validToken"));
+    }
+
+    @Test
+    public void checkIfPlayerIsAlreadyInLobby_409thrown() {
+        // given
+        testPlayer.setToken("validToken");
+        testPlayer.setLobbyId(1L);
+
+        //when
+        when(playerRepository.findByToken(Mockito.anyString())).thenReturn(testPlayer);
+
+        // then
+        assertThrows(ResponseStatusException.class, () -> playerService.checkIfPlayerIsAlreadyInLobby("validToken"));
+    }
 }

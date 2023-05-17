@@ -262,4 +262,12 @@ public class PlayerService {
                     "Error: You are unauthorized to perform this action.");
         }
     }
+
+    public void checkIfPlayerIsAlreadyInLobby(String playerToken) {
+        Player player = playerRepository.findByToken(playerToken);
+        if (player.getLobbyId() != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Error: You are already in a lobby. Please leave the lobby to join another one. If the error persists, please close your browser.");
+        }
+    }
 }
