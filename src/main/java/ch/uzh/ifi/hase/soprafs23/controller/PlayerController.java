@@ -121,9 +121,13 @@ public class PlayerController {
         // prepare logout player (check if player exists and is authorized)
         playerService.prepareLogoutPlayer(playerId, token);
 
-        // logout player. This end the websocket connection and remove the player from the lobby
-        // Non-registered players will be deleted
-        lobbyService.disconnectPlayer(token);
+        Player player = playerService.getPlayerById(playerId, token);
+
+        if (player.getLobbyId() != null){
+            // logout player. This end the websocket connection and remove the player from the lobby
+            // Non-registered players will be deleted
+            lobbyService.disconnectPlayer(token);
+        }
 
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
