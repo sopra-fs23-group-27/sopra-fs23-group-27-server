@@ -110,13 +110,6 @@ public class LobbyController {
 
         Lobby lobby = lobbyService.getLobbyById(lobbyId);
         lobby = lobbyService.leaveLobby(lobby, playerToken);
-        LobbyGetDTO lobbyGetDTO = null;
-        if (lobby instanceof BasicLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO((BasicLobby) lobby);
-        }
-        else if (lobby instanceof AdvancedLobby) {
-            lobbyGetDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbyGetDTO((AdvancedLobby) lobby);
-        }
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
