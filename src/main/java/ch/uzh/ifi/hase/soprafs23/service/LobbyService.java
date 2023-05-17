@@ -228,10 +228,12 @@ public class LobbyService {
         }
 
         // check if player was the lobby creator; if yes, change lobby creator
+        Lobby savedLobby = null;
         if (playerToken.equals(lobby.getLobbyCreatorPlayerToken())) {
             if (lobby.getJoinedPlayerNames().size() > 0) {
                 lobby = changeLobbyCreator(lobby);
-                this.lobbyRepository.save(lobby);
+                savedLobby = this.lobbyRepository.save(lobby);
+                this.gameService.sendLobbySettings(savedLobby.getLobbyId().intValue());
             }
             else {
                 log.info("Lobby {} has been deleted since last player left the lobby.",
@@ -246,10 +248,8 @@ public class LobbyService {
         this.playerRepository.save(player);
         this.playerRepository.flush();
 
-        Lobby savedLobby = this.lobbyRepository.save(lobby);
         this.lobbyRepository.flush();
 
-        this.gameService.sendLobbySettings(savedLobby.getLobbyId().intValue());
 
         return savedLobby;
     }
