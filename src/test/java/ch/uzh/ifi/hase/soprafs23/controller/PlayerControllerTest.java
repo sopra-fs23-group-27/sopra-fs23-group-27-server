@@ -437,6 +437,9 @@ public class PlayerControllerTest {
         Long validPlayerId = player.getId();
         String validToken = player.getToken();
 
+        // when
+        when(playerService.getPlayerById(validPlayerId, validToken)).thenReturn(player);
+
         // when/then -> do the request + validate the result
         MockHttpServletRequestBuilder postRequest = post("/players/{playerId}/logout", validPlayerId)
                 .header("Authorization", validToken);
