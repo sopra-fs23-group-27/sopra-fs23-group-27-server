@@ -425,13 +425,39 @@ public class PlayerControllerTest {
     }
 
     @Test
-    public void logoutPlayer_validInput() throws Exception {
+    public void logoutPlayer_validInput_notInLobby() throws Exception {
         // given
         Player player = new Player();
         player.setId(1L);
         player.setPassword("password");
         player.setPlayerName("testPlayerName");
         player.setToken("1");
+
+        // valid token
+        Long validPlayerId = player.getId();
+        String validToken = player.getToken();
+
+        // when
+        when(playerService.getPlayerById(validPlayerId, validToken)).thenReturn(player);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/players/{playerId}/logout", validPlayerId)
+                .header("Authorization", validToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void logoutPlayer_validInput_inLobby() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+        player.setLobbyId(1L);
 
         // valid token
         Long validPlayerId = player.getId();
