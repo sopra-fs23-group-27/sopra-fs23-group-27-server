@@ -523,6 +523,7 @@ public class Game {
 
         this.webSocketService.sendToLobby(this.gameId, "/correct-country", correctGuessDTO);
 
+        webSocketService.wait(5000);
     }
 
     private void addStatsToDB() {
