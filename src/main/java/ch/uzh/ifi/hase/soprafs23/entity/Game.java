@@ -467,14 +467,14 @@ public class Game {
         // Init Arrays for the mapping into a JSON object
         ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
         ArrayList<Integer> TotalCorrectGuesses = new ArrayList<Integer>();
-        ArrayList<Integer> TotalTimeUntilCorrectGuess = new ArrayList<Integer>();
+        ArrayList<Integer> CurrentTimeUntilCorrectGuess = new ArrayList<Integer>();
         ArrayList<Integer> TotalWrongGuesses = new ArrayList<Integer>();
 
         // Fill the Arrays with the data from the ScoreBoard
         this.playerNames.forEach(playerName -> {
             TotalGameScores.add(this.scoreBoard.getLeaderBoardTotalScorePerPlayer(playerName));
             TotalCorrectGuesses.add(this.scoreBoard.getTotalCorrectGuessesPerPlayer(playerName));
-            TotalTimeUntilCorrectGuess.add(this.scoreBoard.getTotalTimeUntilCorrectGuessPerPlayer(playerName));
+            CurrentTimeUntilCorrectGuess.add(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName));
             TotalWrongGuesses.add(this.scoreBoard.getTotalNumberOfWrongGuessesPerPlayer(playerName));
         });
 
@@ -483,7 +483,7 @@ public class Game {
                 this.playerNames,
                 TotalGameScores,
                 TotalCorrectGuesses,
-                TotalTimeUntilCorrectGuess,
+                CurrentTimeUntilCorrectGuess,
                 TotalWrongGuesses
         );
 
