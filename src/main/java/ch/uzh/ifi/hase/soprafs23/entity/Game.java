@@ -68,7 +68,7 @@ public class Game {
         this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
         this.lobbyRepository = lobbyRepository;
-        this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
+        this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(lobby.getNumRounds());
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
         this.numRounds = lobby.getNumRounds();
