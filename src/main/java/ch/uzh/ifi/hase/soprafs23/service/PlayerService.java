@@ -93,11 +93,6 @@ public class PlayerService {
         return newPlayer;
     }
 
-    public void deletePlayer(Player player) {
-        this.playerRepository.delete(player);
-        this.playerRepository.flush();
-    }
-
     public void deletePlayer(long playerId, String token) {
         // check if player exists
         checkIfPlayerIdExists(playerId);
@@ -108,7 +103,8 @@ public class PlayerService {
         checkIfPlayerTokenIsValid(token, player);
 
         // delete player
-        deletePlayer(player);
+        this.playerRepository.delete(player);
+        this.playerRepository.flush();
     }
 
     public Player createPlayer(Player newPlayer) {
