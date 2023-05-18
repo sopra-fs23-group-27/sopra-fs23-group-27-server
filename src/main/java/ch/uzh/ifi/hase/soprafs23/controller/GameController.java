@@ -63,4 +63,12 @@ public class GameController {
         this.webSocketService.sendToPlayer(playerWsConnectionIdToBeKicked, "/removed-from-lobby", "{}");
     }
 
+    @MessageMapping("/games/{lobbyId}/play-again")
+    public void playAgain(@DestinationVariable Integer lobbyId,
+                          SimpMessageHeaderAccessor smha) {
+        String wsConnectionId = WebSocketService.getIdentity(smha);
+        this.lobbyService.playAgain(lobbyId, wsConnectionId);
+
+    }
+
 }

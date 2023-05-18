@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
@@ -34,6 +35,7 @@ public class Game {
     private final CountryRepository countryRepository;
     private final PlayerRepository playerRepository;
     private final LobbyRepository lobbyRepository;
+    private final Long playAgainTimeWindow;
 
     private ScoreBoard scoreBoard;
     private HintHandler hintHandler;
@@ -51,6 +53,7 @@ public class Game {
     private Long startTime;
     private int numSeconds;
     private Timer timer;
+    private Timer playAgainTimer;
     private int numSecondsUntilHint;
     private int hintInterval;
     private int maxNumGuesses;
@@ -110,6 +113,7 @@ public class Game {
 
         this.scoreBoard = new ScoreBoard(this.playerNames);
 
+        playAgainTimeWindow = 10000L;
     }
 
     public void removePlayer(String playerName) {
@@ -127,10 +131,51 @@ public class Game {
         log.info("Game loop ended for lobbyId: " + this.gameId);
         this.webSocketService.sendToLobby(this.gameId, "/game-end", "{}");
 
+        // set lobby to joinable again and clear players
         this.lobby.setJoinable(true);
+        this.lobby.setCollectingPlayAgains(true);
         this.lobby.setCurrentGameId(null);
+        this.lobby.clearPlayers();
         this.lobbyRepository.save(this.lobby);
         this.lobbyRepository.flush();
+
+        // initiate play again procedure
+        startPlayAgainTimer(playAgainTimeWindow.intValue(), this);
+        for (String playerName : this.playerNames) {
+            this.webSocketService.initPlayAgainProcedureByPlayerName(playerName, playAgainTimeWindow);
+        }
+        log.info("Play again window opened for lobbyId: " + this.gameId);
+        webSocketService.sendToLobby(this.gameId, "/play-again-opened", "{}");
+
+        // clear game
+        GameRepository.removeGame(this.gameId);
+
+        // cleanups after play again timer is over
+        try {
+            Thread.sleep(playAgainTimeWindow);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Lobby playAgainLobby = this.lobbyRepository.findByLobbyId(this.gameId);
+        if (playAgainLobby.getJoinedPlayerNames().size() == 0) {
+            log.info("No players left in lobby after re-collecting time. Lobby will be deleted.");
+            this.lobbyRepository.delete(playAgainLobby);
+            this.lobbyRepository.flush();
+        }
+        else {
+            log.info("The lobby contains some players after the re-collecting time is over.");
+            playAgainLobby.setCollectingPlayAgains(false);
+            this.lobbyRepository.save(playAgainLobby);
+            this.lobbyRepository.flush();
+        }
+
+    }
+
+    public void clearGame() {
+        this.stopTimer();
+
     }
 
     public void startRound() {
@@ -440,7 +485,7 @@ public class Game {
             @Override
             public void run() {
                 currentRemainingTime--;
-                if (currentRemainingTime == 0) {
+                if (currentRemainingTime <= 0) {
                     game.endRound();
                 }
                 else {
@@ -458,8 +503,54 @@ public class Game {
         this.timer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
     }
 
+    private void startPlayAgainTimer(int seconds, Game game) {
+        this.playAgainTimer = new Timer();
+        final int remainingTime = seconds;
+
+        // send initial remaining time
+        TimerDTO timerDTO = new TimerDTO(remainingTime);
+        try {
+            webSocketService.sendToLobby(game.getGameId(), "/timer-play-again", timerDTO);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        TimerTask timerTask = new TimerTask() {
+            int currentRemainingTime = remainingTime;
+
+            @Override
+            public void run() {
+                currentRemainingTime--;
+                if (currentRemainingTime <= 0) {
+                    stopPlayAgainTimer();
+                    webSocketService.sendToLobby(game.getGameId(), "/play-again-closed", "{}");
+                    log.info("Play again window closed for lobbyId: " + game.getGameId());
+                }
+                else {
+                    TimerDTO timerDTO = new TimerDTO(currentRemainingTime);
+                    try {
+                        webSocketService.sendToLobby(game.getGameId(), "/timer-play-again", timerDTO);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        this.playAgainTimer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
+    }
+
     private void stopTimer() {
-        this.timer.cancel();
+        if (this.timer != null) {
+            this.timer.cancel();
+        }
+    }
+
+    private void stopPlayAgainTimer() {
+        if (this.playAgainTimer != null) {
+            this.playAgainTimer.cancel();
+        }
     }
 
     private void sendStatsToLobby() {

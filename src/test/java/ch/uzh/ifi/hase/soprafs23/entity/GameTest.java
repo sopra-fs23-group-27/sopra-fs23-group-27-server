@@ -47,6 +47,9 @@ public class GameTest {
     private AdvancedLobby advancedLobby;
 
     @Mock
+    private Lobby playAgainLobby;
+
+    @Mock
     private ScoreBoard scoreBoard;
 
     @Mock
@@ -88,16 +91,53 @@ public class GameTest {
     }
 
     @Test
-    public void testEndBasicGame() {
+    public void testEndBasicGame_EmptyPlayAgainLobby() {
+        // Override game attributes
+        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1L);
+
+        // mock lobbyRepository method
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
+
+        ArrayList<String> playersInRematch = new ArrayList();
+        doReturn(playersInRematch).when(playAgainLobby).getJoinedPlayerNames();
+
         // call the method to be tested
         basicGame.endGame();
 
         // check that the lobby was notified about end game
         verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/game-end"), anyString());
+        verify(lobbyRepository, times(1)).delete(playAgainLobby);
+    }
+
+    @Test
+    public void testEndBasicGame_NonEmptyPlayAgainLobby() {
+        // Override game attributes
+        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1L);
+
+        // mock lobbyRepository method
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
+
+        ArrayList<String> playersInRematch = new ArrayList();
+        playersInRematch.add("player");
+        doReturn(playersInRematch).when(playAgainLobby).getJoinedPlayerNames();
+
+        // call the method to be tested
+        basicGame.endGame();
+
+        // check that the lobby was notified about end game
+        verify(webSocketService, times(1)).sendToLobby(anyLong(), eq("/game-end"), anyString());
+        verify(lobbyRepository, times(0)).delete(playAgainLobby);
+        verify(playAgainLobby, times(1)).setCollectingPlayAgains(false);
     }
 
     @Test
     public void testEndAdvancedGame() {
+        // Override game attributes
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+
+        // mock lobbyRepository method
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
+
         // call the method to be tested
         advancedGame.endGame();
 
@@ -106,7 +146,7 @@ public class GameTest {
     }
 
     @Test
-    public void testStartRoundBasicMode_firstRound()  {
+    public void testStartRoundBasicMode_firstRound() {
         // given
         ArrayList<String> allCountryCodes = new ArrayList();
         allCountryCodes.add("CH");
@@ -214,6 +254,8 @@ public class GameTest {
         ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
         ReflectionTestUtils.setField(basicGame, "numRounds", 4);
         ReflectionTestUtils.setField(basicGame, "round", 4);
+        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1L);
+
 
         // Mock the country class
         Country country = mock(Country.class);
@@ -223,6 +265,7 @@ public class GameTest {
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(basicGame).updateCorrectGuess(anyString());
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
 
         // Mock the behavior of the HintHandler methods
         doNothing().when(hintHandler).setHints();
@@ -350,6 +393,8 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "hintHandler", hintHandler);
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 4);
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+
 
         // Mock the country class
         Country country = mock(Country.class);
@@ -359,6 +404,7 @@ public class GameTest {
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(advancedGame).updateCorrectGuess(anyString());
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
 
         // Mock the behavior of the HintHandler methods
         doNothing().when(hintHandler).setHints();
@@ -700,6 +746,8 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "timer", new Timer());
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 3);
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+
 
         // Mock some repository methods and service methods
         doNothing().when(hintHandler).stopSendingHints();
@@ -707,6 +755,7 @@ public class GameTest {
         doNothing().when(webSocketService).sendToPlayerInLobby(anyString(), anyString(), anyString(), any());
         doNothing().when(scoreBoard).updateTotalScores();
         doNothing().when(scoreBoard).computeLeaderBoardScore();
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
 
         advancedGame.endRound();
 
@@ -751,6 +800,8 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "timer", new Timer());
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 3);
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+
 
         // Mock some repository methods and service methods
         doNothing().when(hintHandler).stopSendingHints();
@@ -758,6 +809,7 @@ public class GameTest {
         doNothing().when(webSocketService).sendToPlayerInLobby(anyString(), anyString(), anyString(), any());
         doNothing().when(scoreBoard).updateTotalScores();
         doNothing().when(scoreBoard).computeLeaderBoardScore();
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
 
         advancedGame.endRound();
 
@@ -786,7 +838,7 @@ public class GameTest {
     }
 
     @Test
-    public void testRemovePlayersFromBasicMode(){
+    public void testRemovePlayersFromBasicMode() {
         ArrayList<String> playerNames = new ArrayList();
         playerNames.add("player1");
         playerNames.add("player2");
@@ -810,7 +862,7 @@ public class GameTest {
     }
 
     @Test
-    public void testRemovePlayersFromAdvancedMode(){
+    public void testRemovePlayersFromAdvancedMode() {
         ArrayList<String> playerNames = new ArrayList();
         playerNames.add("player1");
         playerNames.add("player2");
