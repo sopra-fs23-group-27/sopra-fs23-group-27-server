@@ -238,39 +238,21 @@ public class LobbyService {
         if (playerToken.equals(lobby.getLobbyCreatorPlayerToken())) {
             if (lobby.getJoinedPlayerNames().size() > 0) {
                 lobby = changeLobbyCreator(lobby);
- 110-play-again
-                savedLobby = this.lobbyRepository.save(lobby);
-                this.gameService.sendLobbySettings(savedLobby.getLobbyId().intValue());
-            }
-            else {
-                if (!lobby.isCollectingPlayAgains()) {
-                    log.info("Lobby {} has been deleted since last player left the lobby.",
-                            lobby.getLobbyId());
-                    this.lobbyRepository.delete(lobby);
-                }
-            }
-        }
-
-=======
             }
         }
 
         lobby = this.lobbyRepository.save(lobby);
+
+        // send updated lobby to all players in lobby
         this.gameService.sendLobbySettings(lobby.getLobbyId().intValue());
 
-        if (lobby.getJoinedPlayerNames().size() == 0) {
+        // delete lobby if no players are left in the lobby and the lobby is not waiting for a re-match
+        if (lobby.getJoinedPlayerNames().size() == 0 && !lobby.isCollectingPlayAgains()) {
             log.info("Lobby {} has been deleted since last player left the lobby.",
                     lobby.getLobbyId());
             this.lobbyRepository.delete(lobby);
         }
 
-        player.setLobbyId(null);
-        player.setCreator(false);
-
-        this.playerRepository.save(player);
-        this.playerRepository.flush();
-
- main
         this.lobbyRepository.flush();
 
         this.playerService.clearLobbyConfigFromPlayer(playerToken);
