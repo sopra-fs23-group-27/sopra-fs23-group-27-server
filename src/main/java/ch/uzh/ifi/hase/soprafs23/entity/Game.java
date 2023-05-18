@@ -553,6 +553,8 @@ public class Game {
                         player.getnRoundsPlayed() + 1
                 );
             }
+            
+            playerRepository.saveAndFlush(player);
         }
     }
 }
