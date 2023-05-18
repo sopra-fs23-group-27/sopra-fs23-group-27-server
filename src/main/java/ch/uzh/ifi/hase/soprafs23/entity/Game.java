@@ -52,6 +52,7 @@ public class Game {
     private Long startTime;
     private int numSeconds;
     private Timer timer;
+    private Timer playAgainTimer;
     private int numSecondsUntilHint;
     private int hintInterval;
     private int maxNumGuesses;
@@ -138,6 +139,7 @@ public class Game {
 
         // initiate play again procedure
         Long decisionTime = 10000L;
+        startPlayAgainTimer(decisionTime.intValue(), this);
         for (String playerName : this.playerNames) {
             this.webSocketService.initPlayAgainProcedureByPlayerName(playerName, decisionTime);
         }
@@ -163,7 +165,7 @@ public class Game {
             this.lobbyRepository.save(this.lobby);
             this.lobbyRepository.flush();
         }
-        
+
     }
 
     public void clearGame() {
@@ -478,7 +480,7 @@ public class Game {
             @Override
             public void run() {
                 currentRemainingTime--;
-                if (currentRemainingTime == 0) {
+                if (currentRemainingTime <= 0) {
                     game.endRound();
                 }
                 else {
@@ -496,9 +498,51 @@ public class Game {
         this.timer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
     }
 
+    private void startPlayAgainTimer(int seconds, Game game) {
+        this.playAgainTimer = new Timer();
+        final int remainingTime = seconds;
+
+        // send initial remaining time
+        TimerDTO timerDTO = new TimerDTO(remainingTime);
+        try {
+            webSocketService.sendToLobby(game.getGameId(), "/timer-play-again", timerDTO);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        TimerTask timerTask = new TimerTask() {
+            int currentRemainingTime = remainingTime;
+
+            @Override
+            public void run() {
+                currentRemainingTime--;
+                if (currentRemainingTime <= 0) {
+                    stopPlayAgainTimer();
+                }
+                else {
+                    TimerDTO timerDTO = new TimerDTO(currentRemainingTime);
+                    try {
+                        webSocketService.sendToLobby(game.getGameId(), "/timer-play-again", timerDTO);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        this.playAgainTimer.scheduleAtFixedRate(timerTask, 1000L, 1000L);
+    }
+
     private void stopTimer() {
         if (this.timer != null) {
             this.timer.cancel();
+        }
+    }
+
+    private void stopPlayAgainTimer() {
+        if (this.playAgainTimer != null) {
+            this.playAgainTimer.cancel();
         }
     }
 

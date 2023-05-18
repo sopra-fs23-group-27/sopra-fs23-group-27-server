@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
+import ch.uzh.ifi.hase.soprafs23.entity.Game;
 import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.TimerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +105,7 @@ public class WebSocketService {
                 playersToBeDisconnected.remove(playerToken);
             }
         };
-        this.playersToBeDisconnected.get(playerToken).schedule(timerTask, 1000);
+        this.playersToBeDisconnected.get(playerToken).schedule(timerTask, 9000);
     }
 
     public Boolean isPlayerReconnecting(String playerToken) {
