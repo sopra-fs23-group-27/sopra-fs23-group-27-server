@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.rest.dto;
 public class AdvancedLobbyCreateDTO {
 
     private boolean isPublic = true;
+    private String continent = "World";
     private int numRounds = 4;
     private int numSeconds = 30;
     private int numSecondsUntilHint = 10;
@@ -64,5 +65,13 @@ public class AdvancedLobbyCreateDTO {
 
     public void setLobbyName(String lobbyName) {
         this.lobbyName = lobbyName;
+    }
+
+    public String getContinent() {
+        return continent;
+    }
+
+    public void setContinent(String continent) {
+        this.continent = continent;
     }
 }

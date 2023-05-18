@@ -8,6 +8,7 @@ public class LobbyGetDTO {
     private String lobbyName;
     private String mode;
     private boolean isPublic;
+    private String continent;
     private int numOptions;
     private int numSeconds;
     private int numRounds;
@@ -121,5 +122,13 @@ public class LobbyGetDTO {
 
     public void setPrivateLobbyKey(String privateLobbyKey) {
         this.privateLobbyKey = privateLobbyKey;
+    }
+
+    public String getContinent() {
+        return continent;
+    }
+
+    public void setContinent(String continent) {
+        this.continent = continent;
     }
 }
