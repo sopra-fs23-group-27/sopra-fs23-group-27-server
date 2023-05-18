@@ -9,10 +9,10 @@ public class PlayerGetDTO {
 
     private Long id;
     private String playerName;
-    private Integer nRoundsPlayed;
-    private Integer overallTotalNumberOfCorrectGuesses;
-    private Integer overallTotalNumberOfWrongGuesses;
-    private Integer overallTotalTimeUntilCorrectGuess;
+    private Integer totalCorrectGuesses = 0;
+    private Integer nRoundsPlayed = 0;
+    private Integer TimeUntilCorrectGuess = 0;
+    private Integer numWrongGuesses = 0;
     private boolean isPermanent;
 
     public Long getId() {
@@ -37,6 +37,14 @@ public class PlayerGetDTO {
         this.playerName = playerName;
     }
 
+    public Integer getTotalCorrectGuesses() {
+        return totalCorrectGuesses;
+    }
+
+    public void setTotalCorrectGuesses(Integer totalCorrectGuesses) {
+        this.totalCorrectGuesses = totalCorrectGuesses;
+    }
+
     // playerstats
     public Integer getnRoundsPlayed() {
         return nRoundsPlayed;
@@ -46,28 +54,20 @@ public class PlayerGetDTO {
         this.nRoundsPlayed = nRoundsPlayed;
     }
 
-    public Integer getOverallTotalNumberOfCorrectGuesses() {
-        return overallTotalNumberOfCorrectGuesses;
+    public Integer getTimeUntilCorrectGuess() {
+        return TimeUntilCorrectGuess;
     }
 
-    public void setOverallTotalNumberOfCorrectGuesses(Integer overallTotalNumberOfCorrectGuesses) {
-        this.overallTotalNumberOfCorrectGuesses = overallTotalNumberOfCorrectGuesses;
+    public void setTimeUntilCorrectGuess(Integer timeUntilCorrectGuess) {
+        TimeUntilCorrectGuess = timeUntilCorrectGuess;
     }
 
-    public Integer getOverallTotalNumberOfWrongGuesses() {
-        return overallTotalNumberOfWrongGuesses;
+    public Integer getNumWrongGuesses() {
+        return numWrongGuesses;
     }
 
-    public void setOverallTotalNumberOfWrongGuesses(Integer overallTotalNumberOfWrongGuesses) {
-        this.overallTotalNumberOfWrongGuesses = overallTotalNumberOfWrongGuesses;
-    }
-
-    public Integer getOverallTotalTimeUntilCorrectGuess() {
-        return overallTotalTimeUntilCorrectGuess;
-    }
-
-    public void setOverallTotalTimeUntilCorrectGuess(Integer overallTotalTimeUntilCorrectGuess) {
-        this.overallTotalTimeUntilCorrectGuess = overallTotalTimeUntilCorrectGuess;
+    public void setNumWrongGuesses(Integer numWrongGuesses) {
+        this.numWrongGuesses = numWrongGuesses;
     }
 
     public boolean isPermanent() {
