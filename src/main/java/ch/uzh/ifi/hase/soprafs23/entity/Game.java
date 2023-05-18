@@ -226,14 +226,14 @@ public class Game {
             e.printStackTrace();
         }
 
+        // send the correct Guess of the previous round to Lobby
+        this.sendCorrectGuessToLobby();
+
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
         // send round to lobby
         this.sendRoundToLobby();
-
-        // send the correct Guess of the previous round to Lobby
-        this.sendCorrectGuessToLobby();
 
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
