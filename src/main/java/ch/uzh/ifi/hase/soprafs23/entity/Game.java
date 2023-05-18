@@ -621,28 +621,80 @@ public class Game {
 
         // load all the players to a list
         List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
+        
         for (Player player : lobby) {
 
             // update the total correct guesses. This is done after each round
-            player.setTotalCorrectGuesses(player.getTotalCorrectGuesses() + 1);
+            try {
+                // the player.getTotalCorrectGuesses() + 1 might lead to a
+                // NullPointerException, if the player has not yet played a round
+                // as then the value is by default null
+                // this is why we use a try-catch block
+
+                if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(player.getPlayerName())) {
+                    // if the player has guessed correctly in the last round,
+                    // we increment the player's total correct guesses by 1
+                    player.setTotalCorrectGuesses(
+                            player.getTotalCorrectGuesses() + 1
+                    );
+                }
+                else {
+                    // if the player has not guessed correctly in the last round,
+                    // we do not increment the player's total correct guesses
+                    player.setTotalCorrectGuesses(
+                            player.getTotalCorrectGuesses()
+                    );
+                }
+            }
+            catch (NullPointerException e) {
+                // if the player has not yet played a round, the player.getTotalCorrectGuesses()
+                // is by default null. Therefore, we set the player's total correct guesses
+
+                if (this.scoreBoard.getCurrentCorrectGuessPerPlayer(player.getPlayerName())) {
+                    player.setTotalCorrectGuesses(1);
+                }
+                else {
+                    player.setTotalCorrectGuesses(0);
+                }
+            }
 
             // update the total wrong guesses. This is done after each round
-            player.setNumWrongGuesses(
-                    player.getNumWrongGuesses() +
-                            this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
-            );
+            try {
+                player.setNumWrongGuesses(
+                        player.getNumWrongGuesses() +
+                                this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
+                );
+            }
+            catch (NullPointerException e) {
+                player.setNumWrongGuesses(
+                        this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
+                );
+            }
+            
 
             // update the total time until correct guess. This is done after each round
-            player.setTimeUntilCorrectGuess(
-                    player.getTimeUntilCorrectGuess() +
-                            this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(player.getPlayerName())
-            );
+            try {
+                player.setTimeUntilCorrectGuess(
+                        player.getTimeUntilCorrectGuess() +
+                                this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(player.getPlayerName())
+                );
+            }
+            catch (NullPointerException e) {
+                player.setTimeUntilCorrectGuess(
+                        this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(player.getPlayerName())
+                );
+            }
 
             // update the number of Games played. This is done only once after the game!
             if (this.round == this.numRounds) {
-                player.setnRoundsPlayed(
-                        player.getnRoundsPlayed() + 1
-                );
+                try {
+                    player.setnRoundsPlayed(
+                            player.getnRoundsPlayed() + 1
+                    );
+                } 
+                catch (NullPointerException e) {
+                    player.setnRoundsPlayed(1);
+                }
             }
             
             playerRepository.saveAndFlush(player);
