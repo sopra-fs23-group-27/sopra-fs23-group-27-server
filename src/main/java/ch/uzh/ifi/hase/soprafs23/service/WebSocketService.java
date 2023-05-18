@@ -26,6 +26,8 @@ public class WebSocketService {
 
     private final Map<String, Timer> playersToBeDisconnected = new HashMap<>();
 
+    private final ArrayList<String> reconnectionList = new ArrayList<>();
+
     @Autowired
     protected SimpMessagingTemplate simpMessagingTemplate;
 
@@ -69,6 +71,23 @@ public class WebSocketService {
         catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
+    }
+
+
+    public void initPlayAgainProcedureByPlayerName(String playerName, Long decisionTime) {
+        Player player = this.playerRepository.findByPlayerName(playerName);
+        String playerToken = player.getToken();
+
+        this.playersToBeDisconnected.put(playerToken, new Timer());
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                log.info("Lobby " + player.getLobbyId() + ": Time to play again in same lobby is over for Player with playername" + player.getPlayerName());
+                lobbyService.clearPlayerAfterGameEnd(playerToken);
+                playersToBeDisconnected.remove(playerToken);
+            }
+        };
+        this.playersToBeDisconnected.get(playerToken).schedule(timerTask, decisionTime);
     }
 
     public void initDisconnectionProcedureByWsId(String wsConnectionId) {

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
+import ch.uzh.ifi.hase.soprafs23.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
@@ -127,10 +128,47 @@ public class Game {
         log.info("Game loop ended for lobbyId: " + this.gameId);
         this.webSocketService.sendToLobby(this.gameId, "/game-end", "{}");
 
+        // set lobby to joinable again and clear players
         this.lobby.setJoinable(true);
+        this.lobby.setCollectingPlayAgains(true);
         this.lobby.setCurrentGameId(null);
+        this.lobby.clearPlayers();
         this.lobbyRepository.save(this.lobby);
         this.lobbyRepository.flush();
+
+        // initiate play again procedure
+        Long decisionTime = 10000L;
+        for (String playerName : this.playerNames) {
+            this.webSocketService.initPlayAgainProcedureByPlayerName(playerName, decisionTime);
+        }
+
+        // clear game
+        GameRepository.removeGame(this.gameId);
+
+        // cleanups after play again timer is over
+        try {
+            Thread.sleep(decisionTime);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (this.lobby.getJoinedPlayerNames().size() == 0) {
+            log.info("No players left in lobby after re-collecting time. Lobby will be deleted.");
+            this.lobbyRepository.delete(this.lobby);
+            this.lobbyRepository.flush();
+        }
+        else {
+            log.info("The lobby contains some players after the re-collecting time is over.");
+            this.lobby.setCollectingPlayAgains(false);
+            this.lobbyRepository.save(this.lobby);
+            this.lobbyRepository.flush();
+        }
+        
+    }
+
+    public void clearGame() {
+        this.stopTimer();
+
     }
 
     public void startRound() {
@@ -459,7 +497,9 @@ public class Game {
     }
 
     private void stopTimer() {
-        this.timer.cancel();
+        if (this.timer != null) {
+            this.timer.cancel();
+        }
     }
 
     private void sendStatsToLobby() {

@@ -123,7 +123,7 @@ public class PlayerController {
 
         Player player = playerService.getPlayerById(playerId, token);
 
-        if (player.getLobbyId() != null){
+        if (player.getLobbyId() != null) {
             // logout player. This end the websocket connection and remove the player from the lobby
             // Non-registered players will be deleted
             lobbyService.disconnectPlayer(token);

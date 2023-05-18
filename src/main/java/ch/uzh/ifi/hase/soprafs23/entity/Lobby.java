@@ -25,11 +25,13 @@ public abstract class Lobby implements Serializable {
 
     private String lobbyCreatorPlayerToken;
     private boolean isJoinable;
+    private boolean isCollectingPlayAgains;
     private Long currentGameId;
     private String privateLobbyKey;
 
     public Lobby() {
         this.isJoinable = true;
+        this.isCollectingPlayAgains = false;
         this.joinedPlayerNames = new ArrayList<>();
     }
 
@@ -124,5 +126,17 @@ public abstract class Lobby implements Serializable {
 
     public void setPrivateLobbyKey(String privateLobbyKey) {
         this.privateLobbyKey = privateLobbyKey;
+    }
+
+    public void clearPlayers() {
+        this.joinedPlayerNames.clear();
+    }
+
+    public boolean isCollectingPlayAgains() {
+        return isCollectingPlayAgains;
+    }
+
+    public void setCollectingPlayAgains(boolean collectingPlayAgains) {
+        isCollectingPlayAgains = collectingPlayAgains;
     }
 }

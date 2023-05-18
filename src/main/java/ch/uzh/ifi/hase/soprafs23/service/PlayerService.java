@@ -107,6 +107,14 @@ public class PlayerService {
         this.playerRepository.flush();
     }
 
+    public void clearLobbyConfigFromPlayer(String playerToken) {
+        Player player = getPlayerByToken(playerToken);
+        player.setLobbyId(null);
+        player.setCreator(false);
+        this.playerRepository.save(player);
+        this.playerRepository.flush();
+    }
+
     public Player createPlayer(Player newPlayer) {
 
         // create basic authentication token
@@ -233,7 +241,7 @@ public class PlayerService {
         }
     }
 
-    public void checkIfPlayerIdExists(long playerId)    {
+    public void checkIfPlayerIdExists(long playerId) {
         Player playerById = playerRepository.findById(playerId);
         if (playerById == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

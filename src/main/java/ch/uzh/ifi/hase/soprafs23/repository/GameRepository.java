@@ -13,6 +13,7 @@ public class GameRepository {
 
     public static void removeGame(Long lobbyId) {
         if (allGames.containsKey(lobbyId)) {
+            allGames.get(lobbyId).clearGame();
             allGames.remove(lobbyId);
         }
     }

@@ -120,9 +120,5 @@ public class LobbyController {
                                  @RequestHeader("Authorization") String playerToken) {
 
         this.lobbyService.startGame(lobbyId, playerToken);
-
-/*        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(gameId);*/
     }
 }
