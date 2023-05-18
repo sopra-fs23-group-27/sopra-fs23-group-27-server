@@ -122,6 +122,7 @@ public class WebSocketService {
                 player.setWsConnectionId(newWsConnectionId);
                 this.playerRepository.save(player);
                 this.playerRepository.flush();
+                this.lobbyService.resendLobbySettings(player.getLobbyId().intValue());
                 log.info("Lobby " + player.getLobbyId() + ": Player " + player.getPlayerName() + " is reconnected. The new" +
                         "websocketId is: " + newWsConnectionId);
 

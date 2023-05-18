@@ -308,10 +308,13 @@ public class LobbyService {
                 lobby.addPlayerToLobby(requester.getPlayerName());
                 Lobby savedLobby = this.lobbyRepository.save(lobby);
                 this.lobbyRepository.flush();
-                this.gameService.sendLobbySettings(savedLobby.getLobbyId().intValue());
             }
         }
 
+    }
+
+    public void resendLobbySettings(Integer lobbyId) {
+        this.gameService.sendLobbySettings(lobbyId);
     }
 
 

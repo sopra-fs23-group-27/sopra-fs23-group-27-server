@@ -154,15 +154,17 @@ public class Game {
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if (this.lobby.getJoinedPlayerNames().size() == 0) {
+
+        Lobby playAgainLobby = this.lobbyRepository.findByLobbyId(this.gameId);
+        if (playAgainLobby.getJoinedPlayerNames().size() == 0) {
             log.info("No players left in lobby after re-collecting time. Lobby will be deleted.");
-            this.lobbyRepository.delete(this.lobby);
+            this.lobbyRepository.delete(playAgainLobby);
             this.lobbyRepository.flush();
         }
         else {
             log.info("The lobby contains some players after the re-collecting time is over.");
-            this.lobby.setCollectingPlayAgains(false);
-            this.lobbyRepository.save(this.lobby);
+            playAgainLobby.setCollectingPlayAgains(false);
+            this.lobbyRepository.save(playAgainLobby);
             this.lobbyRepository.flush();
         }
 
