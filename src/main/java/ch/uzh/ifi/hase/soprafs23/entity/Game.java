@@ -71,7 +71,7 @@ public class Game {
         this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
         this.lobbyRepository = lobbyRepository;
-        this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(5);
+        this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(lobby.getNumRounds());
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
         this.numRounds = lobby.getNumRounds();
@@ -271,14 +271,14 @@ public class Game {
             e.printStackTrace();
         }
 
+        // send the correct Guess of the previous round to Lobby
+        this.sendCorrectGuessToLobby();
+
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
 
         // send round to lobby
         this.sendRoundToLobby();
-
-        // send the correct Guess of the previous round to Lobby
-        this.sendCorrectGuessToLobby();
 
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
@@ -558,14 +558,14 @@ public class Game {
         // Init Arrays for the mapping into a JSON object
         ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
         ArrayList<Integer> TotalCorrectGuesses = new ArrayList<Integer>();
-        ArrayList<Integer> TotalTimeUntilCorrectGuess = new ArrayList<Integer>();
+        ArrayList<Integer> CurrentTimeUntilCorrectGuess = new ArrayList<Integer>();
         ArrayList<Integer> TotalWrongGuesses = new ArrayList<Integer>();
 
         // Fill the Arrays with the data from the ScoreBoard
         this.playerNames.forEach(playerName -> {
             TotalGameScores.add(this.scoreBoard.getLeaderBoardTotalScorePerPlayer(playerName));
             TotalCorrectGuesses.add(this.scoreBoard.getTotalCorrectGuessesPerPlayer(playerName));
-            TotalTimeUntilCorrectGuess.add(this.scoreBoard.getTotalTimeUntilCorrectGuessPerPlayer(playerName));
+            CurrentTimeUntilCorrectGuess.add(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName));
             TotalWrongGuesses.add(this.scoreBoard.getTotalNumberOfWrongGuessesPerPlayer(playerName));
         });
 
@@ -574,7 +574,7 @@ public class Game {
                 this.playerNames,
                 TotalGameScores,
                 TotalCorrectGuesses,
-                TotalTimeUntilCorrectGuess,
+                CurrentTimeUntilCorrectGuess,
                 TotalWrongGuesses
         );
 
@@ -614,6 +614,7 @@ public class Game {
 
         this.webSocketService.sendToLobby(this.gameId, "/correct-country", correctGuessDTO);
 
+        webSocketService.wait(5000);
     }
 
     private void addStatsToDB() {
@@ -643,6 +644,8 @@ public class Game {
                         player.getnRoundsPlayed() + 1
                 );
             }
+            
+            playerRepository.saveAndFlush(player);
         }
     }
 }

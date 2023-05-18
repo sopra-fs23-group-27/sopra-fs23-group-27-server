@@ -53,6 +53,7 @@ public class PlayerControllerTest {
         Player player = new Player();
         player.setPassword("password");
         player.setPlayerName("firstname@lastname");
+        player.setToken("validToken");
 
         // this mocks the PlayerService -> we define above what the playerService should
         // return when getPlayerById() is called
@@ -61,11 +62,55 @@ public class PlayerControllerTest {
         // when
         MockHttpServletRequestBuilder getRequest = get("/players/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "someToken");
+                .header("Authorization", "validToken");
 
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
+    }
+
+    @Test
+    public void getPlayer_401thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setPassword("password");
+        player.setPlayerName("firstname@lastname");
+        player.setToken("validToken");
+
+        // mock playerservice
+        String errorMessage = "You are unauthorized to perform this action since your provided token is not valid.";
+        ResponseStatusException unauthorizedException = new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
+        doThrow(unauthorizedException).when(playerService).getPlayerById(anyLong(), anyString());
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/players/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "invalidToken");
+
+        // then
+        mockMvc.perform(getRequest).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getPlayer_404thrown() throws Exception {
+        // given
+        Player player = new Player();
+        player.setPassword("password");
+        player.setPlayerName("firstname@lastname");
+        player.setToken("validToken");
+
+        // mock playerservice
+        String errorMessage = "Error: The player with playerId 0 does not exist.";
+        ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+        doThrow(notFoundException).when(playerService).getPlayerById(anyLong(), anyString());
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/players/0")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "validToken");
+
+        // then
+        mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
 
     ////////// MAPPING 1 //////////
@@ -270,7 +315,6 @@ public class PlayerControllerTest {
         // valid playerId
         long validPlayerId = player.getId();
 
-
         String errorMessage = "You are unauthorized to perform this action since your provided token is not valid.";
         ResponseStatusException unauthorizedException = new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
         doThrow(unauthorizedException).when(playerService).updatePlayer(Mockito.anyLong(), Mockito.any(), Mockito.anyString());
@@ -425,13 +469,39 @@ public class PlayerControllerTest {
     }
 
     @Test
-    public void logoutPlayer_validInput() throws Exception {
+    public void logoutPlayer_validInput_notInLobby() throws Exception {
         // given
         Player player = new Player();
         player.setId(1L);
         player.setPassword("password");
         player.setPlayerName("testPlayerName");
         player.setToken("1");
+
+        // valid token
+        Long validPlayerId = player.getId();
+        String validToken = player.getToken();
+
+        // when
+        when(playerService.getPlayerById(validPlayerId, validToken)).thenReturn(player);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder postRequest = post("/players/{playerId}/logout", validPlayerId)
+                .header("Authorization", validToken);
+
+        // then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void logoutPlayer_validInput_inLobby() throws Exception {
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("1");
+        player.setLobbyId(1L);
 
         // valid token
         Long validPlayerId = player.getId();

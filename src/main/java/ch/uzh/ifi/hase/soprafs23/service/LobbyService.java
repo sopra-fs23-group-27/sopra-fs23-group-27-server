@@ -235,10 +235,10 @@ public class LobbyService {
         }
 
         // check if player was the lobby creator; if yes, change lobby creator
-        Lobby savedLobby = null;
         if (playerToken.equals(lobby.getLobbyCreatorPlayerToken())) {
             if (lobby.getJoinedPlayerNames().size() > 0) {
                 lobby = changeLobbyCreator(lobby);
+ 110-play-again
                 savedLobby = this.lobbyRepository.save(lobby);
                 this.gameService.sendLobbySettings(savedLobby.getLobbyId().intValue());
             }
@@ -251,11 +251,31 @@ public class LobbyService {
             }
         }
 
+=======
+            }
+        }
+
+        lobby = this.lobbyRepository.save(lobby);
+        this.gameService.sendLobbySettings(lobby.getLobbyId().intValue());
+
+        if (lobby.getJoinedPlayerNames().size() == 0) {
+            log.info("Lobby {} has been deleted since last player left the lobby.",
+                    lobby.getLobbyId());
+            this.lobbyRepository.delete(lobby);
+        }
+
+        player.setLobbyId(null);
+        player.setCreator(false);
+
+        this.playerRepository.save(player);
+        this.playerRepository.flush();
+
+ main
         this.lobbyRepository.flush();
 
         this.playerService.clearLobbyConfigFromPlayer(playerToken);
 
-        return savedLobby;
+        return lobby;
     }
 
     public synchronized void clearPlayerAfterGameEnd(String playerToken) {

@@ -47,16 +47,16 @@ public class Player implements Serializable {
 
     // new fields for player stats
     @Column
-    private int totalCorrectGuesses;
+    private Integer totalCorrectGuesses = 0;
 
     @Column
-    private int nRoundsPlayed;
+    private Integer nRoundsPlayed = 0;
 
     @Column
-    private int TimeUntilCorrectGuess;
+    private Integer TimeUntilCorrectGuess = 0;
 
     @Column
-    private int numWrongGuesses;
+    private Integer numWrongGuesses = 0;
 
     @Column
     private Boolean isPermanent;

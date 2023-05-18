@@ -47,7 +47,15 @@ public class PlayerService {
     public Player getPlayerById(long playerId, String token) {
         checkIfTokenExists(token);
         checkIfPlayerIdExists(playerId);
-        return this.playerRepository.findById(playerId);
+
+        // find player in the database
+        Player player = playerRepository.findById(playerId);
+
+        // check if player is allowed to retrieve this information
+        // players are only allowed to retrieve their own information
+        checkIfPlayerTokenIsValid(token, player);
+
+        return player;
     }
 
     public Player getPlayerByToken(String token) {
@@ -180,7 +188,6 @@ public class PlayerService {
 
         existingPlayer = playerRepository.save(existingPlayer);
         playerRepository.flush();
-
     }
 
     public Player updatePlayer(long playerId, PlayerPutDTO playerUpdateRequest, String token) {
@@ -261,6 +268,14 @@ public class PlayerService {
         if (!tokenExists) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Error: You are unauthorized to perform this action.");
+        }
+    }
+
+    public void checkIfPlayerIsAlreadyInLobby(String playerToken) {
+        Player player = playerRepository.findByToken(playerToken);
+        if (player.getLobbyId() != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Error: You are already in a lobby. Please leave the lobby to join another one. If the error persists, please close your browser.");
         }
     }
 }

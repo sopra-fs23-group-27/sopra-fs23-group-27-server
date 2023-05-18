@@ -5,7 +5,7 @@ public class BasicLobbyCreateDTO {
     private boolean isPublic = true;
     private int numRounds = 4;
     private int numOptions = 4;
-    private int numSeconds = 30;
+    private int numSeconds = 10;
     private String lobbyName;
 
 

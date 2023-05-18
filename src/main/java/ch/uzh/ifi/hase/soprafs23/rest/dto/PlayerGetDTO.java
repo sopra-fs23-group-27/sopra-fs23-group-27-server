@@ -13,6 +13,7 @@ public class PlayerGetDTO {
     private Integer overallTotalNumberOfCorrectGuesses;
     private Integer overallTotalNumberOfWrongGuesses;
     private Integer overallTotalTimeUntilCorrectGuess;
+    private boolean isPermanent;
 
     public Long getId() {
         return id;
@@ -69,6 +70,13 @@ public class PlayerGetDTO {
         this.overallTotalTimeUntilCorrectGuess = overallTotalTimeUntilCorrectGuess;
     }
 
+    public boolean isPermanent() {
+        return isPermanent;
+    }
+
+    public void setPermanent(boolean isPermanent) {
+        this.isPermanent = isPermanent;
+    }
 
 
 }

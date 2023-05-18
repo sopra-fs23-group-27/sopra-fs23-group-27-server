@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
+import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,9 @@ class LobbyControllerTest {
 
     @MockBean
     private AuthenticationService authenticationService;
+
+    @MockBean
+    private PlayerService playerService;
 
     @Test
     public void testCreatePublicBasicLobby_validInput_lobbyCreated() throws Exception {
@@ -279,15 +283,20 @@ class LobbyControllerTest {
         String playerToken = "test-token";
         String testLobbyId = "0";
 
+        Player testPlayer = new Player();
+        testPlayer.setPlayerName("testPlayerName");
+        testPlayer.setToken(playerToken);
+        testPlayer.setPassword("testPassword");
+
 
         // when the mock object (lobbyService) is called do nothing
         doNothing().when(lobbyService).checkIfLobbyIsJoinable(Mockito.any(), Mockito.any());
         doNothing().when(authenticationService).addToAuthenticatedJoins(Mockito.any(), Mockito.any());
+        doNothing().when(playerService).checkIfPlayerIsAlreadyInLobby(Mockito.anyString());
 
         // when/then -> do the request + validate the result
         MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/join", testLobbyId)
                 .header("Authorization", playerToken);
-
 
         // then
         mockMvc.perform(putRequest)
@@ -319,6 +328,32 @@ class LobbyControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(status().reason(is(errorMessage)));
     }
+
+    @Test
+    public void testJoinAdvancedLobby_playerIsAlreadyInLobby_409Exception() throws Exception {
+        // given
+        String playerToken = "test-token";
+        String testLobbyId = "0";
+        String errorMessage ="Error: You are already in a lobby. Please leave the lobby to join another one. If the error persists, please close your browser.";
+
+        ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
+
+
+        // when the mock object (lobbyService) is called do nothing
+        doNothing().when(lobbyService).checkIfLobbyIsJoinable(Mockito.any(), Mockito.any());
+        doNothing().when(authenticationService).addToAuthenticatedJoins(Mockito.any(), Mockito.any());
+        doThrow(conflictException).when(playerService).checkIfPlayerIsAlreadyInLobby(Mockito.anyString());
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/{lobbyId}/join", testLobbyId)
+                .header("Authorization", playerToken);
+
+        // then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
 
     @Test
     public void testJoinAdvancedLobby_lobbyIsNotJoinable_403Exception() throws Exception {
