@@ -177,6 +177,13 @@ public class LobbyService {
                     "Lobby needs at least 2 players to start the game");
         }
 
+        // check if lobby is collecting Play-Agains
+        if (lobby.isCollectingPlayAgains()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Lobby is still collecting players for a re-match. Once the re-collecting time of 10 seconds" +
+                            " is over, the lobby creator can start the game again.");
+        }
+
         lobby.setJoinable(false);
         lobby = this.lobbyRepository.save(lobby);
         this.lobbyRepository.flush();
@@ -231,6 +238,20 @@ public class LobbyService {
         if (playerToken.equals(lobby.getLobbyCreatorPlayerToken())) {
             if (lobby.getJoinedPlayerNames().size() > 0) {
                 lobby = changeLobbyCreator(lobby);
+ 110-play-again
+                savedLobby = this.lobbyRepository.save(lobby);
+                this.gameService.sendLobbySettings(savedLobby.getLobbyId().intValue());
+            }
+            else {
+                if (!lobby.isCollectingPlayAgains()) {
+                    log.info("Lobby {} has been deleted since last player left the lobby.",
+                            lobby.getLobbyId());
+                    this.lobbyRepository.delete(lobby);
+                }
+            }
+        }
+
+=======
             }
         }
 
@@ -249,10 +270,23 @@ public class LobbyService {
         this.playerRepository.save(player);
         this.playerRepository.flush();
 
+ main
         this.lobbyRepository.flush();
 
+        this.playerService.clearLobbyConfigFromPlayer(playerToken);
 
         return lobby;
+    }
+
+    public synchronized void clearPlayerAfterGameEnd(String playerToken) {
+        Player player = this.playerService.getPlayerByToken(playerToken);
+        if (player == null) {
+            log.info("Player with playerToken {} is not a registered player." +
+                    "Returning without action taken.", playerToken);
+            return;
+        }
+
+        this.playerService.clearLobbyConfigFromPlayer(playerToken);
     }
 
     public synchronized void disconnectPlayer(String playerToken) {
@@ -266,7 +300,7 @@ public class LobbyService {
 
         Lobby lobby = getLobbyById(player.getLobbyId());
         if (lobby != null) {
-            log.info("Player {} is removed from lobby {} due to websocket disconnect", player.getPlayerName(), lobby.getLobbyId());
+            log.info("Player {} is removed from lobby {}.", player.getPlayerName(), lobby.getLobbyId());
 
             Lobby savedLobby = removePlayerFromLobby(player, lobby);
         }
@@ -277,6 +311,30 @@ public class LobbyService {
             this.playerService.deletePlayer(player.getId(), player.getToken());
         }
 
+    }
+
+    public void playAgain(Integer lobbyId, String wsConnectionId) {
+
+        Lobby lobby = getLobbyById(lobbyId);
+        Player requester = this.playerService.getPlayerByWsConnectionId(wsConnectionId);
+
+        if (requester != null && Objects.equals(lobbyId.longValue(), requester.getLobbyId())) {
+            if (lobby.isJoinable()) {
+
+                // first player that clicks "Play Again" becomes the new lobby creator
+                if (lobby.getJoinedPlayerNames().size() == 0) {
+                    lobby.setLobbyCreatorPlayerToken(requester.getToken());
+                }
+                lobby.addPlayerToLobby(requester.getPlayerName());
+                Lobby savedLobby = this.lobbyRepository.save(lobby);
+                this.lobbyRepository.flush();
+            }
+        }
+
+    }
+
+    public void resendLobbySettings(Integer lobbyId) {
+        this.gameService.sendLobbySettings(lobbyId);
     }
 
 
