@@ -35,6 +35,7 @@ public class Game {
     private final CountryRepository countryRepository;
     private final PlayerRepository playerRepository;
     private final LobbyRepository lobbyRepository;
+    private final Long playAgainTimeWindow;
 
     private ScoreBoard scoreBoard;
     private HintHandler hintHandler;
@@ -112,6 +113,7 @@ public class Game {
 
         this.scoreBoard = new ScoreBoard(this.playerNames);
 
+        playAgainTimeWindow = 10000L;
     }
 
     public void removePlayer(String playerName) {
@@ -138,18 +140,19 @@ public class Game {
         this.lobbyRepository.flush();
 
         // initiate play again procedure
-        Long decisionTime = 10000L;
-        startPlayAgainTimer(decisionTime.intValue(), this);
+        startPlayAgainTimer(playAgainTimeWindow.intValue(), this);
         for (String playerName : this.playerNames) {
-            this.webSocketService.initPlayAgainProcedureByPlayerName(playerName, decisionTime);
+            this.webSocketService.initPlayAgainProcedureByPlayerName(playerName, playAgainTimeWindow);
         }
+        log.info("Play again window opened for lobbyId: " + this.gameId);
+        webSocketService.sendToLobby(this.gameId, "/play-again-opened", "{}");
 
         // clear game
         GameRepository.removeGame(this.gameId);
 
         // cleanups after play again timer is over
         try {
-            Thread.sleep(decisionTime);
+            Thread.sleep(playAgainTimeWindow);
         }
         catch (InterruptedException e) {
             e.printStackTrace();
@@ -521,6 +524,8 @@ public class Game {
                 currentRemainingTime--;
                 if (currentRemainingTime <= 0) {
                     stopPlayAgainTimer();
+                    webSocketService.sendToLobby(game.getGameId(), "/play-again-closed", "{}");
+                    log.info("Play again window closed for lobbyId: " + game.getGameId());
                 }
                 else {
                     TimerDTO timerDTO = new TimerDTO(currentRemainingTime);
