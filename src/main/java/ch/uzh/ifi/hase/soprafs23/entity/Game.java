@@ -250,12 +250,12 @@ public class Game {
             }
         }
 
+        // write all stats for each player to DB.
+        this.addStatsToDB();
+        
         // update the current and total scores 
         // MUST BE CALLED AFTER FOR LOOP
         this.scoreBoard.updateTotalScores();
-
-        // write all stats for each player to DB.
-        this.addStatsToDB();
 
         // computes the LeaderBoardScore for each player for the current round and total rounds
         // NOTE: ALL GETTERS FOR THE CURRENT AND TOTAL LEADERBOARD CAN ONLY BE USED FROM NOW ON
