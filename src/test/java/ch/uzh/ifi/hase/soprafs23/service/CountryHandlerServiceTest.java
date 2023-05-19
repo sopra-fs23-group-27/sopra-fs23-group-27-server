@@ -87,7 +87,7 @@ class CountryHandlerServiceTest {
         // initiate country handler service
         CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(1);
+        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(1, "World");
 
         // check if source country is returned correctly
         assertEquals(1, sourcedCountries.size());
@@ -101,7 +101,7 @@ class CountryHandlerServiceTest {
         // initiate country handler service
         CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(5);
+        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(5, "World");
 
         // check if source country is returned correctly
         assertEquals(5, sourcedCountries.size());
@@ -115,7 +115,7 @@ class CountryHandlerServiceTest {
         // initiate country handler service
         CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(7);
+        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(7, "World");
 
         // check if source country is returned correctly
         assertEquals(7, sourcedCountries.size());
@@ -129,7 +129,7 @@ class CountryHandlerServiceTest {
         CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
 
         // check if exception is thrown when no countries are found in the database
-        assertThrows(Exception.class, () -> countryHandlerService.sourceCountryInfo(1000));
+        assertThrows(Exception.class, () -> countryHandlerService.sourceCountryInfo(1000, "World"));
     }
 
     @Test
@@ -140,6 +140,6 @@ class CountryHandlerServiceTest {
         CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
 
         // check if exception is thrown when no countries are found in the database
-        assertThrows(IllegalArgumentException.class, () -> countryHandlerService.sourceCountryInfo(-1));
+        assertThrows(IllegalArgumentException.class, () -> countryHandlerService.sourceCountryInfo(-1, "World"));
     }
 }

@@ -58,6 +58,7 @@ public class Game {
     private int hintInterval;
     private int maxNumGuesses;
     private int numOptions;
+    private String continent;
 
     public Game(CountryHandlerService countryHandlerService,
                 WebSocketService webSocketService,
@@ -71,10 +72,12 @@ public class Game {
         this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
         this.lobbyRepository = lobbyRepository;
-        this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(lobby.getNumRounds());
+        this.continent = lobby.getContinent();
+        this.numRounds = lobby.getNumRounds();
+        this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
-        this.numRounds = lobby.getNumRounds();
+
 
         // set variables depending on lobby type
         if (lobby instanceof BasicLobby) {
@@ -113,7 +116,7 @@ public class Game {
 
         this.scoreBoard = new ScoreBoard(this.playerNames);
 
-        playAgainTimeWindow = 10000L;
+        playAgainTimeWindow = 20000L;
     }
 
     public void removePlayer(String playerName) {
@@ -252,7 +255,7 @@ public class Game {
 
         // write all stats for each player to DB.
         this.addStatsToDB();
-        
+
         // update the current and total scores 
         // MUST BE CALLED AFTER FOR LOOP
         this.scoreBoard.updateTotalScores();
@@ -621,7 +624,7 @@ public class Game {
 
         // load all the players to a list
         List<Player> lobby = this.playerRepository.findByLobbyId(this.gameId);
-        
+
         for (Player player : lobby) {
 
             // update the total correct guesses. This is done after each round
@@ -670,7 +673,7 @@ public class Game {
                         this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(player.getPlayerName())
                 );
             }
-            
+
 
             // update the total time until correct guess. This is done after each round
             try {
@@ -691,12 +694,12 @@ public class Game {
                     player.setnRoundsPlayed(
                             player.getnRoundsPlayed() + 1
                     );
-                } 
+                }
                 catch (NullPointerException e) {
                     player.setnRoundsPlayed(1);
                 }
             }
-            
+
             playerRepository.saveAndFlush(player);
         }
     }

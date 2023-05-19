@@ -94,18 +94,20 @@ public class WebSocketService {
 
     public void initDisconnectionProcedureByWsId(String wsConnectionId) {
         Player player = this.playerRepository.findByWsConnectionId(wsConnectionId);
-        String playerToken = player.getToken();
+        if (player != null) {
+            String playerToken = player.getToken();
 
-        this.playersToBeDisconnected.put(playerToken, new Timer());
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                log.info("Lobby " + player.getLobbyId() + ": Reconnection time of Player with WsId" + player.getWsConnectionId() + " is over.");
-                lobbyService.disconnectPlayer(playerToken);
-                playersToBeDisconnected.remove(playerToken);
-            }
-        };
-        this.playersToBeDisconnected.get(playerToken).schedule(timerTask, 9000);
+            this.playersToBeDisconnected.put(playerToken, new Timer());
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    log.info("Lobby " + player.getLobbyId() + ": Reconnection time of Player with WsId" + player.getWsConnectionId() + " is over.");
+                    lobbyService.disconnectPlayer(playerToken);
+                    playersToBeDisconnected.remove(playerToken);
+                }
+            };
+            this.playersToBeDisconnected.get(playerToken).schedule(timerTask, 9000);
+        }
     }
 
     public Boolean isPlayerReconnecting(String playerToken) {
