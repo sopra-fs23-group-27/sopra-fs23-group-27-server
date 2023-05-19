@@ -264,7 +264,7 @@ public class CountryContinentMap {
     }
 
     public String getContinent(String countryCode) {
-        return countryMap.getOrDefault(countryCode, "");
+        return countryMap.getOrDefault(countryCode, null);
     }
 
     public ArrayList<String> getCountryCodesByContinent(String continent) {
