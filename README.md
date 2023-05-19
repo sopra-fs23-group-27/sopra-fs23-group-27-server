@@ -1,20 +1,54 @@
-# SoPra RESTful Service Template FS23 (Group 27)
+# FlagMania Server Application - SoPra FS23 - Group 27
 
-## Getting started with Spring Boot
+## Introduction and Motivation
+Introduction:
+Welcome to FlagMania, the ultimate game that will put your knowledge of flags to the test! Are you ready to embark on an exciting journey around the world and showcase your flag recognition skills? Get ready to dive into two thrilling modes: Basic Game and Public Game.
+
+In the Basic Game mode, we've carefully curated a series of challenging flag-based questions for you. Guess the flags of different countries based on our preselected options and see how many correct answers you can rack up! This mode is perfect for sharpening your flag identification abilities, learning about various countries, and competing against your friends to achieve the highest score.
+
+But wait, if you're feeling extra adventurous and want to take your flag-guessing skills to the next level, then the Public Game mode is your ultimate destination! This mode provides you with a free submission form, where you can submit your guesses, allowing you to put your knowledge to the ultimate test. No limitations, no restrictions! Simply submit your best guess for each flag and let your intuition and expertise guide you to victory. Challenge yourself to recognize flags from every corner of the globe and prove that you are a true flag connoisseur.
+
+Whether you're a beginner or a dedicated flag enthusiast, FlagMania offers an immersive and entertaining experience that will keep you engaged for hours. With its user-friendly interface and diverse range of flags from all over the world, this game is the perfect choice to expand your cultural knowledge and become a master at identifying flags.
+
+So, what are you waiting for? Unleash your inner adventurer and test your flag knowledge. Get ready to explore the fascinating world of flags and become the ultimate FlagMania champion!
+
+## Technologies
+At the forefront, we have utilized TypeScript for the frontend development, ensuring a robust and scalable user interface. TypeScript enhances the development process by adding static typing and improved tooling to JavaScript, resulting in a more reliable and efficient Frontend experience.
+
+To establish a seamless connection between the frontend and backend, we have employed REST and Stomp-Websockets protocols. REST (Representational State Transfer) enables smooth communication and data transfer, allowing the frontend to interact with the backend effortlessly. Stomp-Websockets, a subprotocol of WebSocket, adds a layer of real-time communication, ensuring instant updates and an immersive gameplay experience.
+
+The powerful Java Spring Boot framework dives the backend. Spring Boot provides a solid foundation for building high-performance web applications, while maintaining a simple and versatile Development Environment. 
+
+Speaking of APIs, we have integrated two exceptional sources to bring the User of our applicaton accurate and up-to-date information. The first is the FLAGCDN API (https://flagcdn.com/), which supplies us with an extensive collection of country flags. With this API, we ensure that each flag displayed in the game is authentic and visually appealing (specifically, it was difficult finding an API that provides flags in high resolution), enhancing your learning experience.
+
+Additionally, we have integrated the Country API from API Ninjas (https://api-ninjas.com/api/country) to provide the user of our application with fascinating facts surrounding each country. This API allows us to enrich the gameplay by helping the user guessing the flag with hints ranging from interesting trivia to helpful insights about the nations behind the flags.
+
+## High-level components
+How do I make a Hyperlink:
+In FlagMania, three classes play key roles in the functionality of both the backend and frontend components. These classes are the “Game” class in the backend, the “WebSocketService” class in the backend, and the “GameRound” class in the frontend. Let's take a closer look at each of them:
+1.	[Game class](https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs23/entity/Game.java) (Backend): The Game class is a crucial component in the backend that manages the game logic and state. It encapsulates the core functionality of the game, including tracking the players, validating the players guesses guesses, managing scores, and determining the correct answers. This class is responsible for orchestrating the flow of the game by determining the procedures at the start of the game and at the end of the game, as well as the round start and round end, thereby keeping track of the game's progress.
+2.	[WebSocketService class](https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs23/service/WebSocketService.java) (Backend): The WebSocketService class serves as a vital communication bridge between the frontend and backend components (in particular the Game class described above). It handles WebSocket connections, facilitates real-time messaging, and enables seamless interaction between players and the game server. This class includes methods to send messages to players and lobbies, manage player connections and disconnections, and handle reconnection procedures. It plays a crucial role in maintaining the game's real-time nature and enabling efficient communication between the different components. In particular, this class provides a crucial developer interface that makes websockets easy to use in other backend classes (such as the Game class). 
+3.	[GameRound component](https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/blob/main/src/views/GameRound.tsx) (Frontend): The GameRound class represents the view of a single round of the game on the frontend side. It manages the display of flag images, user interactions, displayal of hints and the submission of guesses (basic and advanced modes). This class handles the players guesses, updates the UI with other players wrong guesses, and progresses the game to the round summarizing scoreboard. It communicates with the backend, and in particular with the WebSocketService through Stomp-Websockets to fetch flags and hints and send guesses.
+Overall, the Game, WebSocketService, and GameRound classes are the most important classes of FlagMania. They all work together to manage the game's logic, facilitate real-time communication, and provide an immersive gameplay experience. These classes form the core foundation of our game, and ensure its functionality.
+
+## Launch & Deployment
+
+
+### Getting started with Spring Boot
 -   Documentation: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html
 -   Guides: http://spring.io/guides
     -   Building a RESTful Web Service: http://spring.io/guides/gs/rest-service/
     -   Building REST services with Spring: https://spring.io/guides/tutorials/rest/
 
-## Setup this Template with your IDE of choice 
+### Setup with your IDE of choice 
 Download your IDE of choice (e.g., [IntelliJ](https://www.jetbrains.com/idea/download/), [Visual Studio Code](https://code.visualstudio.com/), or [Eclipse](http://www.eclipse.org/downloads/)). Make sure Java 17 is installed on your system (for Windows, please make sure your `JAVA_HOME` environment variable is set to the correct version of Java).
 
-### IntelliJ
+#### IntelliJ
 1. File -> Open... -> SoPra server template
 2. Accept to import the project as a `gradle project`
 3. To build right click the `build.gradle` file and choose `Run Build`
 
-### VS Code
+#### VS Code
 The following extensions can help you get started more easily:
 -   `vmware.vscode-spring-boot`
 -   `vscjava.vscode-spring-initializr`
@@ -23,7 +57,7 @@ The following extensions can help you get started more easily:
 
 **Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs23` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
 
-## Building with Gradle
+### Building with Gradle
 You can use the local Gradle Wrapper to build the application.
 -   macOS: `./gradlew`
 -   Linux: `./gradlew`
@@ -31,13 +65,13 @@ You can use the local Gradle Wrapper to build the application.
 
 More Information about [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) and [Gradle](https://gradle.org/docs/).
 
-### Build
+#### Build
 
 ```bash
 ./gradlew build
 ```
 
-### Run
+#### Run
 
 ```bash
 ./gradlew bootRun
@@ -45,13 +79,13 @@ More Information about [Gradle Wrapper](https://docs.gradle.org/current/userguid
 
 You can verify that the server is running by visiting `localhost:8080` in your browser.
 
-### Test
+#### Test
 
 ```bash
 ./gradlew test
 ```
 
-### Development Mode
+#### Development Mode
 You can start the backend in development mode, this will automatically trigger a new build and reload the application
 once the content of a file has been changed.
 
@@ -67,20 +101,30 @@ If you want to avoid running all tests with every change, use the following comm
 
 `./gradlew build --continuous -xtest`
 
-## API Endpoint Testing with Postman
-We recommend using [Postman](https://www.getpostman.com) to test your API Endpoints.
+## Roadmap
+There are several features a new developer, who is desperate to contribute could add.
+1.	The application does currently not come with mobile support. In order to grow the user base, this could be a vital new feature to FlagMania.
+2.	A new developer might also consider adding support for multiple languages to make the game accessible to a global audience as well as allow users to switch between different language options and provide translations for flag names, instructions, and other textual elements.
+3.	More exciting game are also considered a great expansion of FlagMania. Once could for example think of a timed mode where players must answer as many flags correctly as possible within a set time limit.
+4.	Encouraging social interaction can enhance the game's community aspect and promote player engagement. One could think of integrating social media platforms or in-game chat functionality to facilitate communication and interaction among players. This could include features like sharing scores on social media platforms and inviting friends to play through short messages. 
 
-## Debugging
-If something is not working and/or you don't know what is going on. We recommend using a debugger and step-through the process step-by-step.
+## Authors and Acknowledgement
+Developers:
+-	[Dominic Tobler](https://github.com/DMC-CMD)
+-	[Elias Schuhmacher](https://github.com/e-schuh)
+-	[Richard Specker](https://github.com/rspecker)
+-	[Noah Mamie](https://github.com/nmamie)
+-	[Kilian Sennrich](https://github.com/ksennr)
 
-To configure a debugger for SpringBoot's Tomcat servlet (i.e. the process you start with `./gradlew bootRun` command), do the following:
+We would like to thank the SoPra team and in particular [Sheena Lang](https://github.com/SheenaGit) for the valuable comments and contributions to the project.
+Further, we extend our appreciation to the providers of the FLAGCDN API (https://flagcdn.com/) and the Country API from API Ninjas (https://api-ninjas.com/api/country). These APIs have played a crucial role in enriching our game by providing high-quality flags and fascinating country-related information. Their services have enhanced the authenticity and educational value of the game.
 
-1. Open Tab: **Run**/Edit Configurations
-2. Add a new Remote Configuration and name it properly
-3. Start the Server in Debug mode: `./gradlew bootRun --debug-jvm`
-4. Press `Shift + F9` or the use **Run**/Debug "Name of your task"
-5. Set breakpoints in the application where you need it
-6. Step through the process one step at a time
+## License
+This project is licensed under the MIT License.
 
-## Testing
-Have a look here: https://www.baeldung.com/spring-boot-testing
+Copyright (c) 2023 Dominic Tobler
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
