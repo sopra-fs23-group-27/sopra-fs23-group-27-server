@@ -116,7 +116,7 @@ public class Game {
 
         this.scoreBoard = new ScoreBoard(this.playerNames);
 
-        playAgainTimeWindow = 10000L;
+        playAgainTimeWindow = 20000L;
     }
 
     public void removePlayer(String playerName) {
@@ -255,7 +255,7 @@ public class Game {
 
         // write all stats for each player to DB.
         this.addStatsToDB();
-        
+
         // update the current and total scores 
         // MUST BE CALLED AFTER FOR LOOP
         this.scoreBoard.updateTotalScores();
