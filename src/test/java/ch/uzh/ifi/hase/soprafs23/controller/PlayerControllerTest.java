@@ -262,9 +262,10 @@ public class PlayerControllerTest {
 
         // then
         mockMvc.perform(putRequest)
-                .andExpect(status().isNoContent())
+
+                .andExpect(status().isOk())
                 .andExpect(header().string("Authorization", newToken))
-                .andExpect(jsonPath("$").doesNotExist());
+                .andExpect(jsonPath("$.id", is(player.getId().intValue())));
     }
 
     ////////// MAPPING 6a //////////
