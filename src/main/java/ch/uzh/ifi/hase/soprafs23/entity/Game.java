@@ -685,18 +685,17 @@ public class Game {
             }
 
             // update the number of Games played. This is done only once after the game!
-            if (this.round == this.numRounds) {
-                try {
-                    player.setnRoundsPlayed(
-                            player.getnRoundsPlayed() + 1
-                    );
-                }
-                catch (NullPointerException e) {
-                    player.setnRoundsPlayed(1);
-                }
+            try {
+                player.setnRoundsPlayed(
+                        player.getnRoundsPlayed() + 1
+                );
+            }
+            catch (NullPointerException e) {
+                player.setnRoundsPlayed(1);
             }
 
-            playerRepository.saveAndFlush(player);
+        playerRepository.saveAndFlush(player);
+        
         }
     }
 }

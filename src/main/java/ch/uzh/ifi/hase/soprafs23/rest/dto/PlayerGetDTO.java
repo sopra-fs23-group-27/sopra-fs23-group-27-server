@@ -11,7 +11,7 @@ public class PlayerGetDTO {
     private String playerName;
     private Integer totalCorrectGuesses = 0;
     private Integer nRoundsPlayed = 0;
-    private Integer TimeUntilCorrectGuess = 0;
+    private Integer timeUntilCorrectGuess = 0;
     private Integer numWrongGuesses = 0;
     private boolean isPermanent;
 
@@ -55,11 +55,11 @@ public class PlayerGetDTO {
     }
 
     public Integer getTimeUntilCorrectGuess() {
-        return TimeUntilCorrectGuess;
+        return timeUntilCorrectGuess;
     }
 
     public void setTimeUntilCorrectGuess(Integer timeUntilCorrectGuess) {
-        TimeUntilCorrectGuess = timeUntilCorrectGuess;
+        this.timeUntilCorrectGuess = timeUntilCorrectGuess;
     }
 
     public Integer getNumWrongGuesses() {

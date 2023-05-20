@@ -53,7 +53,7 @@ public class Player implements Serializable {
     private Integer nRoundsPlayed = 0;
 
     @Column
-    private Integer TimeUntilCorrectGuess = 0;
+    private Integer timeUntilCorrectGuess = 0;
 
     @Column
     private Integer numWrongGuesses = 0;
@@ -134,11 +134,11 @@ public class Player implements Serializable {
     }
 
     public int getTimeUntilCorrectGuess() {
-        return TimeUntilCorrectGuess;
+        return timeUntilCorrectGuess;
     }
 
     public void setTimeUntilCorrectGuess(int avgTimeUntilCorrectGuess) {
-        this.TimeUntilCorrectGuess = avgTimeUntilCorrectGuess;
+        this.timeUntilCorrectGuess = avgTimeUntilCorrectGuess;
     }
 
     public int getNumWrongGuesses() {
