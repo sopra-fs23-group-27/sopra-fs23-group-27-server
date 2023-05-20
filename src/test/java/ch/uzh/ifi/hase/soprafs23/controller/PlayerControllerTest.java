@@ -100,7 +100,7 @@ public class PlayerControllerTest {
         player.setToken("validToken");
 
         // mock playerservice
-        String errorMessage = "Error: The player with playerId 0 does not exist.";
+        String errorMessage = "The player with playerId 0 does not exist.";
         ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
         doThrow(notFoundException).when(playerService).getPlayerById(anyLong(), anyString());
 
@@ -150,7 +150,7 @@ public class PlayerControllerTest {
     @Test
     public void createPlayer_invalidInput_409thrown() throws Exception {
         // given
-        String errorMessage = "Error: The playerName provided is already taken and cannot be used. " +
+        String errorMessage = "The playerName provided is already taken and cannot be used. " +
                 "Please select another playerName!";
 
         ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
@@ -210,7 +210,7 @@ public class PlayerControllerTest {
     public void getPlayerProfile_invalidPlayerId_404thrown() throws Exception {
         // given
         long invalidPlayerId = 0; //some random invalid playerId
-        String errorMessage = "Error: The player with playerId " + invalidPlayerId + " does not exist.";
+        String errorMessage = "The player with playerId " + invalidPlayerId + " does not exist.";
 
         ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
 
@@ -231,7 +231,7 @@ public class PlayerControllerTest {
 
     ////////// MAPPING 5 //////////
     @Test
-    public void updatePlayerProfile_validPlayerId_playerUpdated() throws Exception {
+    public void updatePlayerProfile_validPlayerId_playerUpdatedNewPlayerName() throws Exception {
         // given
         Player player = new Player();
         player.setId(1L);
@@ -243,29 +243,120 @@ public class PlayerControllerTest {
         PlayerPutDTO playerPutDTO = new PlayerPutDTO();
         playerPutDTO.setPlayerName("someNewPlayerName");
 
+        // updated player
+        Player updatedPlayer = new Player();
+        updatedPlayer.setId(1L);
+        updatedPlayer.setPassword("password");
+        updatedPlayer.setPlayerName("someNewPlayerName");
+        updatedPlayer.setToken("newTokenWithUpdatedPlayerName");
+
         // valid playerId
         long validPlayerId = player.getId();
-        String newToken = "newTokenWithUpdatedPlayerName";
-        player.setToken(newToken);
-
+        String newToken = updatedPlayer.getToken();
 
         // when the mock object (playerService) is called for updatePlayer() method,
         // then it will return the object "player"
-        given(playerService.updatePlayer(Mockito.anyLong(), Mockito.any(), Mockito.anyString())).willReturn(player);
+        given(playerService.updatePlayer(Mockito.anyLong(), Mockito.any(), Mockito.anyString())).willReturn(updatedPlayer);
 
         // when/then -> do the request + validate the result
         MockHttpServletRequestBuilder putRequest = put("/players/{playerId}", validPlayerId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(playerPutDTO))
-                .header("Authorization", "someToken");
-        ;
+                .header("Authorization", player.getToken());
 
         // then
         mockMvc.perform(putRequest)
-
                 .andExpect(status().isOk())
                 .andExpect(header().string("Authorization", newToken))
-                .andExpect(jsonPath("$.id", is(player.getId().intValue())));
+                .andExpect(jsonPath("$.id", is(player.getId().intValue())))
+                .andExpect(jsonPath("$.playerName", is(updatedPlayer.getPlayerName())));
+    }
+
+    @Test
+    public void updatePlayerProfile_validPlayerId_playerUpdatedNewPassword() throws Exception {
+        // given
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("someToken");
+
+        // some random playerName update
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPassword("someNewPassword");
+
+        // updated player
+        Player updatedPlayer = new Player();
+        updatedPlayer.setId(1L);
+        updatedPlayer.setPassword("someNewPassword");
+        updatedPlayer.setPlayerName("testPlayerName");
+        updatedPlayer.setToken("newTokenWithUpdatedPassword");
+
+        // valid playerId
+        long validPlayerId = player.getId();
+        String newToken = updatedPlayer.getToken();
+
+        // when the mock object (playerService) is called for updatePlayer() method,
+        // then it will return the object "player"
+        given(playerService.updatePlayer(Mockito.anyLong(), Mockito.any(), Mockito.anyString())).willReturn(updatedPlayer);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder putRequest = put("/players/{playerId}", validPlayerId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPutDTO))
+                .header("Authorization", player.getToken());
+
+        // then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk())
+                .andExpect(header().string("Authorization", newToken))
+                .andExpect(jsonPath("$.id", is(player.getId().intValue())))
+                .andExpect(jsonPath("$.playerName", is(updatedPlayer.getPlayerName())));
+    }
+
+    @Test
+    public void updatePlayerProfile_validPlayerId_playerUpdatedNewPlayerNameAndPassword() throws Exception {
+        // given
+        // given
+        Player player = new Player();
+        player.setId(1L);
+        player.setPassword("password");
+        player.setPlayerName("testPlayerName");
+        player.setToken("someToken");
+
+        // some random playerName update
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("someNewPlayerName");
+        playerPutDTO.setPassword("someNewPassword");
+
+        // updated player
+        Player updatedPlayer = new Player();
+        updatedPlayer.setId(1L);
+        updatedPlayer.setPassword("someNewPassword");
+        updatedPlayer.setPlayerName("someNewPlayerName");
+        updatedPlayer.setToken("newTokenWithUpdatedPlayerNameAndPassword");
+
+        // valid playerId
+        long validPlayerId = player.getId();
+        String newToken = updatedPlayer.getToken();
+
+        // when the mock object (playerService) is called for updatePlayer() method,
+        // then it will return the object "player"
+        given(playerService.updatePlayer(Mockito.anyLong(), Mockito.any(), Mockito.anyString())).willReturn(updatedPlayer);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder putRequest = put("/players/{playerId}", validPlayerId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPutDTO))
+                .header("Authorization", player.getToken());
+
+        // then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk())
+                .andExpect(header().string("Authorization", newToken))
+                .andExpect(jsonPath("$.id", is(player.getId().intValue())))
+                .andExpect(jsonPath("$.playerName", is(updatedPlayer.getPlayerName())));
     }
 
     ////////// MAPPING 6a //////////
@@ -333,6 +424,37 @@ public class PlayerControllerTest {
     }
 
     @Test
+    public void updatePlayerProfile_takenPlayerName_409thrown() throws Exception {
+        // given
+        // some random valid playerId
+        long invalidPlayerId = 1;
+
+        // some random playerName that is already taken
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("someTakenPlayerName");
+
+        String errorMessage = "The playerName provided is already taken and cannot be used. " +
+        "Please select another playerName!";
+
+        ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
+
+        // when the mock object (playerService) is called for checkIfPlayerIdExists() method with an invalid playerId,
+        // then it will return the object "notFoundException"
+        doThrow(conflictException).when(playerService).checkIfPlayerIdExists(invalidPlayerId);
+
+        // when/then -> do the request + validate the result
+        MockHttpServletRequestBuilder putRequest = put("/players/{playerId}", invalidPlayerId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(playerPutDTO))
+                .header("Authorization", "someToken");
+
+        // then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(is(errorMessage)));
+    }
+
+    @Test
     public void registerPlayer_validInput_playerRegistred() throws Exception {
         // given
         Player player = new Player();
@@ -366,7 +488,7 @@ public class PlayerControllerTest {
     @Test
     public void registerPlayer_invalidInput_409thrown() throws Exception {
         // given
-        String errorMessage = "Error: The playerName provided is already taken and cannot be used. " +
+        String errorMessage = "The playerName provided is already taken and cannot be used. " +
                 "Please select another playerName!";
 
         ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
@@ -564,7 +686,7 @@ public class PlayerControllerTest {
         String validToken = player.getToken();
 
         // given
-        String errorMessage = "Error: The player with playerId " + invalidPlayerId + " does not exist.";
+        String errorMessage = "The player with playerId " + invalidPlayerId + " does not exist.";
 
         ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
 
@@ -646,7 +768,7 @@ public class PlayerControllerTest {
         String validToken = player.getToken();
 
         // given
-        String errorMessage = "Error: The player with playerId " + invalidPlayerId + " does not exist.";
+        String errorMessage = "The player with playerId " + invalidPlayerId + " does not exist.";
 
         ResponseStatusException notFoundException = new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
 

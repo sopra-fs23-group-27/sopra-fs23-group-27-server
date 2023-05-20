@@ -212,7 +212,8 @@ public class PlayerServiceTest {
         assertThrows(ResponseStatusException.class, () -> playerService.createPlayer(testPlayer));
     }
 
-    @Test void updatePlayer_updateUsernameAndPassword_validInputs_success() {
+    @Test
+    void updatePlayer_updateUsernameAndPassword_validInputs_success() {
         // given
         testPlayer.setPermanent(false);
         testPlayer.setToken("validToken");
@@ -246,7 +247,8 @@ public class PlayerServiceTest {
         assertNotNull(updatedPlayer.getToken());
     }
 
-    @Test void updatePlayer_updateOnlyPlayername_validInputs_success() {
+    @Test
+    void updatePlayer_updateOnlyPlayername_validInputs_success() {
         // given
         testPlayer.setPermanent(false);
         testPlayer.setToken("validToken");
@@ -279,7 +281,8 @@ public class PlayerServiceTest {
         assertNotNull(updatedPlayer.getToken());
     }
 
-    @Test void updatePlayer_updateOnlyPassword_validInputs_success() {
+    @Test
+    void updatePlayer_updateOnlyPassword_validInputs_success() {
         // given
         testPlayer.setPermanent(false);
         testPlayer.setToken("validToken");
@@ -312,7 +315,43 @@ public class PlayerServiceTest {
         assertNotNull(updatedPlayer.getToken());
     }
 
-    @Test void updatePlayer_updateUsernameAndPassword_401thrown() {
+    @Test
+    void updatePlayer_updateUsernameAndPasswordSame_validInputs_success() {
+        // given
+        testPlayer.setPermanent(false);
+        testPlayer.setToken("validToken");
+        String validToken = testPlayer.getToken();
+
+        updatedTestPlayer = new Player();
+        updatedTestPlayer.setId(1L);
+        updatedTestPlayer.setPassword("password");
+        updatedTestPlayer.setPlayerName("testPlayerName");
+        updatedTestPlayer.setPermanent(true);
+        updatedTestPlayer.setToken("validToken");
+
+        PlayerPutDTO playerUpdateRequest = new PlayerPutDTO();
+        playerUpdateRequest.setPlayerName("testPlayerName");
+        playerUpdateRequest.setPassword("password");
+
+        // mock playerRepository
+        when(playerRepository.findById(Mockito.anyLong())).thenReturn(testPlayer);
+        when(playerRepository.save(Mockito.any())).thenReturn(updatedTestPlayer);
+
+        // call method to be tested
+        Player updatedPlayer = playerService.updatePlayer(testPlayer.getId(), playerUpdateRequest, validToken);
+
+        // then
+        Mockito.verify(playerRepository, Mockito.times(1)).save(Mockito.any());
+
+        assertEquals(playerUpdateRequest.getPlayerName(), updatedPlayer.getPlayerName());
+        assertEquals(playerUpdateRequest.getPassword(), updatedPlayer.getPassword());
+        assertEquals(testPlayer.getId(), updatedPlayer.getId());
+        assertTrue(updatedPlayer.isPermanent());
+        assertNotNull(updatedPlayer.getToken());
+    }
+
+    @Test
+    void updatePlayer_updateUsernameAndPassword_401thrown() {
         // given
         testPlayer.setPermanent(false);
         testPlayer.setToken("validToken");

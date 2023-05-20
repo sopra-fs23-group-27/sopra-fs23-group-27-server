@@ -334,7 +334,7 @@ class LobbyControllerTest {
         // given
         String playerToken = "test-token";
         String testLobbyId = "0";
-        String errorMessage ="Error: You are already in a lobby. Please leave the lobby to join another one. If the error persists, please close your browser.";
+        String errorMessage ="You are already in a lobby. Please leave the lobby to join another one. If the error persists, please close your browser.";
 
         ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
 

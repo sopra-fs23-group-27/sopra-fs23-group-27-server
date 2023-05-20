@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs23.rest.dto.PlayerPutDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class PlayerServiceIntegrationTest {
 
-    private Player player;
-    private Player playerUpdated;
+    private Player testPlayer;
 
     @Qualifier("playerRepository")
     @Autowired
@@ -39,17 +39,9 @@ public class PlayerServiceIntegrationTest {
         // given
         assertNull(playerRepository.findByPlayerName("testUsername"));
 
-        String tokenPlayer = "token";
-        player = new Player();
-        player.setPassword("password");
-        player.setPlayerName("testUsername");
-        player.setToken(tokenPlayer);
-
-        String tokenUpdatedPlayer = "tokenUpdated";
-        playerUpdated = new Player();
-        playerUpdated.setPassword("passwordUpdated");
-        playerUpdated.setPlayerName("testUsernameUpdated");
-        playerUpdated.setToken(tokenUpdatedPlayer);
+        testPlayer = new Player();
+        testPlayer.setPassword("password");
+        testPlayer.setPlayerName("testPlayerName");
     }
 
     @AfterEach
@@ -61,10 +53,6 @@ public class PlayerServiceIntegrationTest {
     public void createPlayer_validInputs_success() {
         // given
         assertNull(playerRepository.findByPlayerName("testPlayerName"));
-
-        Player testPlayer = new Player();
-        testPlayer.setPassword("password");
-        testPlayer.setPlayerName("testPlayerName");
 
         // when
         Player createdPlayer = playerService.createPlayer(testPlayer);
@@ -85,9 +73,7 @@ public class PlayerServiceIntegrationTest {
     public void createPlayer_duplicatePlayerName_throwsException() {
         assertNull(playerRepository.findByPlayerName("testPlayerName"));
 
-        Player testPlayer = new Player();
-        testPlayer.setPassword("password");
-        testPlayer.setPlayerName("testPlayerName");
+        // when
         Player createdPlayer = playerService.createPlayer(testPlayer);
 
         // attempt to create second player with same playerName
@@ -105,10 +91,6 @@ public class PlayerServiceIntegrationTest {
     public void registerPlayer_validInputs_success() {
         // given
         assertNull(playerRepository.findByPlayerName("testPlayerName"));
-
-        Player testPlayer = new Player();
-        testPlayer.setPassword("password");
-        testPlayer.setPlayerName("testPlayerName");
 
         // when
         Player createdPlayer = playerService.registerPlayer(testPlayer);
@@ -129,9 +111,6 @@ public class PlayerServiceIntegrationTest {
     public void registerPlayer_duplicatePlayerName_throwsException() {
         assertNull(playerRepository.findByPlayerName("testPlayerName"));
 
-        Player testPlayer = new Player();
-        testPlayer.setPassword("password");
-        testPlayer.setPlayerName("testPlayerName");
         Player createdPlayer = playerService.registerPlayer(testPlayer);
 
         // attempt to create second player with same playerName
@@ -143,5 +122,245 @@ public class PlayerServiceIntegrationTest {
 
         // check that an error is thrown
         assertThrows(ResponseStatusException.class, () -> playerService.registerPlayer(testPlayer2));
+    }
+
+    @Test
+    public void registerPlayerAndUpdatePlayer_updatePlayerNameAndPassword_validInputs_success() {
+        // create player
+        Player registeredPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = registeredPlayer.getToken();
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("testPlayerNameUpdated");
+        playerPutDTO.setPassword("passwordUpdated");
+
+        // update player
+        Player updatedPlayer = playerService.updatePlayer(playerId, playerPutDTO, token);
+
+        // then
+        assertEquals(registeredPlayer.getId(), updatedPlayer.getId());
+        assertEquals("passwordUpdated", updatedPlayer.getPassword());
+        assertEquals("testPlayerNameUpdated", updatedPlayer.getPlayerName());
+        assertNotEquals(registeredPlayer.getToken(), updatedPlayer.getToken());
+        assertNotNull(updatedPlayer.getToken());
+        assertTrue(updatedPlayer.isPermanent());
+    }
+
+    @Test
+    public void registerPlayerAndUpdatePlayer_updateOnlyPlayerName_validInputs_success() {
+        // create player
+        Player registeredPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = registeredPlayer.getToken();
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("testPlayerNameUpdated");
+
+        // update player
+        Player updatedPlayer = playerService.updatePlayer(playerId, playerPutDTO, token);
+
+        // then
+        assertEquals(registeredPlayer.getId(), updatedPlayer.getId());
+        assertEquals(registeredPlayer.getPassword(), updatedPlayer.getPassword());
+        assertEquals("testPlayerNameUpdated", updatedPlayer.getPlayerName());
+        assertNotEquals(registeredPlayer.getToken(), updatedPlayer.getToken());
+        assertNotNull(updatedPlayer.getToken());
+        assertTrue(updatedPlayer.isPermanent());
+    }
+
+    @Test
+    public void registerPlayerAndUpdatePlayer_updateOnlyPassword_validInputs_success() {
+        // create player
+        Player registeredPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = registeredPlayer.getToken();
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPassword("passwordUpdated");
+
+        // update player
+        Player updatedPlayer = playerService.updatePlayer(playerId, playerPutDTO, token);
+
+        // then
+        assertEquals(registeredPlayer.getId(), updatedPlayer.getId());
+        assertEquals("passwordUpdated", updatedPlayer.getPassword());
+        assertEquals(registeredPlayer.getPlayerName(), updatedPlayer.getPlayerName());
+        assertNotEquals(registeredPlayer.getToken(), updatedPlayer.getToken());
+        assertNotNull(updatedPlayer.getToken());
+        assertTrue(updatedPlayer.isPermanent());
+    }
+
+    @Test
+    public void registerPlayerAndUpdatePlayer_updateEmptyDTO_validInputs_success() {
+        // create player
+        Player registeredPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = registeredPlayer.getToken();
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+
+        // update player
+        Player updatedPlayer = playerService.updatePlayer(playerId, playerPutDTO, token);
+
+        // then
+        assertEquals(registeredPlayer.getId(), updatedPlayer.getId());
+        assertEquals(registeredPlayer.getPassword(), updatedPlayer.getPassword());
+        assertEquals(registeredPlayer.getPlayerName(), updatedPlayer.getPlayerName());
+        assertEquals(registeredPlayer.getToken(), updatedPlayer.getToken());
+        assertNotNull(updatedPlayer.getToken());
+        assertTrue(updatedPlayer.isPermanent());
+    }
+
+    @Test
+    public void registerPlayerAndUpdatePlayer_updatePlayerNameAndPassword_PlayerNameTaken_throwsException() {
+        // create first player
+        Player firstTestPlayer = new Player();
+        firstTestPlayer.setPassword("password");
+        firstTestPlayer.setPlayerName("firstTestPlayerName");
+        Player registeredPlayer = playerService.registerPlayer(firstTestPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        // create second player
+        Player secondTestPlayer = new Player();
+        secondTestPlayer.setPassword("password");
+        secondTestPlayer.setPlayerName("secondTestPlayerName");
+        Player createdPlayer = playerService.createPlayer(secondTestPlayer);
+
+        // ensure created player is not registered / not permanent
+        assertFalse(createdPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = registeredPlayer.getToken();
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("secondTestPlayerName");
+        playerPutDTO.setPassword("passwordUpdated");
+
+        // attempt to update first player
+        assertThrows(ResponseStatusException.class, () -> playerService.updatePlayer(playerId, playerPutDTO, token));
+    }
+
+    @Test
+    public void registerPlayerAndUpdatePlayer_invalidToken_throwsException() {
+        // create player
+        Player registeredPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = "invalidToken";
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("updatedPlayerName");
+        playerPutDTO.setPassword("passwordUpdated");
+
+        // attempt to update first player
+        assertThrows(ResponseStatusException.class, () -> playerService.updatePlayer(playerId, playerPutDTO, token));
+    }
+
+    @Test
+    public void createPlayerAndUpdatePlayer_updatePlayerNameAndPassword_validInputs_success() {
+        // create player
+        Player createdPlayer = playerService.createPlayer(testPlayer);
+
+        // ensure created player is not registered / not permanent
+        assertFalse(createdPlayer.isPermanent());
+
+        Long playerId = createdPlayer.getId();
+        String token = createdPlayer.getToken();
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("testPlayerNameUpdated");
+        playerPutDTO.setPassword("passwordUpdated");
+
+        // update player
+        Player updatedPlayer = playerService.updatePlayer(playerId, playerPutDTO, token);
+
+        // then
+        assertEquals(createdPlayer.getId(), updatedPlayer.getId());
+        assertEquals("passwordUpdated", updatedPlayer.getPassword());
+        assertEquals("testPlayerNameUpdated", updatedPlayer.getPlayerName());
+        assertNotEquals(createdPlayer.getToken(), updatedPlayer.getToken());
+        assertNotNull(updatedPlayer.getToken());
+        assertTrue(updatedPlayer.isPermanent());
+    }
+
+    @Test
+    public void createPlayerAndUpdatePlayer_updatePlayerNameAndPassword_PlayerNameTaken_throwsException() {
+        // create first player
+        Player firstTestPlayer = new Player();
+        firstTestPlayer.setPassword("password");
+        firstTestPlayer.setPlayerName("firstTestPlayerName");
+        Player registeredPlayer = playerService.registerPlayer(firstTestPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        // create second player
+        Player secondTestPlayer = new Player();
+        secondTestPlayer.setPassword("password");
+        secondTestPlayer.setPlayerName("secondTestPlayerName");
+        Player createdPlayer = playerService.createPlayer(secondTestPlayer);
+
+        // ensure created player is not registered / not permanent
+        assertFalse(createdPlayer.isPermanent());
+
+        Long playerId = createdPlayer.getId();
+        String token = createdPlayer.getToken();
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("firstTestPlayerName");
+        playerPutDTO.setPassword("passwordUpdated");
+
+        // attempt to update second player
+        assertThrows(ResponseStatusException.class, () -> playerService.updatePlayer(playerId, playerPutDTO, token));
+    }
+
+    @Test
+    public void createPlayerAndUpdatePlayer_invalidToken_throwsException() {
+        // create player
+        Player createdPlayer = playerService.createPlayer(testPlayer);
+
+        // ensure created player is not registered / not permanent
+        assertFalse(createdPlayer.isPermanent());
+
+        Long playerId = createdPlayer.getId();
+        String token = "invalidToken";
+
+        // create playerPutDTO to update player
+        PlayerPutDTO playerPutDTO = new PlayerPutDTO();
+        playerPutDTO.setPlayerName("updatedPlayerName");
+        playerPutDTO.setPassword("passwordUpdated");
+
+        // attempt to update second player
+        assertThrows(ResponseStatusException.class, () -> playerService.updatePlayer(playerId, playerPutDTO, token));
     }
 }

@@ -203,7 +203,7 @@ public class PlayerService {
         }
 
         // update playerName if provided playerName is not null
-        if (playerUpdateRequest.getPlayerName() != null) {
+        if (playerUpdateRequest.getPlayerName() != null && !playerUpdateRequest.getPlayerName().equals(playerToBeUpdated.getPlayerName())) {
             checkIfPlayerNameExists(playerUpdateRequest.getPlayerName());
             playerToBeUpdated.setPlayerName(playerUpdateRequest.getPlayerName());
         }
@@ -240,7 +240,7 @@ public class PlayerService {
     private void checkIfPlayerNameExists(String newPlayerName) {
         Player playerByPlayerName = playerRepository.findByPlayerName(newPlayerName);
 
-        String baseErrorMessage = "Error: The %s provided %s already taken and cannot be used. " +
+        String baseErrorMessage = "The %s provided %s already taken and cannot be used. " +
                 "Please select another playerName!";
         if (playerByPlayerName != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -252,7 +252,7 @@ public class PlayerService {
         Player playerById = playerRepository.findById(playerId);
         if (playerById == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Error: The player with playerId " + playerId + " does not exist.");
+                    "The player with playerId " + playerId + " does not exist.");
         }
     }
 
@@ -267,7 +267,7 @@ public class PlayerService {
         boolean tokenExists = playerRepository.existsByToken(token);
         if (!tokenExists) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Error: You are unauthorized to perform this action.");
+                    "You are unauthorized to perform this action.");
         }
     }
 
@@ -275,7 +275,7 @@ public class PlayerService {
         Player player = playerRepository.findByToken(playerToken);
         if (player.getLobbyId() != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Error: You are already in a lobby. Please leave the lobby to join another one. If the error persists, please close your browser.");
+                    "You are already in a lobby. Please leave the lobby to join another one. If the error persists, please close your browser.");
         }
     }
 }
