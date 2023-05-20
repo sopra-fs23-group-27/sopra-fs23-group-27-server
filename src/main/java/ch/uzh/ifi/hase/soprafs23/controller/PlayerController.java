@@ -147,9 +147,9 @@ public class PlayerController {
         Player updatedPlayer = playerService.updatePlayer(playerId, playerPutDTO, token);
 
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
+                .status(HttpStatus.OK)
                 .header("Authorization", updatedPlayer.getToken())
-                .build();
+                .body(updatedPlayer);
     }
 
     @DeleteMapping("/players/{playerId}")
