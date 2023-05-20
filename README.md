@@ -1,7 +1,13 @@
+
+<p align="center">
+  <img src="Logo.png" width="200" height="200" />
+</p>
+ 
+[![Deploy Project to App Engine](https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/actions/workflows/main.yml/badge.svg)](https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/actions/workflows/main.yml)
+
 # FlagMania Server Application - SoPra FS23 - Group 27
 
 ## Introduction and Motivation
-Introduction:
 Welcome to FlagMania, the ultimate game that will put your knowledge of flags to the test! Are you ready to embark on an exciting journey around the world and showcase your flag recognition skills? Get ready to dive into two thrilling modes: Basic Game and Public Game.
 
 In the Basic Game mode, we've carefully curated a series of challenging flag-based questions for you. Guess the flags of different countries based on our preselected options and see how many correct answers you can rack up! This mode is perfect for sharpening your flag identification abilities, learning about various countries, and competing against your friends to achieve the highest score.
@@ -13,15 +19,17 @@ Whether you're a beginner or a dedicated flag enthusiast, FlagMania offers an im
 So, what are you waiting for? Unleash your inner adventurer and test your flag knowledge. Get ready to explore the fascinating world of flags and become the ultimate FlagMania champion!
 
 ## Technologies
-At the forefront, we have utilized TypeScript for the frontend development, ensuring a robust and scalable user interface. TypeScript enhances the development process by adding static typing and improved tooling to JavaScript, resulting in a more reliable and efficient Frontend experience.
-
-To establish a seamless connection between the frontend and backend, we have employed REST and Stomp-Websockets protocols. REST (Representational State Transfer) enables smooth communication and data transfer, allowing the frontend to interact with the backend effortlessly. Stomp-Websockets, a subprotocol of WebSocket, adds a layer of real-time communication, ensuring instant updates and an immersive gameplay experience.
-
-The powerful Java Spring Boot framework dives the backend. Spring Boot provides a solid foundation for building high-performance web applications, while maintaining a simple and versatile Development Environment. 
+To establish a seamless connection between the frontend and backend, we have employed REST and [Stomp-Websockets](https://spring.io/guides/gs/messaging-stomp-websocket/) protocols. [REST (Representational State Transfer)](https://en.wikipedia.org/wiki/Representational_state_transfer) enables smooth communication and data transfer, allowing the frontend to interact with the backend effortlessly. [Stomp-Websockets](https://spring.io/guides/gs/messaging-stomp-websocket/), a subprotocol of WebSocket, adds a layer of real-time communication, ensuring instant updates and an immersive gameplay experience.
 
 Speaking of APIs, we have integrated two exceptional sources to bring the User of our applicaton accurate and up-to-date information. The first is the FLAGCDN API (https://flagcdn.com/), which supplies us with an extensive collection of country flags. With this API, we ensure that each flag displayed in the game is authentic and visually appealing (specifically, it was difficult finding an API that provides flags in high resolution), enhancing your learning experience.
 
 Additionally, we have integrated the Country API from API Ninjas (https://api-ninjas.com/api/country) to provide the user of our application with fascinating facts surrounding each country. This API allows us to enrich the gameplay by helping the user guessing the flag with hints ranging from interesting trivia to helpful insights about the nations behind the flags.
+
+### Backend specific technologies
+
+The powerful [Java Spring Boot](https://spring.io/projects/spring-boot) framework dives the backend. Spring Boot provides a solid foundation for building high-performance web applications, while maintaining a simple and versatile Development Environment. 
+
+One technology we want to point out from the backend side is the use of Javas Jaro-Winkler distance algorithm. This algorithm is used to calculate the similarity between two strings. In our case, we use it to calculate the similarity between the user's guess and the correct answer. This allows users to submit answers with spelling errors. The Jaro-Winkler distance algorithm assigns a similarity score between 0 and 1, with 0 indicating no similarity and 1 indicating an exact match. In order to accept an "incorrect" answer, the user must submit a string that has a Jaro-Winkler similarity above 0.93. The algorithm is implemented in the [JaroWinklerDistance class](https://mvnrepository.com/artifact/info.debatty/java-string-similarity/2.0.0) from the java-string-similarity library. 
 
 ## High-level components
 How do I make a Hyperlink:
