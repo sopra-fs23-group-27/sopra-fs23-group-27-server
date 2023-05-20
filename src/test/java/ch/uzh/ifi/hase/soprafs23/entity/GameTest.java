@@ -518,7 +518,7 @@ public class GameTest {
     }
 
     @Test
-    public void testValidateGuesAdvancedMode_correctGuess() {
+    public void testValidateGuessAdvancedMode_correctGuess() {
         // given
         String playerName = "player1";
         String guess = "Correct Guess";
@@ -546,7 +546,7 @@ public class GameTest {
     }
 
     @Test
-    public void testValidateGuesAdvancedMode_correctGuessWithMinorTypo() {
+    public void testValidateGuessAdvancedMode_correctGuessWithMinorTypo() {
         // given
         String playerName = "player1";
         String guess = "Correct Guesss";
@@ -573,7 +573,7 @@ public class GameTest {
     }
 
     @Test
-    public void testValidateGuesAdvancedMode_wrongGuess() {
+    public void testValidateGuessAdvancedMode_wrongGuess() {
         // given
         String playerName = "player1";
         String guess = "Wrong Guess";
@@ -647,11 +647,15 @@ public class GameTest {
         playerNames.add("player4");
         playerNames.add("player5");
 
+        Country testCountry = new Country();
+        testCountry.setName("testCountry");
+
         // Override game attributes
         ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(basicGame, "playerNames", playerNames);
         ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
         ReflectionTestUtils.setField(basicGame, "timer", new Timer());
+        ReflectionTestUtils.setField(basicGame, "currentCountry", testCountry);
 
         // Mock some repository methods and service methods
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
@@ -693,11 +697,15 @@ public class GameTest {
         playerNames.add("player4");
         playerNames.add("player5");
 
+        Country testCountry = new Country();
+        testCountry.setName("testCountry");
+
         // Override game attributes
         ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(basicGame, "playerNames", playerNames);
         ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
         ReflectionTestUtils.setField(basicGame, "timer", new Timer());
+        ReflectionTestUtils.setField(basicGame, "currentCountry", testCountry);
 
         // Mock some repository methods and service methods
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
@@ -739,6 +747,9 @@ public class GameTest {
         playerNames.add("player4");
         playerNames.add("player5");
 
+        Country testCountry = new Country();
+        testCountry.setName("testCountry");
+
         // Override game attributes
         ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(advancedGame, "playerNames", playerNames);
@@ -747,7 +758,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 3);
         ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
-
+        ReflectionTestUtils.setField(advancedGame, "currentCountry", testCountry);
 
         // Mock some repository methods and service methods
         doNothing().when(hintHandler).stopSendingHints();
@@ -793,6 +804,9 @@ public class GameTest {
         playerNames.add("player4");
         playerNames.add("player5");
 
+        Country testCountry = new Country();
+        testCountry.setName("testCountry");
+
         // Override game attributes
         ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(advancedGame, "playerNames", playerNames);
@@ -801,7 +815,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 3);
         ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
-
+        ReflectionTestUtils.setField(advancedGame, "currentCountry", testCountry);
 
         // Mock some repository methods and service methods
         doNothing().when(hintHandler).stopSendingHints();

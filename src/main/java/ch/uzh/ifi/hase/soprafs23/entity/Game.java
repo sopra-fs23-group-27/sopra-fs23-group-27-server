@@ -607,9 +607,9 @@ public class Game {
     private void sendCorrectGuessToLobby() {
 
         // create a DTO for the current round and pass it the current round
-        CorrectGuessDTO correctGuessDTO = new CorrectGuessDTO(this.correctGuess);
+        CorrectGuessDTO correctGuessDTO = new CorrectGuessDTO(this.currentCountry.getName());
 
-        log.info("Sending correct guess to lobby: " + this.correctGuess);
+        log.info("Sending correct guess to lobby: " + this.currentCountry.getName());
 
         this.webSocketService.sendToLobby(this.gameId, "/correct-country", correctGuessDTO);
 
