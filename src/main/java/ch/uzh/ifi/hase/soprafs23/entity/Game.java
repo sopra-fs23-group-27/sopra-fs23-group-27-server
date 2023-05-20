@@ -220,8 +220,6 @@ public class Game {
         // end procedure for a round
         log.info("Round " + (this.round + 1) + " ended for lobbyId: " + this.gameId);
 
-        // inform players in lobby that game round has ended
-        webSocketService.sendToLobby(this.gameId, "/round-end", "{}");
 
         // number of second for all players that have not correctly guessed the country
         // if the first player guessed the country correctly, the round is over. 
@@ -267,15 +265,13 @@ public class Game {
         log.info(this.scoreBoard.getLeaderBoardTotalScore());
 
         // sleep for 1 second to make sure that the LeaderBoard is sent after the round-end message
-        try {
-            Thread.sleep(1000);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.webSocketService.wait(1000);
 
         // send the correct Guess of the previous round to Lobby
         this.sendCorrectGuessToLobby();
+
+        // inform players in lobby that game round has ended
+        webSocketService.sendToLobby(this.gameId, "/round-end", "{}");
 
         // send the total LeaderBoard to the lobby
         this.sendStatsToLobby();
