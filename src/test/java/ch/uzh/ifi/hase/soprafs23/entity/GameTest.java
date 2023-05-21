@@ -98,7 +98,7 @@ public class GameTest {
     @Test
     public void testEndBasicGame_EmptyPlayAgainLobby() {
         // Override game attributes
-        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1L);
+        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1);
 
         // mock lobbyRepository method
         when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
@@ -117,7 +117,7 @@ public class GameTest {
     @Test
     public void testEndBasicGame_NonEmptyPlayAgainLobby() {
         // Override game attributes
-        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1L);
+        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1);
 
         // mock lobbyRepository method
         when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
@@ -138,7 +138,7 @@ public class GameTest {
     @Test
     public void testEndAdvancedGame() {
         // Override game attributes
-        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1);
 
         // mock lobbyRepository method
         when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(playAgainLobby);
@@ -259,14 +259,14 @@ public class GameTest {
         ReflectionTestUtils.setField(basicGame, "hintHandler", hintHandler);
         ReflectionTestUtils.setField(basicGame, "numRounds", 4);
         ReflectionTestUtils.setField(basicGame, "round", 4);
-        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1L);
+        ReflectionTestUtils.setField(basicGame, "playAgainTimeWindow", 1);
 
 
         // Mock the country class
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5,continents)).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5, continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(basicGame).updateCorrectGuess(anyString());
@@ -309,7 +309,7 @@ public class GameTest {
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5,continents)).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5, continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(advancedGame).updateCorrectGuess(anyString());
@@ -398,7 +398,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "hintHandler", hintHandler);
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 4);
-        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1);
 
 
         // Mock the country class
@@ -438,6 +438,7 @@ public class GameTest {
 
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "isAcceptingGuesses", true);
 
         doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
         when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(0);
@@ -464,6 +465,7 @@ public class GameTest {
         ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(basicGame, "correctGuess", "correctguess");
         ReflectionTestUtils.setField(basicGame, "startTime", 1000L);
+        ReflectionTestUtils.setField(basicGame, "isAcceptingGuesses", true);
 
 
         doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
@@ -489,6 +491,8 @@ public class GameTest {
 
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "isAcceptingGuesses", true);
+
 
         doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
         when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(0);
@@ -510,6 +514,8 @@ public class GameTest {
 
         // override the attribute scoreBoard
         ReflectionTestUtils.setField(basicGame, "scoreBoard", scoreBoard);
+        ReflectionTestUtils.setField(basicGame, "isAcceptingGuesses", true);
+
 
         doNothing().when(scoreBoard).setCurrentCorrectGuessPerPlayer(anyString(), anyBoolean());
         when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(1);
@@ -537,6 +543,8 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(advancedGame, "correctGuess", "correctguess");
         ReflectionTestUtils.setField(advancedGame, "startTime", 1000L);
+        ReflectionTestUtils.setField(advancedGame, "isAcceptingGuesses", true);
+
 
         // call the method to be tested
         advancedGame.validateGuess(playerName, guess, wsConnectionId);
@@ -564,6 +572,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(advancedGame, "correctGuess", "correctguess");
         ReflectionTestUtils.setField(advancedGame, "startTime", 1000L);
+        ReflectionTestUtils.setField(advancedGame, "isAcceptingGuesses", true);
 
         // call the method to be tested
         advancedGame.validateGuess(playerName, guess, wsConnectionId);
@@ -592,6 +601,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "scoreBoard", scoreBoard);
         ReflectionTestUtils.setField(advancedGame, "correctGuess", "Correct Guess");
         ReflectionTestUtils.setField(advancedGame, "startTime", 1000L);
+        ReflectionTestUtils.setField(advancedGame, "isAcceptingGuesses", true);
 
 
         // call the method to be tested
@@ -762,7 +772,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "timer", new Timer());
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 3);
-        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1);
         ReflectionTestUtils.setField(advancedGame, "currentCountry", testCountry);
 
         // Mock some repository methods and service methods
@@ -819,7 +829,7 @@ public class GameTest {
         ReflectionTestUtils.setField(advancedGame, "timer", new Timer());
         ReflectionTestUtils.setField(advancedGame, "numRounds", 4);
         ReflectionTestUtils.setField(advancedGame, "round", 3);
-        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1L);
+        ReflectionTestUtils.setField(advancedGame, "playAgainTimeWindow", 1);
         ReflectionTestUtils.setField(advancedGame, "currentCountry", testCountry);
 
         // Mock some repository methods and service methods
