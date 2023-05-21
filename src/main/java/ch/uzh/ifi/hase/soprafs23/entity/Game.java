@@ -163,12 +163,7 @@ public class Game {
         GameRepository.removeGame(this.gameId);
 
         // cleanups after play again timer is over
-        try {
-            Thread.sleep(playAgainTimeWindow);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        this.webSocketService.wait(playAgainTimeWindow.intValue());
 
         Lobby playAgainLobby = this.lobbyRepository.findByLobbyId(this.gameId);
         if (playAgainLobby.getJoinedPlayerNames().size() == 0) {
