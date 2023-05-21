@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Transactional
@@ -46,6 +44,7 @@ public class LobbyService {
 
     public BasicLobby createBasicLobby(Lobby basicLobby, String playerToken, Boolean isPublic) {
         checkIfLobbyIsCreatable(basicLobby);
+        checkIfContinentsAreValid(basicLobby);
 
         Player player = this.playerService.getPlayerByToken(playerToken);
 
@@ -75,6 +74,7 @@ public class LobbyService {
 
     public AdvancedLobby createAdvancedLobby(Lobby advancedLobby, String playerToken, Boolean isPublic) {
         checkIfLobbyIsCreatable(advancedLobby);
+        checkIfContinentsAreValid(advancedLobby);
 
         Player player = this.playerService.getPlayerByToken(playerToken);
 
@@ -364,4 +364,21 @@ public class LobbyService {
         }
     }
 
+    private void checkIfContinentsAreValid(Lobby lobby) {
+        ArrayList<String> allContinents = new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania"));
+        ArrayList<String> continentsInGame = new ArrayList<String>();
+        // check if continents are valid
+        for (String continent : lobby.getContinent()) {
+            if (allContinents.contains(continent)) {
+                continentsInGame.add(continent);
+            }
+        }
+        // if no valid continents are given, return all continents
+        if (lobby.getContinent() == null || continentsInGame.size() == 0) {
+             lobby.setContinent(allContinents);
+        } else{
+            lobby.setContinent(continentsInGame);
+        }
+    }
 }

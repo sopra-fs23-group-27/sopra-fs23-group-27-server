@@ -37,14 +37,14 @@ public class CountryServiceIntegrationTest {
     @Mock
     private WebSocketService webSocketService;
 
-    private CountryHandlerService countryHandlerService;
+    private CountryHandler countryHandler;
     private HintHandler hintHandler;
     private AdvancedLobby advancedLobby;
     private BasicLobby basicLobby;
 
     @BeforeEach
     void setup(){
-        countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        countryHandler = new CountryHandler(countryRepository, countryService);
     }
 
     @AfterEach
@@ -420,18 +420,7 @@ public class CountryServiceIntegrationTest {
         ArrayList<String> allContinents = new ArrayList<String>(
                 Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania"));
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(5, allContinents);
-
-        assertEquals(5, sourcedCountries.size());
-    }
-
-    @Test
-    @Transactional
-    void testSourceCountryInfo_fiveCountriesFromTheWorld_invalidContinents_continentsOverwritten() {
-        ArrayList<String> allContinents = new ArrayList<String>(
-                Arrays.asList("Antarctica", "Switzerland"));
-
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(5, allContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(5, allContinents);
 
         assertEquals(5, sourcedCountries.size());
     }
@@ -442,7 +431,7 @@ public class CountryServiceIntegrationTest {
         ArrayList<String> allContinents = new ArrayList<String>(
                 Arrays.asList("Asia"));
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(2, allContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(2, allContinents);
 
         Country firstCountry = countryRepository.findByCountryCode(sourcedCountries.get(0));
         Country secondCountry = countryRepository.findByCountryCode(sourcedCountries.get(1));
@@ -454,11 +443,11 @@ public class CountryServiceIntegrationTest {
 
     @Test
     @Transactional
-    void testSourceCountryInfo_twoCountriesFromAsia_invalidContinents_continentsOverwritten() {
+    void testSourceCountryInfo_twoCountriesFromAsia_invalidContinents() {
         ArrayList<String> allContinents = new ArrayList<String>(
                 Arrays.asList("Asia", "Antarctica", "Switzerland"));
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(2, allContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(2, allContinents);
 
         Country firstCountry = countryRepository.findByCountryCode(sourcedCountries.get(0));
         Country secondCountry = countryRepository.findByCountryCode(sourcedCountries.get(1));
@@ -475,7 +464,7 @@ public class CountryServiceIntegrationTest {
                 Arrays.asList("Oceania"));
 
         assertThrows(IllegalArgumentException.class, () -> {
-            countryHandlerService.sourceCountryInfo(25, oceania);
+            countryHandler.sourceCountryInfo(25, oceania);
         });
     }
 
@@ -486,7 +475,7 @@ public class CountryServiceIntegrationTest {
                 Arrays.asList("Oceania"));
 
         assertThrows(IllegalArgumentException.class, () -> {
-            countryHandlerService.sourceCountryInfo(-1, allContinents);
+            countryHandler.sourceCountryInfo(-1, allContinents);
         });
     }
 }

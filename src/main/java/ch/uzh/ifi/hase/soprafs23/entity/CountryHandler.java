@@ -1,16 +1,15 @@
-package ch.uzh.ifi.hase.soprafs23.service;
+package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 
+import ch.uzh.ifi.hase.soprafs23.service.CountryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 
-@Service
-public class CountryHandlerService {
+public class CountryHandler {
 
     private final CountryRepository countryRepository;
 
@@ -19,21 +18,19 @@ public class CountryHandlerService {
     private ArrayList<String> allCountryCodes = new ArrayList<String>();
     private ArrayList<String> randomCountries = new ArrayList<String>();
 
-    private final Logger log = LoggerFactory.getLogger(CountryHandlerService.class);
+    private final Logger log = LoggerFactory.getLogger(CountryHandler.class);
 
-    public CountryHandlerService(CountryRepository countryRepository, CountryService countryService) {
+    public CountryHandler(CountryRepository countryRepository, CountryService countryService) {
         this.countryRepository = countryRepository;
         this.countryService = countryService;
     }
 
     public ArrayList<String> sourceCountryInfo(Integer numCountries, ArrayList<String> continents) {
-        ArrayList<String> validContinents = checkIfContinentsAreValid(continents);
-
         // load for all continents the country codes from the database into the variable "allCountryCodes"
-        sourceAllCountryCodes(validContinents);
+        sourceAllCountryCodes(continents);
 
         // get n random countries from the database
-        randomCountries = getRandomCountryCodes(numCountries, validContinents);
+        randomCountries = getRandomCountryCodes(numCountries, continents);
 
         // equivalent to for loop
         // for each country, load data from the API into the database
@@ -68,6 +65,7 @@ public class CountryHandlerService {
         if (allCountryCodes.size() == 0) {
             throw new RuntimeException("No countries found in the database.");
         }
+        log.info("All countries for " + continents.toString() + " are " + allCountryCodes.size());
     }
 
     private ArrayList<String> getRandomCountryCodes(int numCountries, ArrayList continents) {
@@ -93,22 +91,5 @@ public class CountryHandlerService {
         log.info("Random countries for " + continents.toString() + " are " + randomCountryCodes.toString());
 
         return randomCountryCodes;
-    }
-
-    private ArrayList<String> checkIfContinentsAreValid(ArrayList<String> continents) {
-        ArrayList<String> allContinents = new ArrayList<String>(
-                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania"));
-        ArrayList<String> continentsInGame = new ArrayList<String>();
-        // check if continents are valid
-        for (String continent : continents) {
-            if (allContinents.contains(continent)) {
-                continentsInGame.add(continent);
-            }
-        }
-        // if no valid continents are given, return all continents
-        if (continents == null || continentsInGame.size() == 0) {
-            return allContinents;
-        }
-        return continentsInGame;
     }
 }

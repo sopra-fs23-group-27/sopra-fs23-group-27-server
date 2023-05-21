@@ -1,12 +1,11 @@
-package ch.uzh.ifi.hase.soprafs23.service;
+package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.entity.Country;
+import ch.uzh.ifi.hase.soprafs23.entity.CountryHandler;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
-import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
-import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
+import ch.uzh.ifi.hase.soprafs23.service.CountryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -18,7 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-class CountryHandlerServiceTest {
+class CountryHandlerTest {
 
     @Mock
     private CountryRepository countryRepository;
@@ -98,9 +97,9 @@ class CountryHandlerServiceTest {
         when(countryService.getAllCountriesInContinents(allContinents)).thenReturn(allCountries);
 
         // initiate country handler service
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(1, allContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(1, allContinents);
 
         // check if source country is returned correctly
         assertEquals(1, sourcedCountries.size());
@@ -113,9 +112,9 @@ class CountryHandlerServiceTest {
         when(countryService.getAllCountriesInContinents(allContinents)).thenReturn(allCountries);
 
         // initiate country handler service
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(5, allContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(5, allContinents);
 
         // check if source country is returned correctly
         assertEquals(5, sourcedCountries.size());
@@ -128,9 +127,9 @@ class CountryHandlerServiceTest {
         when(countryService.getAllCountriesInContinents(allContinents)).thenReturn(allCountries);
 
         // initiate country handler service
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(7, allContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(7, allContinents);
 
         // check if source country is returned correctly
         assertEquals(7, sourcedCountries.size());
@@ -142,10 +141,10 @@ class CountryHandlerServiceTest {
         when(countryRepository.findCountryCodesByContinentIn(allContinents)).thenReturn(allCountries);
         when(countryService.getAllCountriesInContinents(allContinents)).thenReturn(allCountries);
 
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
         // check if exception is thrown when no countries are found in the database
-        assertThrows(IllegalArgumentException.class, () -> countryHandlerService.sourceCountryInfo(1000, allContinents));
+        assertThrows(IllegalArgumentException.class, () -> countryHandler.sourceCountryInfo(1000, allContinents));
     }
 
     @Test
@@ -154,10 +153,10 @@ class CountryHandlerServiceTest {
         when(countryRepository.findCountryCodesByContinentIn(allContinents)).thenReturn(allCountries);
         when(countryService.getAllCountriesInContinents(allContinents)).thenReturn(allCountries);
 
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
         // check if exception is thrown when no countries are found in the database
-        assertThrows(IllegalArgumentException.class, () -> countryHandlerService.sourceCountryInfo(-1, allContinents));
+        assertThrows(IllegalArgumentException.class, () -> countryHandler.sourceCountryInfo(-1, allContinents));
     }
 
     @Test
@@ -166,10 +165,10 @@ class CountryHandlerServiceTest {
         when(countryRepository.findCountryCodesByContinentIn(allContinents)).thenReturn(allCountries);
         when(countryService.getAllCountriesInContinents(allContinents)).thenReturn(null);
 
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
         // check if exception is thrown when no countries are found in the database
-        assertThrows(RuntimeException.class, () -> countryHandlerService.sourceCountryInfo(5, allContinents));
+        assertThrows(RuntimeException.class, () -> countryHandler.sourceCountryInfo(5, allContinents));
     }
 
     @Test
@@ -183,10 +182,10 @@ class CountryHandlerServiceTest {
         when(countryRepository.findCountryCodesByContinentIn(allContinents)).thenReturn(allCountries);
         when(countryService.getAllCountriesInContinents(allContinents)).thenReturn(null);
 
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
         // check if exception is thrown when no countries are found in the database
-        assertThrows(Exception.class, () -> countryHandlerService.sourceCountryInfo(14, allContinents));
+        assertThrows(Exception.class, () -> countryHandler.sourceCountryInfo(14, allContinents));
     }
 
     @Test
@@ -199,9 +198,9 @@ class CountryHandlerServiceTest {
         when(countryService.getAllCountriesInContinents(any())).thenReturn(allCountries);
 
         // initiate country handler service
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(13, someInvalidContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(13, someInvalidContinents);
 
         // check if source country is returned correctly
         assertEquals(13, sourcedCountries.size());
@@ -217,9 +216,9 @@ class CountryHandlerServiceTest {
         when(countryService.getAllCountriesInContinents(any())).thenReturn(allCountries);
 
         // initiate country handler service
-        CountryHandlerService countryHandlerService = new CountryHandlerService(countryRepository, countryService);
+        CountryHandler countryHandler = new CountryHandler(countryRepository, countryService);
 
-        ArrayList<String> sourcedCountries = countryHandlerService.sourceCountryInfo(13, onlyInvalidContinents);
+        ArrayList<String> sourcedCountries = countryHandler.sourceCountryInfo(13, onlyInvalidContinents);
 
         // check if source country is returned correctly
         assertEquals(13, sourcedCountries.size());

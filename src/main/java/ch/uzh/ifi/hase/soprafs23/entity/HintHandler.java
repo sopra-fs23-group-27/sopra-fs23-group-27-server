@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
-import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.ChoicesDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.HintDTO;
@@ -15,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class HintHandler {
-    private final Logger log = LoggerFactory.getLogger(CountryHandlerService.class);
+    private final Logger log = LoggerFactory.getLogger(CountryHandler.class);
 
     private String countryCode;
 
@@ -23,7 +22,6 @@ public class HintHandler {
     private int numHints;
     private int numChoices;
     private ArrayList<String> continent;
-    private ArrayList<String> countryCodesByContinent = new ArrayList<String>();
 
     private final CountryRepository countryRepository;
     private final WebSocketService webSocketService;

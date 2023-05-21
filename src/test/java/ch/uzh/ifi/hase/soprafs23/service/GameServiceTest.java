@@ -1,32 +1,17 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Game;
-import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs23.entity.*;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 public class GameServiceTest {
@@ -44,7 +29,7 @@ public class GameServiceTest {
     private SimpMessagingTemplate messagingTemplate;
 
     @Mock
-    private CountryHandlerService countryHandlerService;
+    private CountryHandler countryHandler;
 
     @Mock
     private WebSocketService webSocketService;
@@ -74,7 +59,7 @@ public class GameServiceTest {
         advancedLobby.setLobbyName("testAdvancedLobby");
         advancedLobby.setLobbyCreatorPlayerToken("testAdvancedToken");
 
-        game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, basicLobby);
+        game = new Game(countryHandler, webSocketService, countryRepository, playerRepository, lobbyRepository, basicLobby);
         GameRepository.addGame(basicLobby.getLobbyId(), game);
 
         smha = mock(SimpMessageHeaderAccessor.class);

@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,6 +68,8 @@ public class LobbyServiceTest {
         basicLobbyCreateDTO.setNumSeconds(10);
         basicLobbyCreateDTO.setNumRounds(4);
         basicLobbyCreateDTO.setNumOptions(4);
+        basicLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania")));
 
         // create basicLobby
         basicLobby = new BasicLobby();
@@ -77,6 +80,8 @@ public class LobbyServiceTest {
         ((BasicLobby) basicLobby).setNumOptions(4);
         basicLobby.setLobbyCreatorPlayerToken(testPlayer1.getToken());
         basicLobby.addPlayerToLobby(testPlayer1.getPlayerName());
+        basicLobby.setContinent(new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania")));
 
         // create advancedLobbyCreateDTO
         advancedLobbyCreateDTO = new AdvancedLobbyCreateDTO();
@@ -87,6 +92,8 @@ public class LobbyServiceTest {
         advancedLobbyCreateDTO.setNumSecondsUntilHint(10);
         advancedLobbyCreateDTO.setHintInterval(5);
         advancedLobbyCreateDTO.setMaxNumGuesses(10);
+        advancedLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania")));
 
         // create advancedLobby
         advancedLobby = new AdvancedLobby();
@@ -99,6 +106,8 @@ public class LobbyServiceTest {
         ((AdvancedLobby) advancedLobby).setMaxNumGuesses(10);
         advancedLobby.setLobbyCreatorPlayerToken(testPlayer1.getToken());
         advancedLobby.addPlayerToLobby(testPlayer1.getPlayerName());
+        advancedLobby.setContinent(new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania")));
 
         // when -> any object is being saved in the userRepository -> return the dummy testUser
         Mockito.doNothing().when(webSocketService).sendToLobby(Mockito.any(), Mockito.any(), Mockito.any());
@@ -133,6 +142,7 @@ public class LobbyServiceTest {
         assertEquals(testBasicLobbyCreated.getLobbyCreatorPlayerToken(), testPlayer1.getToken());
         assertEquals(testBasicLobbyCreated.getJoinedPlayerNames().get(0), testPlayer1.getPlayerName());
         assertTrue(testBasicLobbyCreated.isJoinable());
+        assertEquals(5, testBasicLobbyCreated.getContinent().size());
     }
 
     @Test
@@ -167,6 +177,7 @@ public class LobbyServiceTest {
         assertEquals(testBasicLobbyCreated.getJoinedPlayerNames().get(0), testPlayer1.getPlayerName());
         assertTrue(testBasicLobbyCreated.isJoinable());
         assertNotNull(testBasicLobbyCreated.getPrivateLobbyKey());
+        assertEquals(5, testBasicLobbyCreated.getContinent().size());
     }
 
     @Test
@@ -196,6 +207,7 @@ public class LobbyServiceTest {
         assertEquals(testAdvancedLobbyCreated.getLobbyCreatorPlayerToken(), testPlayer1.getToken());
         assertEquals(testAdvancedLobbyCreated.getJoinedPlayerNames().get(0), testPlayer1.getPlayerName());
         assertTrue(testAdvancedLobbyCreated.isJoinable());
+        assertEquals(5, testAdvancedLobbyCreated.getContinent().size());
     }
 
     @Test
@@ -232,10 +244,11 @@ public class LobbyServiceTest {
         assertEquals(testAdvancedLobbyCreated.getJoinedPlayerNames().get(0), testPlayer1.getPlayerName());
         assertTrue(testAdvancedLobbyCreated.isJoinable());
         assertNotNull(testAdvancedLobbyCreated.getPrivateLobbyKey());
+        assertEquals(5, testAdvancedLobbyCreated.getContinent().size());
     }
 
     @Test
-    public void createPlayer_validInputs_success() {
+    public void createLobby_validInputs_success() {
         // return basicLobby  when lobbyRepository.save() or lobbyRepository.findByLobbyId() is called
         // for the first time. Then return advancedLobby when lobbyRepository.save() or lobbyRepository.findByLobbyId()
         // is called

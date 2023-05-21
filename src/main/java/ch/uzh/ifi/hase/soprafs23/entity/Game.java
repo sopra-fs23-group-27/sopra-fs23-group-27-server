@@ -4,7 +4,6 @@ import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
-import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
@@ -30,7 +29,7 @@ public class Game {
     // add Logger
     private final Logger log = LoggerFactory.getLogger(Game.class);
 
-    private final CountryHandlerService countryHandlerService;
+    private final CountryHandler countryHandler;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
     private final PlayerRepository playerRepository;
@@ -61,14 +60,14 @@ public class Game {
     private int numOptions;
     private ArrayList<String> continent;
 
-    public Game(CountryHandlerService countryHandlerService,
+    public Game(CountryHandler countryHandler,
                 WebSocketService webSocketService,
                 CountryRepository countryRepository,
                 PlayerRepository playerRepository,
                 LobbyRepository lobbyRepository,
                 Lobby lobby) {
 
-        this.countryHandlerService = countryHandlerService;
+        this.countryHandler = countryHandler;
         this.webSocketService = webSocketService;
         this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
@@ -80,14 +79,14 @@ public class Game {
 
         // in case an exception is thorwn, try to call method again
         try {
-            this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
+            this.allCountryCodes = this.countryHandler.sourceCountryInfo(this.numRounds, this.continent);
         }
         catch (IllegalArgumentException e) {
             this.numRounds = 5;
-            this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
+            this.allCountryCodes = this.countryHandler.sourceCountryInfo(this.numRounds, this.continent);
         }
         catch (Exception e) {
-            this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
+            this.allCountryCodes = this.countryHandler.sourceCountryInfo(this.numRounds, this.continent);
         }
 
         // set variables depending on lobby type

@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
-import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.ChoicesDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.HintDTO;
@@ -14,7 +13,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,7 +35,7 @@ public class HintHandlerTest {
     private Lobby advancedLobby;
 
     @InjectMocks
-    CountryHandlerService countryHandlerService;
+    CountryHandler countryHandler;
 
 
     @BeforeEach

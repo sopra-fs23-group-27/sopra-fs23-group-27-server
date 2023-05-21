@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs23.service;
 import ch.uzh.ifi.hase.soprafs23.entity.*;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
-import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
@@ -28,30 +27,30 @@ public class GameService {
 
     private final Logger log = LoggerFactory.getLogger(GameService.class);
 
-    private final CountryHandlerService countryHandlerService;
     private final WebSocketService webSocketService;
     private final CountryRepository countryRepository;
     private final PlayerRepository playerRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final LobbyRepository lobbyRepository;
     private final PlayerService playerService;
+    private final CountryService countryService;
 
     @Autowired
     public GameService(@Qualifier("countryRepository") CountryRepository countryRepository,
                        @Qualifier("playerRepository") PlayerRepository playerRepository,
                        @Qualifier("lobbyRepository") LobbyRepository lobbyRepository,
-                       CountryHandlerService countryHandlerService,
                        SimpMessagingTemplate messagingTemplate,
                        WebSocketService webSocketService,
-                       PlayerService playerService) {
+                       PlayerService playerService,
+                       CountryService countryService) {
 
         this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
-        this.countryHandlerService = countryHandlerService;
         this.webSocketService = webSocketService;
         this.messagingTemplate = messagingTemplate;
         this.lobbyRepository = lobbyRepository;
         this.playerService = playerService;
+        this.countryService = countryService;
     }
 
     public void validateGuess(Integer gameId, GuessDTO guessDTO, SimpMessageHeaderAccessor smha) {
@@ -75,8 +74,9 @@ public class GameService {
 
         // Inform all players in the lobby that the game has started
         this.webSocketService.sendToLobby(lobbyId, "/game-start", "{}");
+        CountryHandler countryHandler = new CountryHandler(this.countryRepository, this.countryService);
 
-        Game game = new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, lobby);
+        Game game = new Game(countryHandler, webSocketService, countryRepository, playerRepository, lobbyRepository, lobby);
         GameRepository.addGame(lobby.getLobbyId(), game);
 
         lobby.setCurrentGameId(game.getGameId());

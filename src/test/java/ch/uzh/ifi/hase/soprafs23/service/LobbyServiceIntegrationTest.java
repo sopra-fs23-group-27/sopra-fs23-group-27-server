@@ -22,6 +22,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
@@ -84,6 +87,8 @@ public class LobbyServiceIntegrationTest {
         basicLobbyCreateDTO.setIsPublic(true);
         basicLobbyCreateDTO.setNumSeconds(10);
         basicLobbyCreateDTO.setNumOptions(4);
+        basicLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania")));
 
         advancedLobbyCreateDTO = new AdvancedLobbyCreateDTO();
         advancedLobbyCreateDTO.setLobbyName("testAdvancedLobby");
@@ -92,7 +97,8 @@ public class LobbyServiceIntegrationTest {
         advancedLobbyCreateDTO.setNumSecondsUntilHint(5);
         advancedLobbyCreateDTO.setHintInterval(5);
         advancedLobbyCreateDTO.setMaxNumGuesses(10);
-
+        advancedLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania")));
     }
 
     @AfterEach
@@ -122,6 +128,8 @@ public class LobbyServiceIntegrationTest {
         assertEquals(foundBasicLobby.getNumOptions(), testBasicLobbyCreated.getNumOptions());
         assertEquals(foundBasicLobby.getLobbyCreatorPlayerToken(), testBasicLobbyCreated.getLobbyCreatorPlayerToken());
         assertEquals(foundBasicLobby.getJoinedPlayerNames().size(), testBasicLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundBasicLobby.getContinent().size(), testBasicLobbyCreated.getContinent().size());
+        assertEquals(5, foundBasicLobby.getContinent().size());
 
         // check whether player is creator of lobby
         Player foundTestPlayer = playerRepository.findByToken(foundBasicLobby.getLobbyCreatorPlayerToken());
@@ -152,10 +160,78 @@ public class LobbyServiceIntegrationTest {
         assertEquals(foundBasicLobby.getNumOptions(), testBasicLobbyCreated.getNumOptions());
         assertEquals(foundBasicLobby.getLobbyCreatorPlayerToken(), testBasicLobbyCreated.getLobbyCreatorPlayerToken());
         assertEquals(foundBasicLobby.getJoinedPlayerNames().size(), testBasicLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundBasicLobby.getContinent().size(), testBasicLobbyCreated.getContinent().size());
+        assertEquals(5, foundBasicLobby.getContinent().size());
 
         // check if lobby is private
         assertFalse(foundBasicLobby.getIsPublic());
         assertNotNull(foundBasicLobby.getPrivateLobbyKey());
+
+        // check whether player is creator of lobby
+        Player foundTestPlayer = playerRepository.findByToken(foundBasicLobby.getLobbyCreatorPlayerToken());
+        assertEquals(foundTestPlayer.getPlayerName(), testPlayer1.getPlayerName());
+        assertTrue(testBasicLobbyCreated.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+        assertTrue(foundBasicLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+    }
+
+    @Test
+    @Transactional
+    void testCreatePublicBasicLobby_onlyInvalidContinents_overwrite() {
+        basicLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("World")));
+        // create lobby
+        Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
+        BasicLobby testBasicLobbyCreated = lobbyService.createBasicLobby(basicLobbyInput, testPlayer1.getToken(), true);
+        Long lobbyId = testBasicLobbyCreated.getLobbyId();
+
+        // find lobby with lobbyId
+        Lobby foundLobby = lobbyRepository.findByLobbyId(lobbyId);
+        BasicLobby foundBasicLobby = (BasicLobby) foundLobby;
+
+        // check if lobbies are the same
+        assertEquals(foundBasicLobby.getLobbyId(), testBasicLobbyCreated.getLobbyId());
+        assertEquals(foundBasicLobby.getLobbyName(), testBasicLobbyCreated.getLobbyName());
+        assertEquals(foundBasicLobby.getNumSeconds(), testBasicLobbyCreated.getNumSeconds());
+        assertEquals(foundBasicLobby.getNumRounds(), testBasicLobbyCreated.getNumRounds());
+        assertEquals(foundBasicLobby.getIsPublic(), testBasicLobbyCreated.getIsPublic());
+        assertEquals(foundBasicLobby.getNumOptions(), testBasicLobbyCreated.getNumOptions());
+        assertEquals(foundBasicLobby.getLobbyCreatorPlayerToken(), testBasicLobbyCreated.getLobbyCreatorPlayerToken());
+        assertEquals(foundBasicLobby.getJoinedPlayerNames().size(), testBasicLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundBasicLobby.getContinent().size(), testBasicLobbyCreated.getContinent().size());
+        assertEquals(5, foundBasicLobby.getContinent().size());
+
+        // check whether player is creator of lobby
+        Player foundTestPlayer = playerRepository.findByToken(foundBasicLobby.getLobbyCreatorPlayerToken());
+        assertEquals(foundTestPlayer.getPlayerName(), testPlayer1.getPlayerName());
+        assertTrue(testBasicLobbyCreated.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+        assertTrue(foundBasicLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+    }
+
+    @Test
+    @Transactional
+    void testCreatePublicBasicLobby_someInvalidContinents_overwrite() {
+        basicLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("World", "Antartica", "Europe", "Americas")));
+        // create lobby
+        Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
+        BasicLobby testBasicLobbyCreated = lobbyService.createBasicLobby(basicLobbyInput, testPlayer1.getToken(), true);
+        Long lobbyId = testBasicLobbyCreated.getLobbyId();
+
+        // find lobby with lobbyId
+        Lobby foundLobby = lobbyRepository.findByLobbyId(lobbyId);
+        BasicLobby foundBasicLobby = (BasicLobby) foundLobby;
+
+        // check if lobbies are the same
+        assertEquals(foundBasicLobby.getLobbyId(), testBasicLobbyCreated.getLobbyId());
+        assertEquals(foundBasicLobby.getLobbyName(), testBasicLobbyCreated.getLobbyName());
+        assertEquals(foundBasicLobby.getNumSeconds(), testBasicLobbyCreated.getNumSeconds());
+        assertEquals(foundBasicLobby.getNumRounds(), testBasicLobbyCreated.getNumRounds());
+        assertEquals(foundBasicLobby.getIsPublic(), testBasicLobbyCreated.getIsPublic());
+        assertEquals(foundBasicLobby.getNumOptions(), testBasicLobbyCreated.getNumOptions());
+        assertEquals(foundBasicLobby.getLobbyCreatorPlayerToken(), testBasicLobbyCreated.getLobbyCreatorPlayerToken());
+        assertEquals(foundBasicLobby.getJoinedPlayerNames().size(), testBasicLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundBasicLobby.getContinent().size(), testBasicLobbyCreated.getContinent().size());
+        assertEquals(2, foundBasicLobby.getContinent().size());
 
         // check whether player is creator of lobby
         Player foundTestPlayer = playerRepository.findByToken(foundBasicLobby.getLobbyCreatorPlayerToken());
@@ -187,6 +263,8 @@ public class LobbyServiceIntegrationTest {
         assertEquals(foundAdvancedLobby.getIsPublic(), testAdvancedLobbyCreated.getIsPublic());
         assertEquals(foundAdvancedLobby.getLobbyCreatorPlayerToken(), testAdvancedLobbyCreated.getLobbyCreatorPlayerToken());
         assertEquals(foundAdvancedLobby.getJoinedPlayerNames().size(), testAdvancedLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundAdvancedLobby.getContinent().size(), testAdvancedLobbyCreated.getContinent().size());
+        assertEquals(5, foundAdvancedLobby.getContinent().size());
 
         // check whether player is creator of lobby
         Player foundTestPlayer = playerRepository.findByToken(foundAdvancedLobby.getLobbyCreatorPlayerToken());
@@ -219,10 +297,82 @@ public class LobbyServiceIntegrationTest {
         assertEquals(foundAdvancedLobby.getIsPublic(), testAdvancedLobbyCreated.getIsPublic());
         assertEquals(foundAdvancedLobby.getLobbyCreatorPlayerToken(), testAdvancedLobbyCreated.getLobbyCreatorPlayerToken());
         assertEquals(foundAdvancedLobby.getJoinedPlayerNames().size(), testAdvancedLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundAdvancedLobby.getContinent().size(), testAdvancedLobbyCreated.getContinent().size());
+        assertEquals(5, foundAdvancedLobby.getContinent().size());
 
         // check if lobby is private
         assertFalse(foundAdvancedLobby.getIsPublic());
         assertNotNull(foundAdvancedLobby.getPrivateLobbyKey());
+
+        // check whether player is creator of lobby
+        Player foundTestPlayer = playerRepository.findByToken(foundAdvancedLobby.getLobbyCreatorPlayerToken());
+        assertEquals(foundTestPlayer.getPlayerName(), testPlayer1.getPlayerName());
+        assertTrue(testAdvancedLobbyCreated.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+        assertTrue(foundAdvancedLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+    }
+
+    @Test
+    @Transactional
+    void testCreatePublicAdvancedLobby_onlyInvalidContinents_overwrite() {
+        advancedLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("World")));
+        // create lobby
+        Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
+        AdvancedLobby testAdvancedLobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput, testPlayer1.getToken(), true);
+        Long lobbyId = testAdvancedLobbyCreated.getLobbyId();
+
+        // find lobby with lobbyId
+        Lobby foundLobby = lobbyRepository.findByLobbyId(lobbyId);
+        AdvancedLobby foundAdvancedLobby = (AdvancedLobby) foundLobby;
+
+        // check if lobbies are the same
+        assertEquals(foundAdvancedLobby.getLobbyId(), testAdvancedLobbyCreated.getLobbyId());
+        assertEquals(foundAdvancedLobby.getLobbyName(), testAdvancedLobbyCreated.getLobbyName());
+        assertEquals(foundAdvancedLobby.getNumSeconds(), testAdvancedLobbyCreated.getNumSeconds());
+        assertEquals(foundAdvancedLobby.getNumRounds(), testAdvancedLobbyCreated.getNumRounds());
+        assertEquals(foundAdvancedLobby.getNumSecondsUntilHint(), testAdvancedLobbyCreated.getNumSecondsUntilHint());
+        assertEquals(foundAdvancedLobby.getHintInterval(), testAdvancedLobbyCreated.getHintInterval());
+        assertEquals(foundAdvancedLobby.getMaxNumGuesses(), testAdvancedLobbyCreated.getMaxNumGuesses());
+        assertEquals(foundAdvancedLobby.getIsPublic(), testAdvancedLobbyCreated.getIsPublic());
+        assertEquals(foundAdvancedLobby.getLobbyCreatorPlayerToken(), testAdvancedLobbyCreated.getLobbyCreatorPlayerToken());
+        assertEquals(foundAdvancedLobby.getJoinedPlayerNames().size(), testAdvancedLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundAdvancedLobby.getContinent().size(), testAdvancedLobbyCreated.getContinent().size());
+        assertEquals(5, foundAdvancedLobby.getContinent().size());
+
+        // check whether player is creator of lobby
+        Player foundTestPlayer = playerRepository.findByToken(foundAdvancedLobby.getLobbyCreatorPlayerToken());
+        assertEquals(foundTestPlayer.getPlayerName(), testPlayer1.getPlayerName());
+        assertTrue(testAdvancedLobbyCreated.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+        assertTrue(foundAdvancedLobby.getJoinedPlayerNames().contains(testPlayer1.getPlayerName()));
+    }
+
+    @Test
+    @Transactional
+    void testCreatePublicAdvancedLobby_someInvalidContinents_overwrite() {
+        advancedLobbyCreateDTO.setContinent(new ArrayList<String>(
+                Arrays.asList("World", "Antartica", "Europe", "Americas")));
+        // create lobby
+        Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
+        AdvancedLobby testAdvancedLobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput, testPlayer1.getToken(), true);
+        Long lobbyId = testAdvancedLobbyCreated.getLobbyId();
+
+        // find lobby with lobbyId
+        Lobby foundLobby = lobbyRepository.findByLobbyId(lobbyId);
+        AdvancedLobby foundAdvancedLobby = (AdvancedLobby) foundLobby;
+
+        // check if lobbies are the same
+        assertEquals(foundAdvancedLobby.getLobbyId(), testAdvancedLobbyCreated.getLobbyId());
+        assertEquals(foundAdvancedLobby.getLobbyName(), testAdvancedLobbyCreated.getLobbyName());
+        assertEquals(foundAdvancedLobby.getNumSeconds(), testAdvancedLobbyCreated.getNumSeconds());
+        assertEquals(foundAdvancedLobby.getNumRounds(), testAdvancedLobbyCreated.getNumRounds());
+        assertEquals(foundAdvancedLobby.getNumSecondsUntilHint(), testAdvancedLobbyCreated.getNumSecondsUntilHint());
+        assertEquals(foundAdvancedLobby.getHintInterval(), testAdvancedLobbyCreated.getHintInterval());
+        assertEquals(foundAdvancedLobby.getMaxNumGuesses(), testAdvancedLobbyCreated.getMaxNumGuesses());
+        assertEquals(foundAdvancedLobby.getIsPublic(), testAdvancedLobbyCreated.getIsPublic());
+        assertEquals(foundAdvancedLobby.getLobbyCreatorPlayerToken(), testAdvancedLobbyCreated.getLobbyCreatorPlayerToken());
+        assertEquals(foundAdvancedLobby.getJoinedPlayerNames().size(), testAdvancedLobbyCreated.getJoinedPlayerNames().size());
+        assertEquals(foundAdvancedLobby.getContinent().size(), testAdvancedLobbyCreated.getContinent().size());
+        assertEquals(2, foundAdvancedLobby.getContinent().size());
 
         // check whether player is creator of lobby
         Player foundTestPlayer = playerRepository.findByToken(foundAdvancedLobby.getLobbyCreatorPlayerToken());
