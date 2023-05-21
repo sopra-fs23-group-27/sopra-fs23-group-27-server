@@ -35,7 +35,7 @@ public class Game {
     private final CountryRepository countryRepository;
     private final PlayerRepository playerRepository;
     private final LobbyRepository lobbyRepository;
-    private final Long playAgainTimeWindow;
+    private final Integer playAgainTimeWindow;
 
     private ScoreBoard scoreBoard;
     private HintHandler hintHandler;
@@ -53,6 +53,7 @@ public class Game {
     private Long startTime;
     private int numSeconds;
     private Timer timer;
+    private boolean isAcceptingGuesses;
     private Timer playAgainTimer;
     private int numSecondsUntilHint;
     private int hintInterval;
@@ -127,7 +128,7 @@ public class Game {
 
         this.scoreBoard = new ScoreBoard(this.playerNames);
 
-        playAgainTimeWindow = 20000L;
+        playAgainTimeWindow = 20;
     }
 
     public void removePlayer(String playerName) {
@@ -154,9 +155,9 @@ public class Game {
         this.lobbyRepository.flush();
 
         // initiate play again procedure
-        startPlayAgainTimer(playAgainTimeWindow.intValue(), this);
+        startPlayAgainTimer(playAgainTimeWindow, this);
         for (String playerName : this.playerNames) {
-            this.webSocketService.initPlayAgainProcedureByPlayerName(playerName, playAgainTimeWindow);
+            this.webSocketService.initPlayAgainProcedureByPlayerName(playerName, playAgainTimeWindow.longValue() * 1000);
         }
         log.info("Play again window opened for lobbyId: " + this.gameId);
         webSocketService.sendToLobby(this.gameId, "/play-again-opened", "{}");
@@ -165,7 +166,7 @@ public class Game {
         GameRepository.removeGame(this.gameId);
 
         // cleanups after play again timer is over
-        this.webSocketService.wait(playAgainTimeWindow.intValue());
+        this.webSocketService.wait(playAgainTimeWindow * 1000);
 
         Lobby playAgainLobby = this.lobbyRepository.findByLobbyId(this.gameId);
         if (playAgainLobby.getJoinedPlayerNames().size() == 0) {
@@ -188,6 +189,9 @@ public class Game {
     }
 
     public void startRound() {
+        // guesses are accepted again for new round
+        this.isAcceptingGuesses = true;
+
         if (!(this.round < this.numRounds)) {
             log.info("No new round can be started since numRounds is reached." +
                     " Initiate Game loop end for lobbyId: " + this.gameId);
@@ -217,6 +221,9 @@ public class Game {
     }
 
     public void endRound() {
+        // no more guesses are accepted for this round
+        this.isAcceptingGuesses = false;
+
         // Stop the timer
         if (lobby instanceof AdvancedLobby) {
             hintHandler.stopSendingHints();
@@ -326,6 +333,11 @@ public class Game {
     }
 
     public synchronized void validateGuess(String playerName, String guess, String wsConnectionId) {
+        // check if guesses are accepted
+        if (!this.isAcceptingGuesses) {
+            log.info("Guess from player " + playerName + " not accepted, because no round is running at the moment");
+            return;
+        }
         // clean the guess: remove all whitespaces and make it lowercase
         String cleanedGuess = guess.toLowerCase();
         cleanedGuess = cleanedGuess.replaceAll("\\s+", "");
