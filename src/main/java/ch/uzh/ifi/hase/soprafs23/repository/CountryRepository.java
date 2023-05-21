@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -16,8 +17,10 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
 
     public Country findByName(String name);
 
+    public ArrayList<Country> findCountryCodesByContinentIn(ArrayList<String> continents);
+
     public ArrayList<Country> findAll();
 
-    @Query("SELECT c.name FROM Country c")
-    public List<String> getAllCountryNames();
+    @Query("SELECT c.name FROM Country c WHERE c.continent IN :continents")
+    public ArrayList<String> getAllCountryNamesInContinents(@Param("continents") ArrayList<String> continents);
 }

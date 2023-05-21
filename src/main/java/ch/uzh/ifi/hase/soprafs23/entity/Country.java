@@ -79,8 +79,11 @@ public class Country {
     @Column(nullable = true)
     private String internetUsers;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String flag;
+
+    @Column(nullable = false)
+    private String continent;
 
     public String getCountryCode() {
         return countryCode;
@@ -258,4 +261,11 @@ public class Country {
         this.flag = flag;
     }
 
+    public String getContinent() {
+        return continent;
+    }
+
+    public void setContinent(String continent) {
+        this.continent = continent;
+    }
 }

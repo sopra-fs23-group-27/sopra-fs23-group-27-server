@@ -1,9 +1,13 @@
 package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class AdvancedLobbyCreateDTO {
 
     private boolean isPublic = true;
-    private String continent = "World";
+    private ArrayList<String> continent = new ArrayList<String>(
+            Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania"));
     private int numRounds = 4;
     private int numSeconds = 30;
     private int numSecondsUntilHint = 10;
@@ -67,11 +71,11 @@ public class AdvancedLobbyCreateDTO {
         this.lobbyName = lobbyName;
     }
 
-    public String getContinent() {
+    public ArrayList<String> getContinent() {
         return continent;
     }
 
-    public void setContinent(String continent) {
+    public void setContinent(ArrayList continent) {
         this.continent = continent;
     }
 }

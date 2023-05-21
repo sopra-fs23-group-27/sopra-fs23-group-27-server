@@ -32,7 +32,7 @@ public class HintHandlerTest {
 
     private HintHandler hintHandler;
     private Country testCountry;
-    private List<String> testCountryNamesList;
+    private ArrayList<String> testCountryNamesList;
     private Lobby basicLobby;
     private Lobby advancedLobby;
 
@@ -79,7 +79,7 @@ public class HintHandlerTest {
         // Mock the CountryRepository
         countryRepository = Mockito.mock(CountryRepository.class);
         when(countryRepository.findByCountryCode(Mockito.anyString())).thenReturn(testCountry);
-        when(countryRepository.getAllCountryNames()).thenReturn(testCountryNamesList);
+        when(countryRepository.getAllCountryNamesInContinents(any())).thenReturn(testCountryNamesList);
 
         // Mock the SimpMessagingTemplate
         messagingTemplate = Mockito.mock(SimpMessagingTemplate.class);

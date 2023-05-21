@@ -17,7 +17,7 @@ public abstract class Lobby implements Serializable {
 
     private String lobbyName;
     private boolean isPublic;
-    private String continent;
+    private ArrayList<String> continent;
     private int numSeconds;
     private int numRounds;
 
@@ -141,11 +141,11 @@ public abstract class Lobby implements Serializable {
         isCollectingPlayAgains = collectingPlayAgains;
     }
 
-    public String getContinent() {
+    public ArrayList<String> getContinent() {
         return continent;
     }
 
-    public void setContinent(String continent) {
+    public void setContinent(ArrayList<String> continent) {
         this.continent = continent;
     }
 }

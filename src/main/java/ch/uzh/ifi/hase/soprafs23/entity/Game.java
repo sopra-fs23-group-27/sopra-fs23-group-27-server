@@ -58,7 +58,7 @@ public class Game {
     private int hintInterval;
     private int maxNumGuesses;
     private int numOptions;
-    private String continent;
+    private ArrayList<String> continent;
 
     public Game(CountryHandlerService countryHandlerService,
                 WebSocketService webSocketService,
@@ -74,10 +74,18 @@ public class Game {
         this.lobbyRepository = lobbyRepository;
         this.continent = lobby.getContinent();
         this.numRounds = lobby.getNumRounds();
-        this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
         this.lobby = lobby;
         this.numSeconds = lobby.getNumSeconds();
 
+        // in case an exception is thorwn, try to call method again
+        try {
+            this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
+        } catch (IllegalArgumentException e) {
+            this.numRounds = 5;
+            this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
+        } catch (Exception e) {
+            this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
+        }
 
         // set variables depending on lobby type
         if (lobby instanceof BasicLobby) {
@@ -109,6 +117,7 @@ public class Game {
         log.info("- numSecondsUntilHint: " + this.numSecondsUntilHint);
         log.info("- hintInterval: " + this.hintInterval);
         log.info("- maxNumGuesses: " + this.maxNumGuesses);
+        log.info("- continent: " + this.continent.toString());
 
         // set the round to 0, this is to get the first of the sourced countries
         // after each round, this Integer is incremented by 1

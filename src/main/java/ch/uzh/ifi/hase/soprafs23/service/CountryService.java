@@ -41,6 +41,13 @@ public class CountryService {
         this.countryRepository = countryRepository;
     }
 
+    public ArrayList<Country> getAllCountriesInContinents(ArrayList<String> continents) {
+
+        ArrayList<Country> allCountriesInContinents = countryRepository.findCountryCodesByContinentIn(continents);
+
+        return allCountriesInContinents;
+    }
+
     public void sourceAPI(String countryCode) throws IOException {
 
         InputStream responseStream = null;
@@ -116,5 +123,7 @@ public class CountryService {
             return "not available";
         }
     }
+
+
 
 }

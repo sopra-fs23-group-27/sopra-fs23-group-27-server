@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.rest.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LobbyGetDTO {
@@ -8,7 +9,7 @@ public class LobbyGetDTO {
     private String lobbyName;
     private String mode;
     private boolean isPublic;
-    private String continent;
+    private ArrayList<String> continent;
     private int numOptions;
     private int numSeconds;
     private int numRounds;
@@ -124,11 +125,11 @@ public class LobbyGetDTO {
         this.privateLobbyKey = privateLobbyKey;
     }
 
-    public String getContinent() {
+    public ArrayList<String> getContinent() {
         return continent;
     }
 
-    public void setContinent(String continent) {
+    public void setContinent(ArrayList<String> continent) {
         this.continent = continent;
     }
 }

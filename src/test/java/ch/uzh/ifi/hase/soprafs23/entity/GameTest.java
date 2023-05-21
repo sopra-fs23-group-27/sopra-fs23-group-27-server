@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs23.entity;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Timer;
 
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
@@ -61,11 +62,15 @@ public class GameTest {
     @InjectMocks
     private Game advancedGame;
 
+    private ArrayList<String> continents;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
         basicGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, basicLobby));
         advancedGame = Mockito.spy(new Game(countryHandlerService, webSocketService, countryRepository, playerRepository, lobbyRepository, advancedLobby));
+
+        continents = new ArrayList<String>(Arrays.asList("Americas", "Europe"));
     }
 
     @Test
@@ -165,7 +170,7 @@ public class GameTest {
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5, "World")).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5, continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(basicGame).updateCorrectGuess(anyString());
@@ -213,7 +218,7 @@ public class GameTest {
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5, "World")).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5, continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(basicGame).updateCorrectGuess(anyString());
@@ -261,7 +266,7 @@ public class GameTest {
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5, "World")).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5,continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(basicGame).updateCorrectGuess(anyString());
@@ -304,7 +309,7 @@ public class GameTest {
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5, "World")).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5,continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(advancedGame).updateCorrectGuess(anyString());
@@ -352,7 +357,7 @@ public class GameTest {
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5, "World")).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5, continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(advancedGame).updateCorrectGuess(anyString());
@@ -400,7 +405,7 @@ public class GameTest {
         Country country = mock(Country.class);
 
         // Mock some repository methods and service methods
-        when(countryHandlerService.sourceCountryInfo(5, "World")).thenReturn(allCountryCodes);
+        when(countryHandlerService.sourceCountryInfo(5, continents)).thenReturn(allCountryCodes);
         doNothing().when(webSocketService).sendToLobby(anyLong(), anyString(), any());
         when(countryRepository.findByCountryCode(anyString())).thenReturn(country);
         doNothing().when(advancedGame).updateCorrectGuess(anyString());

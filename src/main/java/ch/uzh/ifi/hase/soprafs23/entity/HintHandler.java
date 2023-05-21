@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
-import ch.uzh.ifi.hase.soprafs23.constant.CountryContinentMap;
 import ch.uzh.ifi.hase.soprafs23.repository.CountryRepository;
 import ch.uzh.ifi.hase.soprafs23.service.CountryHandlerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
@@ -23,9 +22,8 @@ public class HintHandler {
     private Lobby lobby;
     private int numHints;
     private int numChoices;
-    private String continent;
+    private ArrayList<String> continent;
     private ArrayList<String> countryCodesByContinent = new ArrayList<String>();
-    private ArrayList<String> allContinents = new ArrayList<String>();
 
     private final CountryRepository countryRepository;
     private final WebSocketService webSocketService;
@@ -42,11 +40,6 @@ public class HintHandler {
         this.countryRepository = countryRepository;
         this.webSocketService = webSocketService;
         this.continent = lobby.getContinent();
-        this.allContinents.add("Asia");
-        this.allContinents.add("Europe");
-        this.allContinents.add("Africa");
-        this.allContinents.add("Oceania");
-        this.allContinents.add("Americas");
     }
 
     /**
@@ -85,12 +78,8 @@ public class HintHandler {
         FlagDTO flagDTO = new FlagDTO(url);
 
         // sleep for 1 second to ensure that each player receives flag at the same time
-        try {
-            Thread.sleep(1000);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        webSocketService.wait(1000);
+
         log.info("FLAG-URL: " + url);
         webSocketService.sendToLobby(lobby.getLobbyId(), "/flag-in-round", flagDTO);
 
@@ -278,22 +267,8 @@ public class HintHandler {
         Country countryLookedFor = countryRepository.findByCountryCode(countryCode);
 
         // get all country names except the one looked for
-        List<String> countryNamesList = countryRepository.getAllCountryNames();
+        List<String> countryNamesList = countryRepository.getAllCountryNamesInContinents(this.continent);
         countryNamesList.remove(countryLookedFor.getName());
-
-        // if a continent is specified, remove all countries that are not in the same continent as the country looked for
-        if (continent != null) {
-            if (allContinents.contains(continent)) {
-                // Init countryContinentMap
-                CountryContinentMap map = new CountryContinentMap();
-
-                // get all country codes from the specified continent
-                countryCodesByContinent = map.getCountryCodesByContinent(continent);
-
-                // remove all countries from countryNamesList whose country code is not in countryCodesByContinent
-                countryNamesList.removeIf(countryName -> !countryCodesByContinent.contains(countryRepository.findByName(countryName).getCountryCode()));
-            }
-        }
 
         // shuffle list and get first n elements (n = numChoices - 1)
         Collections.shuffle(countryNamesList);
