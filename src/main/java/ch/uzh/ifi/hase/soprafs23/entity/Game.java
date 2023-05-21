@@ -80,10 +80,12 @@ public class Game {
         // in case an exception is thorwn, try to call method again
         try {
             this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e) {
             this.numRounds = 5;
             this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             this.allCountryCodes = this.countryHandlerService.sourceCountryInfo(this.numRounds, this.continent);
         }
 
@@ -340,7 +342,7 @@ public class Game {
         // use JaroWinkler algorithm to compute the similarity between the guess and the correct guess
         JaroWinkler jw = new JaroWinkler();
         Double similarity = jw.similarity(cleanedGuess, this.correctGuess);
-        log.info("player's guess is: " + guess);
+        log.info("guess from player " + playerName + " is: " + guess);
         log.info("correct guess is: " + this.correctGuess);
         log.info("similarity is: " + similarity);
 
@@ -407,11 +409,11 @@ public class Game {
 
             // write time of player to scoreBoard
             this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
-            log.info(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName).toString());
+            log.info("Correct guess from player " + playerName + "received. Passed time: " + this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName).toString());
 
             // write correct guess to scoreBoard
             this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, true);
-            log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName).toString());
+            //log.info(this.scoreBoard.getCurrentCorrectGuessPerPlayer(playerName).toString());
         }
         else {
             // increment the number of wrong guesses by 1
@@ -698,8 +700,8 @@ public class Game {
                 player.setnRoundsPlayed(1);
             }
 
-        playerRepository.saveAndFlush(player);
-        
+            playerRepository.saveAndFlush(player);
+
         }
     }
 }
