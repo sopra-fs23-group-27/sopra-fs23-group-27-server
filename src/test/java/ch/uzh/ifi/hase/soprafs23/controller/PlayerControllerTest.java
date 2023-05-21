@@ -599,6 +599,7 @@ public class PlayerControllerTest {
         player.setPassword("password");
         player.setPlayerName("testPlayerName");
         player.setToken("1");
+        player.setPermanent(false);
 
         // valid token
         Long validPlayerId = player.getId();
@@ -606,6 +607,7 @@ public class PlayerControllerTest {
 
         // when
         when(playerService.getPlayerById(validPlayerId, validToken)).thenReturn(player);
+        doNothing().when(playerService).deletePlayer(validPlayerId, validToken);
 
         // when/then -> do the request + validate the result
         MockHttpServletRequestBuilder postRequest = post("/players/{playerId}/logout", validPlayerId)

@@ -285,6 +285,59 @@ public class PlayerServiceIntegrationTest {
     }
 
     @Test
+    public void registerPlayerAndLogoutPlayer_validInputs_success() {
+        // create player
+        Player createdPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is not registered / not permanent
+        assertTrue(createdPlayer.isPermanent());
+
+        Long playerId = createdPlayer.getId();
+        String token = createdPlayer.getToken();
+
+        // proceed steps to logout player
+        playerService.prepareLogoutPlayer(playerId, token);
+        if (!createdPlayer.isPermanent()){
+            playerService.deletePlayer(playerId, token);
+        }
+
+        // check that player was not deleted
+        assertNotNull(playerRepository.findByPlayerName(createdPlayer.getPlayerName()));
+        assertNotNull(playerRepository.findByToken(createdPlayer.getToken()));
+        assertNotNull(playerRepository.findById(createdPlayer.getId()));
+    }
+
+    @Test
+    public void registerPlayerAndLogoutPlayer_invalidPlayerId_throwsException() {
+        // create player
+        Player registeredPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        Long playerId = 0L;
+        String token = registeredPlayer.getToken();
+
+        // attempt logout player
+        assertThrows(ResponseStatusException.class, () -> playerService.prepareLogoutPlayer(playerId, token));
+    }
+
+    @Test
+    public void registerPlayerAndLogoutPlayer_invalidToken_throwsException() {
+        // create player
+        Player registeredPlayer = playerService.registerPlayer(testPlayer);
+
+        // ensure created player is permanent
+        assertTrue(registeredPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = "invalidToken";
+
+        // attempt to logout player
+        assertThrows(ResponseStatusException.class, () -> playerService.prepareLogoutPlayer(playerId, token));
+    }
+
+    @Test
     public void createPlayerAndUpdatePlayer_updatePlayerNameAndPassword_validInputs_success() {
         // create player
         Player createdPlayer = playerService.createPlayer(testPlayer);
@@ -362,5 +415,57 @@ public class PlayerServiceIntegrationTest {
 
         // attempt to update second player
         assertThrows(ResponseStatusException.class, () -> playerService.updatePlayer(playerId, playerPutDTO, token));
+    }
+
+    @Test
+    public void createPlayerAndLogoutPlayer_validInputs_success() {
+        // create player
+        Player createdPlayer = playerService.createPlayer(testPlayer);
+
+        // ensure created player is not registered / not permanent
+        assertFalse(createdPlayer.isPermanent());
+
+        Long playerId = createdPlayer.getId();
+        String token = createdPlayer.getToken();
+
+        // proceed steps to logout player
+        playerService.prepareLogoutPlayer(playerId, token);
+        if (!createdPlayer.isPermanent()){
+            playerService.deletePlayer(playerId, token);
+        }
+
+        // check that player was deleted
+        assertNull(playerRepository.findByPlayerName(createdPlayer.getPlayerName()));
+        assertNull(playerRepository.findByToken(createdPlayer.getToken()));
+    }
+
+    @Test
+    public void createPlayerAndLogoutPlayer_invalidPlayerId_throwsException() {
+        // create player
+        Player registeredPlayer = playerService.createPlayer(testPlayer);
+
+        // ensure created player is not permanent
+        assertFalse(registeredPlayer.isPermanent());
+
+        Long playerId = 0L;
+        String token = registeredPlayer.getToken();
+
+        // attempt to logout player
+        assertThrows(ResponseStatusException.class, () -> playerService.prepareLogoutPlayer(playerId, token));
+    }
+
+    @Test
+    public void createPlayerAndLogoutPlayer_invalidToken_throwsException() {
+        // create player
+        Player registeredPlayer = playerService.createPlayer(testPlayer);
+
+        // ensure created player is not permanent
+        assertFalse(registeredPlayer.isPermanent());
+
+        Long playerId = registeredPlayer.getId();
+        String token = "invalidToken";
+
+        // attempt to logout player
+        assertThrows(ResponseStatusException.class, () -> playerService.prepareLogoutPlayer(playerId, token));
     }
 }

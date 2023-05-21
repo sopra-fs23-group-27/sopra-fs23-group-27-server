@@ -443,7 +443,6 @@ public class PlayerServiceTest {
 
         // then
         assertDoesNotThrow(() -> playerService.prepareLogoutPlayer(testPlayer.getId(), "validToken"));
-        verify(playerRepository, times(1)).save(testPlayer);
     }
 
     @Test

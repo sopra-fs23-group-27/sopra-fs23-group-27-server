@@ -128,6 +128,10 @@ public class PlayerController {
             // Non-registered players will be deleted
             lobbyService.disconnectPlayer(token);
         }
+        else if (!player.isPermanent()) {
+            // delete non registered player that is not in a lobby
+            playerService.deletePlayer(playerId, token);
+        }
 
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)

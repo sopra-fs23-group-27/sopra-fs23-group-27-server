@@ -185,9 +185,6 @@ public class PlayerService {
 
         // check if token is valid
         checkIfPlayerTokenIsValid(token, existingPlayer);
-
-        existingPlayer = playerRepository.save(existingPlayer);
-        playerRepository.flush();
     }
 
     public Player updatePlayer(long playerId, PlayerPutDTO playerUpdateRequest, String token) {
