@@ -220,10 +220,20 @@ public class ScoreBoard {
                 // - the number of wrong guesses / 5 (to make the score less sensitive to the number
                 //  of wrong guesses, the number of wrong guesses is divided by 5)
 
-
-                Integer score = (10 * this.totalCorrectGuessesInARow.get(playerName))
-                        + (100 / this.currentTimeUntilCorrectGuess.get(playerName))
-                        - (this.currentNumberOfWrongGuesses.get(playerName) / 5);
+                Integer score;
+                try {
+                    score = (10 * this.totalCorrectGuessesInARow.get(playerName))
+                            + (100 / this.currentTimeUntilCorrectGuess.get(playerName))
+                            - (this.currentNumberOfWrongGuesses.get(playerName) / 5);
+                }
+                catch (ArithmeticException e) {
+                    score = (10 * this.totalCorrectGuessesInARow.get(playerName))
+                            + (100 / 1)
+                            - (this.currentNumberOfWrongGuesses.get(playerName) / 5);
+                }
+                if (score < 0) {
+                    score = 0;
+                }
 
                 this.currentTotalScore.put(playerName, score);
             }

@@ -322,6 +322,89 @@ public class ScoreBoardTest {
         assertEquals(0, this.scoreBoard.getCurrentScorePerPlayer("Player2"));
     }
 
+    @Test
+    public void testComputeLeaderBoardScore_negativeScore(){
+        // Note that we have to set the current scores for ALL players, before executing the
+        // computeLeaderBoardScore() method. Otherwise a null pointer exception will be thrown.
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player1", true);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player2", false);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player3", false);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player4", false);
+
+        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", 200);
+
+        this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("Player1", 50);
+
+        // update the total scores
+        this.scoreBoard.updateTotalScores();
+
+        // update the leader board scores (current and total)
+        this.scoreBoard.computeLeaderBoardScore();
+
+        // after the first round, the scores for current and total are equivalent
+        assertEquals(0, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player1"));
+        assertEquals(0, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
+    }
+
+    @Test
+    public void testComputeLeaderBoardScore_catchArithmeticException(){
+        // FIRST ROUND:
+
+        // Note that we have to set the current scores for ALL players, before executing the
+        // computeLeaderBoardScore() method. Otherwise a null pointer exception will be thrown.
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player1", true);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player2", true);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player3", false);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player4", false);
+
+        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", 0);
+        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player2", 2);
+
+        this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("Player1", 0);
+        this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("Player2", 0);
+
+        // update the total scores
+        this.scoreBoard.updateTotalScores();
+
+        // update the leader board scores (current and total)
+        this.scoreBoard.computeLeaderBoardScore();
+
+        // after the first round, the scores for current and total are equivalent
+        assertEquals(110, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player1"));
+        assertEquals(60, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player2"));
+        assertEquals(110, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
+        assertEquals(60, this.scoreBoard.getCurrentScorePerPlayer("Player2"));
+
+        // SECOND ROUND:
+
+        // reset the current scores
+        this.scoreBoard.resetAllCurrentScores();
+
+        // set the current scores for the second round
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player1", true);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player2", true);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player3", false);
+        this.scoreBoard.setCurrentCorrectGuessPerPlayer("Player4", false);
+
+        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player1", 2);
+        this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer("Player2", 0);
+
+        this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("Player1", 0);
+        this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer("Player2", 0);
+
+        this.scoreBoard.updateTotalScores();
+
+        this.scoreBoard.computeLeaderBoardScore();
+
+        // now the total score must be equal to the previous total score + the current score
+        // notice that the current score for the player is more then the previous current score
+        // this is because the player has had two correct guesses in a row
+        assertEquals(180, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player1"));
+        assertEquals(180, this.scoreBoard.getLeaderBoardTotalScorePerPlayer("Player2"));
+        assertEquals(70, this.scoreBoard.getCurrentScorePerPlayer("Player1"));
+        assertEquals(120, this.scoreBoard.getCurrentScorePerPlayer("Player2"));
+    }
+
     private Integer timer(){
 
         Long startTime = System.currentTimeMillis();
