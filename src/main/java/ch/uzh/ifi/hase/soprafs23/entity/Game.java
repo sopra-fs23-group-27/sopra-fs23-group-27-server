@@ -256,7 +256,12 @@ public class Game {
                 // it is a very ugly solution because we set the current guess to false after checking if
                 // getCurrentCorrectGuessPerPlayer returns false, what effectively means "null"
                 this.scoreBoard.setCurrentCorrectGuessPerPlayer(playerName, false);
-                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime); // replace with maximum time
+
+                if (this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0) {
+                    // if a player has not entered a guess before, we must set the time until correct guess
+                    // to the full time. Else, if the time until the correct wrong guess is being taken.
+                    this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+                }
             }
             if (this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) == null) {
                 this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(playerName, 0);
@@ -445,7 +450,7 @@ public class Game {
                     this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
 
             
-            if(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0){
+            if(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == null){
                 Integer passedTime = this.computePassedTime();
                 this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
             }            
