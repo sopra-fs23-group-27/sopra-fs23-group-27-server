@@ -443,7 +443,7 @@ public class GameTest {
         when(scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(Mockito.anyString())).thenReturn(0);
         when(scoreBoard.getCurrentCorrectGuessPerPlayer(Mockito.anyString())).thenReturn(false);
 
-        // ReflectionTestUtils.setField(basicGame, "startTime", 0L);
+        ReflectionTestUtils.setField(basicGame, "startTime", 0L);
 
         // call the method to be tested
         basicGame.validateGuess(playerName, guess, wsConnectionId);
@@ -451,7 +451,7 @@ public class GameTest {
         // check that the methods setCurrentNumberOfWrongGuessesPerPlayer was called
         verify(scoreBoard).setCurrentNumberOfWrongGuessesPerPlayer(playerName, 1);
         // check that the methods setCurrentTimeUntilCorrectGuessPerPlayer and setCurrentCorrectGuessPerPlayer was not called
-        verify(scoreBoard, times(0)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
+        verify(scoreBoard, times(1)).setCurrentTimeUntilCorrectGuessPerPlayer(eq(playerName), anyInt());
         verify(scoreBoard, times(0)).setCurrentCorrectGuessPerPlayer(eq(playerName), anyBoolean());
     }
 
