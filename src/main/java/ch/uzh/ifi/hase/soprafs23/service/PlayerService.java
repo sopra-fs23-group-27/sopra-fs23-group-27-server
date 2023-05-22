@@ -195,12 +195,15 @@ public class PlayerService {
         checkIfPlayerTokenIsValid(token, playerToBeUpdated);
 
         // update password if provided password is not null
-        if (playerUpdateRequest.getPassword() != null) {
+        if (playerUpdateRequest.getPassword() != null && playerUpdateRequest.getPassword() != "") {
             playerToBeUpdated.setPassword(playerUpdateRequest.getPassword());
         }
 
         // update playerName if provided playerName is not null
-        if (playerUpdateRequest.getPlayerName() != null && !playerUpdateRequest.getPlayerName().equals(playerToBeUpdated.getPlayerName())) {
+        if (
+            playerUpdateRequest.getPlayerName() != null && 
+            playerUpdateRequest.getPlayerName() != "" &&
+            !playerUpdateRequest.getPlayerName().equals(playerToBeUpdated.getPlayerName())) {
             checkIfPlayerNameExists(playerUpdateRequest.getPlayerName());
             playerToBeUpdated.setPlayerName(playerUpdateRequest.getPlayerName());
         }
