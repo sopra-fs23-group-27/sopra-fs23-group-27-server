@@ -150,10 +150,12 @@ public class PlayerController {
         // update player
         Player updatedPlayer = playerService.updatePlayer(playerId, playerPutDTO, token);
 
+        PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(updatedPlayer);
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header("Authorization", updatedPlayer.getToken())
-                .body(updatedPlayer);
+                .body(playerGetDTO);
     }
 
     @DeleteMapping("/players/{playerId}")
