@@ -576,6 +576,7 @@ public class Game {
         ArrayList<Integer> TotalCorrectGuesses = new ArrayList<Integer>();
         ArrayList<Integer> CurrentTimeUntilCorrectGuess = new ArrayList<Integer>();
         ArrayList<Integer> TotalWrongGuesses = new ArrayList<Integer>();
+        ArrayList<Integer> TotalCorrectGuessesInARow = new ArrayList<Integer>();
 
         // Fill the Arrays with the data from the ScoreBoard
         this.playerNames.forEach(playerName -> {
@@ -583,6 +584,7 @@ public class Game {
             TotalCorrectGuesses.add(this.scoreBoard.getTotalCorrectGuessesPerPlayer(playerName));
             CurrentTimeUntilCorrectGuess.add(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName));
             TotalWrongGuesses.add(this.scoreBoard.getTotalNumberOfWrongGuessesPerPlayer(playerName));
+            TotalCorrectGuessesInARow.add(this.scoreBoard.getTotalCorrectGuessesInARowPerPlayer(playerName));
         });
 
         // Create a new GameStatsDTO object with the data from the ScoreBoard
@@ -591,7 +593,8 @@ public class Game {
                 TotalGameScores,
                 TotalCorrectGuesses,
                 CurrentTimeUntilCorrectGuess,
-                TotalWrongGuesses
+                TotalWrongGuesses,
+                TotalCorrectGuessesInARow
         );
 
         // send the game stats to the players

@@ -10,6 +10,7 @@ public class GameStatsDTO {
     private ArrayList<Integer> TotalCorrectGuesses;
     private ArrayList<Integer> TotalTimeUntilCorrectGuess;
     private ArrayList<Integer> TotalWrongGuesses;
+    private ArrayList<Integer> TotalCorrectGuessesInARow;
     private Boolean isCreator;
 
     public GameStatsDTO(
@@ -17,13 +18,17 @@ public class GameStatsDTO {
         ArrayList<Integer> TotalGameScores,
         ArrayList<Integer> TotalCorrectGuesses,
         ArrayList<Integer> TotalTimeUntilCorrectGuess, 
-        ArrayList<Integer> TotalWrongGuesses
+        ArrayList<Integer> TotalWrongGuesses,
+        ArrayList<Integer> TotalCorrectGuessesInARow
+
+
         ) {
         this.PlayerNames = PlayerNames;
         this.TotalGameScores = TotalGameScores;
         this.TotalCorrectGuesses = TotalCorrectGuesses;
         this.TotalTimeUntilCorrectGuess = TotalTimeUntilCorrectGuess;
         this.TotalWrongGuesses = TotalWrongGuesses;
+        this.TotalCorrectGuessesInARow = TotalCorrectGuessesInARow;
         this.isCreator = false;
     }
 
@@ -65,6 +70,14 @@ public class GameStatsDTO {
 
     public void setTotalWrongGuesses(ArrayList<Integer> totalWrongGuesses) {
         TotalWrongGuesses = totalWrongGuesses;
+    }
+
+    public ArrayList<Integer> getTotalCorrectGuessesInARow() {
+        return TotalCorrectGuessesInARow;
+    }
+
+    public void setTotalCorrectGuessesInARow(ArrayList<Integer> totalCorrectGuessesInARow) {
+        TotalCorrectGuessesInARow = totalCorrectGuessesInARow;
     }
 
     public void setIsCreator(Boolean isCreator) {
