@@ -47,6 +47,7 @@ public class HintHandlerTest {
         testCountry.setCapital("Bern");
         testCountry.setCurrency("Swiss Franc");
         testCountry.setFlag("https://flagcdn.com/h240/ch.png");
+        testCountry.setContinent("Europe");
         testCountry.setGdp("-9999");
         testCountry.setSurfaceArea("-9999");
         testCountry.setLifeExpectancyMale("-9999");
