@@ -19,8 +19,6 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
 
     public ArrayList<Country> findCountryCodesByContinentIn(ArrayList<String> continents);
 
-    public ArrayList<Country> findAll();
-
     @Query("SELECT c.name FROM Country c WHERE c.continent IN :continents")
     public ArrayList<String> getAllCountryNamesInContinents(@Param("continents") ArrayList<String> continents);
 }
