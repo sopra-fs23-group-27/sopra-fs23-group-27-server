@@ -362,9 +362,14 @@ public class Game {
         // if the similarity is greater than 0.93, the guess is correct
         // NOTE: this is a very high threshold, but it is necessary to avoid false positives
         if (similarity > 0.93) {
-
-            // compute the time until the correct guess
-            Integer passedTime = this.computePassedTime();
+            
+            if(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0){
+                // compute the time until the correct guess
+                Integer passedTime = this.computePassedTime();
+                
+                // write time of player to scoreBoard
+                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+            }
 
             // If guess is correct, change guessEvalDTO to true
             guessEvalDTO.setIsCorrect(true);
@@ -375,8 +380,6 @@ public class Game {
                     this.gameId.toString(),
                     guessEvalDTO);
 
-            // write time of player to scoreBoard
-            this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
             log.info(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName).toString());
 
             // write correct guess to scoreBoard
@@ -402,6 +405,11 @@ public class Game {
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
                     playerName,
                     this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
+
+            if (this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0) {
+                Integer passedTime = this.computePassedTime();
+                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+            }
         }
     }
 
@@ -415,11 +423,15 @@ public class Game {
         // if this is the first guess and the guess is correct, write the time until the correct guess to the scoreBoard
         else if (cleanedGuess.equals(this.correctGuess)) {
 
-            // compute the time until the correct guess
-            Integer passedTime = this.computePassedTime();
+            
 
             // write time of player to scoreBoard
-            this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+            if (this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0) {
+                // compute the time until the correct guess
+                Integer passedTime = this.computePassedTime();
+                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+            }
+
             log.info("Correct guess from player " + playerName + "received. Passed time: " + this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName).toString());
 
             // write correct guess to scoreBoard
@@ -431,6 +443,12 @@ public class Game {
             this.scoreBoard.setCurrentNumberOfWrongGuessesPerPlayer(
                     playerName,
                     this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
+
+            
+            if(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0){
+                Integer passedTime = this.computePassedTime();
+                this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
+            }            
         }
 
         //if all players have given a guess --> end round
