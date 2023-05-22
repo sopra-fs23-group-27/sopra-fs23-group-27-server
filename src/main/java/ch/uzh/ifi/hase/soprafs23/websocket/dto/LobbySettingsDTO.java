@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs23.websocket.dto;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class LobbySettingsDTO {
     private String lobbyName;
     private String mode;
     private boolean isPublic;
+    private ArrayList<String> continent;
     private int numOptions;
     private int numRounds;
     private int numSeconds;
@@ -132,5 +134,13 @@ public class LobbySettingsDTO {
 
     public void setNumRounds(int numRounds) {
         this.numRounds = numRounds;
+    }
+
+    public ArrayList<String> getContinent() {
+        return continent;
+    }
+
+    public void setContinent(ArrayList<String> continent) {
+        this.continent = continent;
     }
 }
