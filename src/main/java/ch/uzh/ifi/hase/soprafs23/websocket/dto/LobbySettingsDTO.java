@@ -10,6 +10,7 @@ public class LobbySettingsDTO {
     private String mode;
     private boolean isPublic;
     private int numOptions;
+    private int numRounds;
     private int numSeconds;
     private int numSecondsUntilHint;
     private int hintInterval;
@@ -123,5 +124,13 @@ public class LobbySettingsDTO {
 
     public void setPrivateLobbyKey(String privateLobbyKey) {
         this.privateLobbyKey = privateLobbyKey;
+    }
+
+    public int getNumRounds() {
+        return numRounds;
+    }
+
+    public void setNumRounds(int numRounds) {
+        this.numRounds = numRounds;
     }
 }
