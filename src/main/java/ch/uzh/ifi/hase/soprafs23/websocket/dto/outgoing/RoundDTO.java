@@ -12,8 +12,4 @@ public class RoundDTO {
         return round;
     }
 
-    public void setRound(Integer round) {
-        this.round = round;
-    }
-    
 }

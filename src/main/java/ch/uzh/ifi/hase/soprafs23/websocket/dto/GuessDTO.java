@@ -22,8 +22,4 @@ public class GuessDTO {
         return guess;
     }
 
-    public void setGuess(String guess) {
-        this.guess = guess;
-    }
-
 }

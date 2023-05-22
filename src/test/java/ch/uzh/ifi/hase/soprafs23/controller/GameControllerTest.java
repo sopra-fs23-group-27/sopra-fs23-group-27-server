@@ -55,7 +55,7 @@ public class GameControllerTest {
     public void testSendLobbySettingsTest() {
         int lobbyId = 1;
         gameController.sendLobbySettings(lobbyId, smha);
-        verify(gameService).sendLobbySettings(lobbyId, smha);
+        verify(gameService).sendLobbySettings(lobbyId);
     }
 
     @Test
