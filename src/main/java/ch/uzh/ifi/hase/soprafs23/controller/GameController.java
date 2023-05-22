@@ -44,7 +44,7 @@ public class GameController {
     @MessageMapping("/games/{lobbyId}/send-lobby-settings")
     public void sendLobbySettings(@DestinationVariable Integer lobbyId,
                                   SimpMessageHeaderAccessor smha) {
-        gameService.sendLobbySettings(lobbyId);
+        gameService.sendLobbySettings(lobbyId, smha);
     }
 
     @MessageMapping("/games/{lobbyId}/game-ready")

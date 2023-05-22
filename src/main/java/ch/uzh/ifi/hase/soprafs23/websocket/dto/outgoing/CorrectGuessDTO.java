@@ -8,4 +8,12 @@ public class CorrectGuessDTO {
         this.correctGuess = correctGuess;
     }
 
+    public String getCorrectGuess() {
+        return correctGuess;
+    }
+
+    public void setCorrectGuess(String correctGuess) {
+        this.correctGuess = correctGuess;
+    }
+    
 }

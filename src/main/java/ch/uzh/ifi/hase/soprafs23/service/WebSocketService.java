@@ -40,10 +40,12 @@ public class WebSocketService {
     }
 
     public void sendToPlayerInLobby(String wsConnectionId, String path, String lobbyId, Object dto) {
+
         this.simpMessagingTemplate.convertAndSendToUser(wsConnectionId, "/queue/lobbies/" + lobbyId + path, dto);
     }
 
     public void sendToPlayer(String wsConnectionId, String path, Object dto) {
+
         this.simpMessagingTemplate.convertAndSendToUser(wsConnectionId, "/queue" + path, dto);
     }
 

@@ -9,6 +9,18 @@ public class GuessEvalDTO {
         this.isCorrect = isCorrect;
     }
 
+    public String getGuess() {
+        return guess;
+    }
+
+    public void setGuess(String guess) {
+        this.guess = guess;
+    }
+
+    public boolean getIsCorrect() {
+        return isCorrect;
+    }
+
     public void setIsCorrect(boolean isCorrect) {
         this.isCorrect = isCorrect;
     }

@@ -86,6 +86,41 @@ public class GameService {
         game.startGame();
     }
 
+    public void sendLobbySettings(Integer lobbyId, SimpMessageHeaderAccessor smha) {
+
+        Lobby lobby = this.lobbyRepository.findByLobbyId(lobbyId.longValue());
+        if (lobby == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Lobby with id " + lobbyId + " does not exist");
+        }
+
+        LobbySettingsDTO lobbySettingsDTO;
+        if (lobby instanceof BasicLobby) {
+            lobbySettingsDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbySettingsDTO((BasicLobby) lobby);
+        }
+        else {
+            lobbySettingsDTO = DTOMapper.INSTANCE.convertAdvancedLobbyEntityToLobbySettingsDTO((AdvancedLobby) lobby);
+        }
+
+        // Create playerRoleMap: <playerName, isLobbyCreator>
+        HashMap<String, Boolean> playerRoleMap = new HashMap<>();
+        for (String playername : lobby.getJoinedPlayerNames()) {
+            playerRoleMap.put(playername, false);
+        }
+
+        // Set the lobbyCreator to true
+        String lobbyCreatorToken = lobby.getLobbyCreatorPlayerToken();
+        Player player = this.playerService.getPlayerByToken(lobbyCreatorToken);
+        playerRoleMap.put(player.getPlayerName(), true);
+
+        lobbySettingsDTO.setPlayerRoleMap(playerRoleMap);
+
+        String wsConnectionId = WebSocketService.getIdentity(smha);
+        log.info("Sending lobby settings to lobby id: " + lobbyId + " :");
+        log.info("Player-role map: " + lobbySettingsDTO.getPlayerRoleMap().toString());
+        this.webSocketService.sendToLobby(lobbyId.longValue(), "/lobby-settings", lobbySettingsDTO);
+    }
+
     public void sendLobbySettings(Integer lobbyId) {
 
         Lobby lobby = this.lobbyRepository.findByLobbyId(lobbyId.longValue());
