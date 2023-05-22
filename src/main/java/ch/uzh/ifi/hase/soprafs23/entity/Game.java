@@ -431,9 +431,12 @@ public class Game {
             
 
             // write time of player to scoreBoard
-            if (this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0) {
+
+            if(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0){
                 // compute the time until the correct guess
                 Integer passedTime = this.computePassedTime();
+                
+                // write time of player to scoreBoard
                 this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
             }
 
@@ -450,7 +453,7 @@ public class Game {
                     this.scoreBoard.getCurrentNumberOfWrongGuessesPerPlayer(playerName) + 1);
 
             
-            if(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == null){
+            if(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName) == 0){
                 Integer passedTime = this.computePassedTime();
                 this.scoreBoard.setCurrentTimeUntilCorrectGuessPerPlayer(playerName, passedTime);
             }            
