@@ -1,11 +1,14 @@
 package ch.uzh.ifi.hase.soprafs23.entity;
 
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.security.Principal;
+import java.time.Instant;
 
 /**
  * Internal Player Representation
@@ -26,6 +29,13 @@ public class Player implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
+
+    // automatically add the current timestamp to DB
+    @CreationTimestamp
+    private Instant createdOn;
+    
+    @UpdateTimestamp
+    private Instant lastUpdatedOn;
 
     @Column(nullable = false, unique = true)
     private String playerName;
