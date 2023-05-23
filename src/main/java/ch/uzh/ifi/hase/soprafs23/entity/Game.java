@@ -15,10 +15,7 @@ import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 public class Game {
@@ -53,6 +50,7 @@ public class Game {
     private int numSeconds;
     private Timer timer;
     private boolean isAcceptingGuesses;
+    private Map<String, Boolean> playerHasGuessed = new HashMap<String, Boolean>();
     private Timer playAgainTimer;
     private int numSecondsUntilHint;
     private int hintInterval;
@@ -196,6 +194,10 @@ public class Game {
                     " Initiate Game loop end for lobbyId: " + this.gameId);
             this.endGame();
             return;
+        }
+        // set playerHasGuessed to false for all players
+        for (String playerName : this.playerNames) {
+            this.playerHasGuessed.put(playerName, false);
         }
         startTimer(this.numSeconds, this);
         webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
@@ -342,6 +344,10 @@ public class Game {
             log.info("Guess from player " + playerName + " not accepted, because no round is running at the moment");
             return;
         }
+
+        // log that the player has submitted a guess in the round
+        this.playerHasGuessed.put(playerName, true);
+
         // clean the guess: remove all whitespaces and make it lowercase
         String cleanedGuess = guess.toLowerCase();
         cleanedGuess = cleanedGuess.replaceAll("\\s+", "");
@@ -598,6 +604,7 @@ public class Game {
     private void sendStatsToLobby() {
 
         // Init Arrays for the mapping into a JSON object
+        ArrayList<Boolean> playerHasGuessed = new ArrayList<Boolean>();
         ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
         ArrayList<Integer> TotalCorrectGuesses = new ArrayList<Integer>();
         ArrayList<Integer> CurrentTimeUntilCorrectGuess = new ArrayList<Integer>();
@@ -606,6 +613,7 @@ public class Game {
 
         // Fill the Arrays with the data from the ScoreBoard
         this.playerNames.forEach(playerName -> {
+            playerHasGuessed.add(this.playerHasGuessed.get(playerName));
             TotalGameScores.add(this.scoreBoard.getLeaderBoardTotalScorePerPlayer(playerName));
             TotalCorrectGuesses.add(this.scoreBoard.getTotalCorrectGuessesPerPlayer(playerName));
             CurrentTimeUntilCorrectGuess.add(this.scoreBoard.getCurrentTimeUntilCorrectGuessPerPlayer(playerName));
@@ -616,6 +624,7 @@ public class Game {
         // Create a new GameStatsDTO object with the data from the ScoreBoard
         GameStatsDTO gameStatsDTO = new GameStatsDTO(
                 this.playerNames,
+                playerHasGuessed,
                 TotalGameScores,
                 TotalCorrectGuesses,
                 CurrentTimeUntilCorrectGuess,
@@ -626,6 +635,7 @@ public class Game {
         // send the game stats to the players
         log.info("Sending game stats to lobby:");
         log.info("- Player names: " + gameStatsDTO.getPlayerNames());
+        log.info("- Player has guessed: " + gameStatsDTO.getPlayerHasGuessed());
         log.info("- Total game scores: " + gameStatsDTO.getTotalGameScores());
         log.info("- Total correct guesses: " + gameStatsDTO.getTotalCorrectGuesses());
         log.info("- Total time until correct guess: " + gameStatsDTO.getTotalTimeUntilCorrectGuess());
