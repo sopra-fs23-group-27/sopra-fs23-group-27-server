@@ -117,7 +117,7 @@ public class PlayerController {
     @CrossOrigin(exposedHeaders = "*")
     public ResponseEntity logoutPlayer(@PathVariable Long playerId,
                                        @RequestHeader("Authorization") String token) {
-
+ 
         // prepare logout player (check if player exists and is authorized)
         playerService.prepareLogoutPlayer(playerId, token);
 
