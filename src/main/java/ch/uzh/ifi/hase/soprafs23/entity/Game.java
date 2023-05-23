@@ -545,6 +545,7 @@ public class Game {
     }
 
     private void startPlayAgainTimer(int seconds, Game game) {
+        // fixe hier
         this.playAgainTimer = new Timer();
         final int remainingTime = seconds;
 
@@ -563,7 +564,7 @@ public class Game {
             @Override
             public void run() {
                 currentRemainingTime--;
-                if (currentRemainingTime <= 0) {
+                if (currentRemainingTime < 0) { // changed from <= to < testing
                     stopPlayAgainTimer();
                     webSocketService.sendToLobby(game.getGameId(), "/play-again-closed", "{}");
                     log.info("Play again window closed for lobbyId: " + game.getGameId());
