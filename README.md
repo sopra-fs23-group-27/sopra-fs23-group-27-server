@@ -21,9 +21,9 @@ So, what are you waiting for? Unleash your inner adventurer and test your flag k
 
 ## Requirements
 
-1. Stable Internet Connection: FlagMania is an online game, players will need a stable internet connection to play. We recommend a minimum internet speed of 5 Mbps for a smooth and seamless gameplay experience.
-2. Web Browser: FlagMania is a web-based game, so players will need a web browser to play. We recommend using the latest version of Google Chrome or Mozilla Firefox for the best experience.
-3. Devices: FlagMania is a web-based game, so players will need a device to play. We recommend using a laptop or desktop computer for the best experience. Smartphone and tablet devices are may lead to a suboptimal experience.
+1. **Stable Internet Connection**: FlagMania is an online game, players will need a stable internet connection to play. We recommend a minimum internet speed of 5 Mbps for a smooth and seamless gameplay experience.
+2. **Web Browser**: FlagMania is a web-based game, so players will need a web browser to play. We recommend using the latest version of Google Chrome or Mozilla Firefox for the best experience.
+3. **Devices**: FlagMania is a web-based game, so players will need a device to play. We recommend using a laptop or desktop computer for the best experience. Smartphone and tablet devices may lead to a suboptimal experience.
 
 ## Technologies
 To establish a seamless connection between the frontend and backend, we have employed REST and [Stomp-Websockets](https://spring.io/guides/gs/messaging-stomp-websocket/) protocols. [REST (Representational State Transfer)](https://en.wikipedia.org/wiki/Representational_state_transfer) enables smooth communication and data transfer, allowing the frontend to interact with the backend effortlessly. [Stomp-Websockets](https://spring.io/guides/gs/messaging-stomp-websocket/), a subprotocol of WebSocket, adds a layer of real-time communication, ensuring instant updates and an immersive gameplay experience.
