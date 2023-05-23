@@ -526,7 +526,7 @@ public class Game {
             @Override
             public void run() {
                 currentRemainingTime--;
-                if (currentRemainingTime <= 0) {
+                if (currentRemainingTime < 0) {
                     game.endRound();
                 }
                 else {

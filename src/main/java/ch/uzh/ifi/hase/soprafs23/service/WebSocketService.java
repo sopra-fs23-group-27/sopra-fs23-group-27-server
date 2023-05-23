@@ -104,7 +104,7 @@ public class WebSocketService {
                     playersToBeDisconnected.remove(playerToken);
                 }
             };
-            this.playersToBeDisconnected.get(playerToken).schedule(timerTask, 9000);
+            this.playersToBeDisconnected.get(playerToken).schedule(timerTask, 50);
         }
     }
 
