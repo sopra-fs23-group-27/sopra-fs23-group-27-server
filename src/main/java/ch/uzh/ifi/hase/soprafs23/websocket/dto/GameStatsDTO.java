@@ -6,6 +6,7 @@ import antlr.collections.List;
 
 public class GameStatsDTO {
     private ArrayList<String> PlayerNames;
+    private ArrayList<Boolean> playerHasGuessed;
     private ArrayList<Integer> TotalGameScores;
     private ArrayList<Integer> TotalCorrectGuesses;
     private ArrayList<Integer> TotalTimeUntilCorrectGuess;
@@ -14,16 +15,18 @@ public class GameStatsDTO {
     private Boolean isCreator;
 
     public GameStatsDTO(
-        ArrayList<String> PlayerNames, 
-        ArrayList<Integer> TotalGameScores,
-        ArrayList<Integer> TotalCorrectGuesses,
-        ArrayList<Integer> TotalTimeUntilCorrectGuess, 
-        ArrayList<Integer> TotalWrongGuesses,
-        ArrayList<Integer> TotalCorrectGuessesInARow
+            ArrayList<String> PlayerNames,
+            ArrayList<Boolean> playerHasGuessed,
+            ArrayList<Integer> TotalGameScores,
+            ArrayList<Integer> TotalCorrectGuesses,
+            ArrayList<Integer> TotalTimeUntilCorrectGuess,
+            ArrayList<Integer> TotalWrongGuesses,
+            ArrayList<Integer> TotalCorrectGuessesInARow
 
 
-        ) {
+    ) {
         this.PlayerNames = PlayerNames;
+        this.playerHasGuessed = playerHasGuessed;
         this.TotalGameScores = TotalGameScores;
         this.TotalCorrectGuesses = TotalCorrectGuesses;
         this.TotalTimeUntilCorrectGuess = TotalTimeUntilCorrectGuess;
@@ -38,6 +41,14 @@ public class GameStatsDTO {
 
     public void setPlayerNames(ArrayList<String> playerNames) {
         PlayerNames = playerNames;
+    }
+
+    public ArrayList<Boolean> getPlayerHasGuessed() {
+        return playerHasGuessed;
+    }
+
+    public void setPlayerHasGuessed(ArrayList<Boolean> playerHasGuessed) {
+        this.playerHasGuessed = playerHasGuessed;
     }
 
     public ArrayList<Integer> getTotalGameScores() {
@@ -87,5 +98,5 @@ public class GameStatsDTO {
     public Boolean getIsCreator() {
         return isCreator;
     }
-    
+
 }
