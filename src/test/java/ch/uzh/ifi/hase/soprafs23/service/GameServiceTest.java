@@ -197,9 +197,9 @@ public class GameServiceTest {
         // Call the method to be tested
         gameService.startGame(basicLobby);
 
-        // wait for 3 seconds until first round is finished. This allows to correctly verify the number
+        // wait for 4 seconds until first round is finished. This allows to correctly verify the number
         // of times the timer sent a message to the lobby
-        Thread.sleep(3000);
+        Thread.sleep(4000);
 
         // check if game is started by checking if the following methods are called
         // methods calls within gameService class
@@ -211,7 +211,7 @@ public class GameServiceTest {
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/choices-in-round"), any(ChoicesDTO.class));
         verify(webSocketService, times(0)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
-        verify(webSocketService, times(3)).sendToLobby(eq(1L), eq("/timer"), any(TimerDTO.class));
+        verify(webSocketService, times(4)).sendToLobby(eq(1L), eq("/timer"), any(TimerDTO.class));
     }
 
     @Test
@@ -223,9 +223,9 @@ public class GameServiceTest {
         // Call the method to be tested
         gameService.startGame(basicLobby);
 
-        // wait for 3 seconds until first round is finished. This allows to correctly verify the number
+        // wait for 4 seconds until first round is finished. This allows to correctly verify the number
         // of times the timer sent a message to the lobby
-        Thread.sleep(4000);
+        Thread.sleep(5000);
 
         // check if game is started by checking if the following methods are called
         // methods calls within gameService class
@@ -237,10 +237,10 @@ public class GameServiceTest {
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/choices-in-round"), any(ChoicesDTO.class));
         verify(webSocketService, times(0)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
-        verify(webSocketService, times(3)).sendToLobby(eq(1L), eq("/timer"), any(TimerDTO.class));
+        verify(webSocketService, times(4)).sendToLobby(eq(1L), eq("/timer"), any(TimerDTO.class));
 
-        // wait for 5 seconds until everything in endround was executed
-        Thread.sleep(5100);
+        // wait for 6 seconds until everything in endround was executed
+        Thread.sleep(6100);
 
         // methods calls within game.endRound
         verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/correct-country"), any(CorrectGuessDTO.class));
@@ -305,9 +305,9 @@ public class GameServiceTest {
         // Call the method to be tested
         gameService.startGame(advancedLobby);
 
-        // wait for 5 seconds until first round is finished. This allows to correctly verify the number
+        // wait for 6 seconds until first round is finished. This allows to correctly verify the number
         // of times the timer sent a message to the lobby
-        Thread.sleep(5000);
+        Thread.sleep(6000);
 
         // check if game is started by checking if the following methods are called
         // methods calls within gameService class
@@ -319,7 +319,7 @@ public class GameServiceTest {
         verify(webSocketService, times(1)).sendToLobby(eq(2L), eq("/flag-in-round"), any(FlagDTO.class));
         verify(webSocketService, times(3)).sendToLobby(eq(2L), eq("/hints-in-round"), any(HintDTO.class));
         verify(webSocketService, times(0)).sendToLobby(eq(2L), eq("/choices-in-round"), any(ChoicesDTO.class));
-        verify(webSocketService, times(5)).sendToLobby(eq(2L), eq("/timer"), any(TimerDTO.class));
+        verify(webSocketService, times(6)).sendToLobby(eq(2L), eq("/timer"), any(TimerDTO.class));
     }
 
     @Test
@@ -335,9 +335,9 @@ public class GameServiceTest {
         // Call the method to be tested
         gameService.startGame(advancedLobby);
 
-        // wait for 5 seconds until first round is finished. This allows to correctly verify the number
+        // wait for 6 seconds until first round is finished. This allows to correctly verify the number
         // of times the timer sent a message to the lobby
-        Thread.sleep(5000);
+        Thread.sleep(6000);
 
         // check if game is started by checking if the following methods are called
         // methods calls within gameService class
@@ -349,10 +349,10 @@ public class GameServiceTest {
         verify(webSocketService, times(1)).sendToLobby(eq(2L), eq("/flag-in-round"), any(FlagDTO.class));
         verify(webSocketService, times(3)).sendToLobby(eq(2L), eq("/hints-in-round"), any(HintDTO.class));
         verify(webSocketService, times(0)).sendToLobby(eq(2L), eq("/choices-in-round"), any(ChoicesDTO.class));
-        verify(webSocketService, times(5)).sendToLobby(eq(2L), eq("/timer"), any(TimerDTO.class));
+        verify(webSocketService, times(6)).sendToLobby(eq(2L), eq("/timer"), any(TimerDTO.class));
 
-        // wait for 5 seconds until everything in endround was executed
-        Thread.sleep(5100);
+        // wait for 6 seconds until everything in endround was executed
+        Thread.sleep(6100);
 
         // methods calls within game.endRound
         verify(webSocketService, times(1)).sendToLobby(eq(2L), eq("/correct-country"), any(CorrectGuessDTO.class));
