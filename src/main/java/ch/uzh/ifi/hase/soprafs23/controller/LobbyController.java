@@ -33,20 +33,25 @@ public class LobbyController {
     @PostMapping("/lobbies/basic")
     public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO,
                                            @RequestHeader("Authorization") String playerToken) {
+        
+        playerservice.checkIfPlayerIsAlreadyInLobby(playerToken);
+
         Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
         BasicLobby lobbyCreated = lobbyService.createBasicLobby(basicLobbyInput, playerToken, basicLobbyInput.getIsPublic());
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO(lobbyCreated);
 
         authenticationService.addToAuthenticatedJoins(playerToken, lobbyGetDTO.getLobbyId());
-
+        
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(lobbyGetDTO);
+                .body(lobbyGetDTO); 
     }
 
     @PostMapping("/lobbies/advanced")
     public ResponseEntity createAdvancedLobby(@RequestBody AdvancedLobbyCreateDTO advancedLobbyCreateDTO,
                                               @RequestHeader("Authorization") String playerToken) {
+    
+        playerservice.checkIfPlayerIsAlreadyInLobby(playerToken);
 
         Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
         AdvancedLobby lobbyCreated = lobbyService.createAdvancedLobby(advancedLobbyInput, playerToken, advancedLobbyInput.getIsPublic());
