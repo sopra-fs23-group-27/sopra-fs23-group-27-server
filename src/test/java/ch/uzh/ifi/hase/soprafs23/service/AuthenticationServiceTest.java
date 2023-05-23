@@ -121,10 +121,6 @@ class AuthenticationServiceTest {
                 eq("/authentication"),
                 eq(lobbyId.toString()),
                 Mockito.any(WSConnectedDTO.class));
-/*        Mockito.verify(webSocketService).sendToLobby(
-                eq(lobbyId),
-                eq("/lobby-settings"),
-                Mockito.any());*/
         Mockito.verify(gameService).sendLobbySettings(
                 eq(lobbyId.intValue()));
     }

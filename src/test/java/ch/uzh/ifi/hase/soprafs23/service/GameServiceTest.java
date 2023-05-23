@@ -260,38 +260,7 @@ public class GameServiceTest {
             gameService.startGame(basicLobby);
         });
     }
-
-//    @Test
-//    public void testStartBasicGameAndValidateIncommingGuess() throws InterruptedException {
-//        // given
-//        GuessDTO guessDTO = new GuessDTO(testPlayer1.getPlayerName(), "Switzerland");
-//        smha = ;
-//
-//        // mock playerService and lobbyRepository
-//        when(playerService.getPlayerByToken(Mockito.anyString())).thenReturn(testPlayer1, testPlayer1);
-//        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(basicLobby);
-//
-//        // Call the method to be tested
-//        gameService.startGame(basicLobby);
-//        gameService.validateGuess(basicLobby.getLobbyId(), guessDTO, "testToken");
-//
-//        // wait for 3 seconds until first round is finished. This allows to correctly verify the number
-//        // of times the timer sent a message to the lobby
-//        Thread.sleep(3000);
-//
-//        // check if game is started by checking if the following methods are called
-//        // methods calls within gameService class
-//        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/game-start"), Mockito.any());
-//        verify(lobbyRepository, times(1)).save(any(Lobby.class));
-//        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/lobby-settings"), any(LobbySettingsDTO.class));
-//        // methods calls within game.startGame or Hinthandler
-//        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/round-start"), any());
-//        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/flag-in-round"), any(FlagDTO.class));
-//        verify(webSocketService, times(1)).sendToLobby(eq(1L), eq("/choices-in-round"), any(ChoicesDTO.class));
-//        verify(webSocketService, times(0)).sendToLobby(eq(1L), eq("/hints-in-round"), any(HintDTO.class));
-//        verify(webSocketService, times(3)).sendToLobby(eq(1L), eq("/timer"), any(TimerDTO.class));
-//    }
-
+    
     @Test
     void testStartAdvancedGame() throws InterruptedException {
         // given
