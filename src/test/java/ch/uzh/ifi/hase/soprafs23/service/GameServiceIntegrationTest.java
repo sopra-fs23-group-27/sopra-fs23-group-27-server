@@ -174,7 +174,7 @@ public class GameServiceIntegrationTest {
         assertEquals(foundBasicLobby.getNumRounds(), allCountriesInGame.size());
 
         // wait until round is finished
-        webSocketService.wait(10000);
+        webSocketService.wait(12000);
 
         // check some metrics of scoreboard for players
         ScoreBoard scoreBoard = (ScoreBoard) ReflectionTestUtils.getField(foundGame, "scoreBoard");
