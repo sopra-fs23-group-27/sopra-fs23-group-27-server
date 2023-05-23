@@ -54,9 +54,11 @@ public class GameService {
     }
 
     public void validateGuess(Integer gameId, GuessDTO guessDTO, SimpMessageHeaderAccessor smha) {
-        Game game = GameRepository.findByLobbyId(gameId.longValue());
-        String wsConnectionId = WebSocketService.getIdentity(smha);
-        game.validateGuess(guessDTO.getPlayerName(), guessDTO.getGuess(), wsConnectionId);
+        if (!guessDTO.getGuess().equals("")) {
+            Game game = GameRepository.findByLobbyId(gameId.longValue());
+            String wsConnectionId = WebSocketService.getIdentity(smha);
+            game.validateGuess(guessDTO.getPlayerName(), guessDTO.getGuess(), wsConnectionId);
+        }
     }
 
     public void startNewGameRound(Integer gameId, SimpMessageHeaderAccessor smha) {
