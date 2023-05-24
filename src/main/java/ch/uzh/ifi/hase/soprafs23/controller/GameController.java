@@ -51,7 +51,6 @@ public class GameController {
     public void startNewGameRound(@DestinationVariable Integer lobbyId,
                                   SimpMessageHeaderAccessor smha) {
         gameService.startNewGameRound(lobbyId, smha);
-
     }
 
     @MessageMapping("/games/{lobbyId}/remove")
@@ -68,7 +67,5 @@ public class GameController {
                           SimpMessageHeaderAccessor smha) {
         String wsConnectionId = WebSocketService.getIdentity(smha);
         this.lobbyService.playAgain(lobbyId, wsConnectionId);
-
     }
-
 }

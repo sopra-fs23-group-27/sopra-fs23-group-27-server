@@ -260,7 +260,7 @@ public class GameServiceTest {
             gameService.startGame(basicLobby);
         });
     }
-    
+
     @Test
     void testStartAdvancedGame() throws InterruptedException {
         // given
