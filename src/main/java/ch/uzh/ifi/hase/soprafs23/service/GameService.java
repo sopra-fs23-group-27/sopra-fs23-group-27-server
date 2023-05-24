@@ -111,9 +111,12 @@ public class GameService {
         }
 
         // Set the lobbyCreator to true
-        String lobbyCreatorToken = lobby.getLobbyCreatorPlayerToken();
-        Player player = this.playerService.getPlayerByToken(lobbyCreatorToken);
-        playerRoleMap.put(player.getPlayerName(), true);
+        if (lobby.getJoinedPlayerNames().size() > 0) {
+            String lobbyCreatorToken = lobby.getLobbyCreatorPlayerToken();
+            Player player = this.playerService.getPlayerByToken(lobbyCreatorToken);
+            playerRoleMap.put(player.getPlayerName(), true);
+        }
+
 
         lobbySettingsDTO.setPlayerRoleMap(playerRoleMap);
 
