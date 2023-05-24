@@ -39,15 +39,13 @@ public class CountryHandler {
                 countryService.sourceAPI(countryCode);
             }
             catch (IOException e) {
-                e.printStackTrace();
+                log.info("The country with the code " + countryCode + " could not be sourced due to an IO error: ", e);
             }
             catch (RuntimeException e) {
-                log.info("The country with the code " + countryCode + " is not available.");
-                e.printStackTrace();
+                log.info("The country with the code " + countryCode + " is not available. Runtime exception.", e);
             }
             catch (Exception e) {
-                log.info("The country with the code " + countryCode + " could not be sourced due to other reasons.");
-                e.printStackTrace();
+                log.info("The country with the code " + countryCode + " could not be sourced due to other reasons. Exception: ", e);
             }
         });
 

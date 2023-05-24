@@ -66,7 +66,7 @@ public class AuthenticationService {
         Long lobbyId = getLobbyIdFromAuthToken(playerToken);
 
         // check if player is already processing a join
-        if (lobbyId == null && player.getLobbyId() != null) {
+        if (lobbyId == null) {
             return;
         }
         Lobby lobby = lobbyService.getLobbyById(lobbyId);

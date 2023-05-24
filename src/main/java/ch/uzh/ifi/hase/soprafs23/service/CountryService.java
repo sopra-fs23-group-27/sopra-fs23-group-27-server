@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.mapstruct.Qualifier;
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -62,8 +63,9 @@ public class CountryService {
             connection.setRequestProperty("X-Api-Key", "mB7Cx89lu9yKW1n90PfCrcyj9a7Mq6gBlpcABrIG");
             responseStream = connection.getInputStream();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        catch (Exception e) {
+            log.info("Exception thrown: ", e);
         }
 
         // Notice that the responseStream is initiated to null
@@ -71,7 +73,8 @@ public class CountryService {
         // If the responseStream is not null, then the API did return a response
         if (responseStream == null) {
             throw new RuntimeException("No response from API");
-        } else {
+        }
+        else {
 
             // read response from api
             ObjectMapper mapper = new ObjectMapper();
@@ -96,7 +99,7 @@ public class CountryService {
             country.setForestedArea(parseString(root.get(0).get("forested_area")) + "% of surface area");
             country.setInfantMortality(parseString(root.get(0).get("infant_mortality")) + " per 1000 live births");
             country.setPopulation(parseString(root.get(0).get("population")) + "K");
-            country.setPopulationDensity(parseString(root.get(0).get("pop_density"))+ " people per sq. km of land area");
+            country.setPopulationDensity(parseString(root.get(0).get("pop_density")) + " people per sq. km of land area");
             country.setInternetUsers(parseString(root.get(0).get("internet_users")) + "% of population");
 
             // override country in database
@@ -112,18 +115,20 @@ public class CountryService {
         // returns "not available"
         try {
             return node.toString().replace("\"", "");
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             log.info("At least one of the values is not available");
             return "not available";
-        } catch (NullPointerException e) {
+        }
+        catch (NullPointerException e) {
             log.info("At least one of the values is not available");
             return "not available";
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.info("At least one of the values is not available");
             return "not available";
         }
     }
-
 
 
 }

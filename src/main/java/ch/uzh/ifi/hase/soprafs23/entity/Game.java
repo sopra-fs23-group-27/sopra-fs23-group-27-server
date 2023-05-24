@@ -524,7 +524,7 @@ public class Game {
             //log.info("TimerDTO sent to lobby. Remaining time: " + remainingTime + " seconds.");
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.info("Exception thrown while sending timerDTO to client: ", e);
         }
 
         TimerTask timerTask = new TimerTask() {
@@ -543,7 +543,7 @@ public class Game {
                         //log.info("TimerDTO sent to lobby. Remaining time: " + currentRemainingTime + " seconds.");
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
+                        log.info("Exception thrown while sending timerDTO to client: ", e);
                     }
                 }
             }
@@ -562,7 +562,7 @@ public class Game {
             webSocketService.sendToLobby(game.getGameId(), "/timer-play-again", timerDTO);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.info("Exception thrown while sending timerDTO to client: ", e);
         }
 
         TimerTask timerTask = new TimerTask() {
@@ -582,7 +582,7 @@ public class Game {
                         webSocketService.sendToLobby(game.getGameId(), "/timer-play-again", timerDTO);
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
+                        log.info("Exception thrown while sending timerDTO to client: ", e);
                     }
                 }
             }
