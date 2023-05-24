@@ -6,7 +6,7 @@ import antlr.collections.List;
 
 public class GameStatsDTO {
     private ArrayList<String> PlayerNames;
-    private ArrayList<Boolean> playerHasGuessed;
+    private ArrayList<Integer> playerHasGuessed;
     private ArrayList<Integer> TotalGameScores;
     private ArrayList<Integer> TotalCorrectGuesses;
     private ArrayList<Integer> TotalTimeUntilCorrectGuess;
@@ -16,7 +16,7 @@ public class GameStatsDTO {
 
     public GameStatsDTO(
             ArrayList<String> PlayerNames,
-            ArrayList<Boolean> playerHasGuessed,
+            ArrayList<Integer> playerHasGuessed,
             ArrayList<Integer> TotalGameScores,
             ArrayList<Integer> TotalCorrectGuesses,
             ArrayList<Integer> TotalTimeUntilCorrectGuess,
@@ -43,11 +43,11 @@ public class GameStatsDTO {
         PlayerNames = playerNames;
     }
 
-    public ArrayList<Boolean> getPlayerHasGuessed() {
+    public ArrayList<Integer> getPlayerHasGuessed() {
         return playerHasGuessed;
     }
 
-    public void setPlayerHasGuessed(ArrayList<Boolean> playerHasGuessed) {
+    public void setPlayerHasGuessed(ArrayList<Integer> playerHasGuessed) {
         this.playerHasGuessed = playerHasGuessed;
     }
 
