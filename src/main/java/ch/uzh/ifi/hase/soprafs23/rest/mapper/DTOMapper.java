@@ -5,11 +5,9 @@ import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.*;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.LobbySettingsDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.LobbySettingsDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-
-import javax.persistence.Basic;
 
 /**
  * DTOMapper

@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.stubbing.Answer;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class LobbyServiceTest {
 
@@ -109,17 +112,17 @@ public class LobbyServiceTest {
 
         // when -> any object is being saved in the userRepository -> return the dummy testUser
         Mockito.doNothing().when(webSocketService).sendToLobby(Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.when(playerService.getPlayerByToken(Mockito.anyString())).thenReturn(testPlayer1);
-        Mockito.when(playerRepository.save(Mockito.any())).thenReturn(testPlayer1);
-        Mockito.when(playerRepository.findByToken(Mockito.any())).thenReturn(testPlayer1);
-        Mockito.when(playerRepository.findByLobbyId(Mockito.any())).thenReturn(Collections.singletonList(testPlayer1));
+        when(playerService.getPlayerByToken(anyString())).thenReturn(testPlayer1);
+        when(playerRepository.save(Mockito.any())).thenReturn(testPlayer1);
+        when(playerRepository.findByToken(Mockito.any())).thenReturn(testPlayer1);
+        when(playerRepository.findByLobbyId(Mockito.any())).thenReturn(Collections.singletonList(testPlayer1));
     }
 
     @Test
     void testCreatePublicBasicLobby() {
         // return basicLobby when lobbyRepository.save() or lobbyRepository.findByLobbyId() is called
-        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
-        Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(basicLobby);
+        when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+        when(lobbyRepository.save(Mockito.any())).thenReturn(basicLobby);
 
         // create basic lobby
         Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
@@ -151,8 +154,8 @@ public class LobbyServiceTest {
         basicLobby.setPrivateLobbyKey("testPrivateKey");
 
         // return basicLobby when lobbyRepository.save() or lobbyRepository.findByLobbyId() is called
-        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
-        Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(basicLobby);
+        when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+        when(lobbyRepository.save(Mockito.any())).thenReturn(basicLobby);
 
         // create basic lobby
         Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
@@ -181,8 +184,8 @@ public class LobbyServiceTest {
     @Test
     void testCreatePublicAdvancedLobby() {
         // return advancedLobby when lobbyRepository.save() or lobbyRepository.findByLobbyId() is called
-        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(advancedLobby);
-        Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(advancedLobby);
+        when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(advancedLobby);
+        when(lobbyRepository.save(Mockito.any())).thenReturn(advancedLobby);
 
         // create advanced lobby
         Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
@@ -216,8 +219,8 @@ public class LobbyServiceTest {
         advancedLobby.setPrivateLobbyKey("testPrivateKey");
 
         // return advancedLobby when lobbyRepository.save() or lobbyRepository.findByLobbyId() is called
-        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(advancedLobby);
-        Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(advancedLobby);
+        when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(advancedLobby);
+        when(lobbyRepository.save(Mockito.any())).thenReturn(advancedLobby);
 
         // create advanced lobby
         Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
@@ -246,12 +249,12 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void createLobby_validInputs_success() {
+    void createLobby_validInputs_success() {
         // return basicLobby  when lobbyRepository.save() or lobbyRepository.findByLobbyId() is called
         // for the first time. Then return advancedLobby when lobbyRepository.save() or lobbyRepository.findByLobbyId()
         // is called
-        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby, advancedLobby);
-        Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(basicLobby, advancedLobby);
+        when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby, advancedLobby);
+        when(lobbyRepository.save(Mockito.any())).thenReturn(basicLobby, advancedLobby);
 
         // create basic lobby
         Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
@@ -265,7 +268,7 @@ public class LobbyServiceTest {
         List<Lobby> testLobbies = new ArrayList<>();
         testLobbies.add(testBasicLobbyCreated);
         testLobbies.add(testAdvancedLobbyCreated);
-        Mockito.when(lobbyRepository.findAllByIsPublicAndIsJoinable(true, true)).thenReturn(testLobbies);
+        when(lobbyRepository.findAllByIsPublicAndIsJoinable(true, true)).thenReturn(testLobbies);
 
         // call method to test
         List<Lobby> allFoundPublicAndJoinableLobbies = lobbyService.getAllPublicAndJoinableLobbies();
@@ -384,5 +387,79 @@ public class LobbyServiceTest {
 
         // then
         assertEquals(actualReturnedValue, testPlayer2.getWsConnectionId());
+    }
+
+    @Test
+    void resendLobbySettings_success(){
+        doNothing().when(gameService).sendLobbySettings(anyInt());
+
+        lobbyService.resendLobbySettings(1);
+
+        verify(gameService, times(1)).sendLobbySettings(eq(1));
+    }
+
+    @Test
+    void clearPlayerAfterGameEnd_registeredPlayer() {
+        when(playerService.getPlayerByToken(anyString())).thenReturn(testPlayer1);
+
+        lobbyService.clearPlayerAfterGameEnd(testPlayer1.getToken());
+
+        verify(playerService, times(1)).clearLobbyConfigFromPlayer(eq(testPlayer1.getToken()));
+    }
+
+    @Test
+    void clearPlayerAfterGameEnd_unregisteredPlayer() {
+        when(playerService.getPlayerByToken(anyString())).thenReturn(null);
+
+        lobbyService.clearPlayerAfterGameEnd("someToken");
+
+        verify(playerService, times(0)).clearLobbyConfigFromPlayer(any());
+    }
+
+    @Test
+    void playAgain_firstPlayer(){
+        // given
+        testPlayer1.setLobbyId(1L);
+        advancedLobby.setLobbyId(1L);
+        advancedLobby.setJoinable(true);
+        advancedLobby.removePlayerFromLobby(testPlayer1.getPlayerName());
+
+        AdvancedLobby advancedLobbyPlayAgain = new AdvancedLobby();
+        advancedLobbyPlayAgain.setLobbyId(1L);
+        advancedLobbyPlayAgain.setJoinable(true);
+        advancedLobbyPlayAgain.addPlayerToLobby(testPlayer1.getPlayerName());
+        advancedLobbyPlayAgain.setLobbyCreatorPlayerToken(testPlayer1.getToken());
+        advancedLobbyPlayAgain.setIsPublic(true);
+        advancedLobbyPlayAgain.setNumSeconds(50);
+        advancedLobbyPlayAgain.setNumRounds(4);
+        ((AdvancedLobby) advancedLobbyPlayAgain).setNumSecondsUntilHint(10);
+        ((AdvancedLobby) advancedLobbyPlayAgain).setHintInterval(5);
+        ((AdvancedLobby) advancedLobbyPlayAgain).setMaxNumGuesses(10);
+        advancedLobbyPlayAgain.setLobbyCreatorPlayerToken(testPlayer1.getToken());
+        advancedLobbyPlayAgain.addPlayerToLobby(testPlayer1.getPlayerName());
+        advancedLobbyPlayAgain.setContinent(new ArrayList<String>(
+                Arrays.asList("Africa", "Americas", "Asia", "Europe", "Oceania")));
+
+        // mock playerService and lobbyRepository
+        when(playerService.getPlayerByWsConnectionId(anyString())).thenReturn(testPlayer1);
+        when(lobbyRepository.findByLobbyId(anyLong())).thenReturn(advancedLobby);
+        when(lobbyRepository.save(any())).thenReturn(advancedLobbyPlayAgain);
+
+        // call method to test
+        lobbyService.playAgain(advancedLobby.getLobbyId().intValue(), testPlayer1.getWsConnectionId());
+
+        // verify that lobby was updated
+        verify(lobbyRepository, times(1)).save(any(AdvancedLobby.class));
+        // test if both lobbies have the same attributes
+        assertEquals(advancedLobbyPlayAgain.getLobbyId(), advancedLobby.getLobbyId());
+        assertEquals(advancedLobbyPlayAgain.getIsPublic(), advancedLobby.getIsPublic());
+        assertEquals(advancedLobbyPlayAgain.getNumSeconds(), advancedLobby.getNumSeconds());
+        assertEquals(advancedLobbyPlayAgain.getNumRounds(), advancedLobby.getNumRounds());
+        assertEquals(((AdvancedLobby) advancedLobbyPlayAgain).getNumSecondsUntilHint(), ((AdvancedLobby) advancedLobby).getNumSecondsUntilHint());
+        assertEquals(((AdvancedLobby) advancedLobbyPlayAgain).getHintInterval(), ((AdvancedLobby) advancedLobby).getHintInterval());
+        assertEquals(((AdvancedLobby) advancedLobbyPlayAgain).getMaxNumGuesses(), ((AdvancedLobby) advancedLobby).getMaxNumGuesses());
+        assertEquals(advancedLobbyPlayAgain.getContinent(), advancedLobby.getContinent());
+        assertEquals(advancedLobbyPlayAgain.getLobbyCreatorPlayerToken(), testPlayer1.getToken());
+        assertEquals(advancedLobbyPlayAgain.getJoinedPlayerNames().get(0), testPlayer1.getPlayerName());
     }
 }
