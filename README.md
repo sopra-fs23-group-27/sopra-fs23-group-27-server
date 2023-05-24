@@ -4,6 +4,7 @@
 </p>
  
 [![Deploy Project to App Engine](https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/actions/workflows/main.yml/badge.svg)](https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/actions/workflows/main.yml)
+![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-27_sopra-fs23-group-27-server&metric=alert_status)
 ![Test Coverage](https://sonarcloud.io/api/project_badges/measure?project=sopra-fs23-group-27_sopra-fs23-group-27-server&metric=coverage)
 
 # FlagMania Server Application - SoPra FS23 - Group 27
