@@ -5,8 +5,8 @@ import ch.uzh.ifi.hase.soprafs23.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.GameStatsDTO;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GameStatsDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.GuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.GuessEvalDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.RoundDTO;
@@ -15,7 +15,6 @@ import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 
 

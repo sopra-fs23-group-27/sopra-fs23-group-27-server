@@ -8,7 +8,7 @@ import java.util.Timer;
 
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
-import ch.uzh.ifi.hase.soprafs23.websocket.dto.GuessDTO;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.GuessDTO;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.outgoing.CorrectGuessDTO;
 
 import org.junit.jupiter.api.BeforeEach;
