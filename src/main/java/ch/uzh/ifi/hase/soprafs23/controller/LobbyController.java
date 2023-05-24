@@ -10,6 +10,8 @@ import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,7 @@ public class LobbyController {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private final PlayerService playerservice;
+    private final Logger log = LoggerFactory.getLogger(LobbyController.class);
 
     public LobbyController(LobbyService lobbyService, AuthenticationService authenticationService, PlayerService playerservice) {
         this.lobbyService = lobbyService;
@@ -33,7 +36,7 @@ public class LobbyController {
     @PostMapping("/lobbies/basic")
     public ResponseEntity createBasicLobby(@RequestBody BasicLobbyCreateDTO basicLobbyCreateDTO,
                                            @RequestHeader("Authorization") String playerToken) {
-        
+
         playerservice.checkIfPlayerIsAlreadyInLobby(playerToken);
 
         Lobby basicLobbyInput = DTOMapper.INSTANCE.convertBasicLobbyCreateDTOtoEntity(basicLobbyCreateDTO);
@@ -41,16 +44,16 @@ public class LobbyController {
         LobbyGetDTO lobbyGetDTO = DTOMapper.INSTANCE.convertBasicLobbyEntityToLobbyGetDTO(lobbyCreated);
 
         authenticationService.addToAuthenticatedJoins(playerToken, lobbyGetDTO.getLobbyId());
-        
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(lobbyGetDTO); 
+                .body(lobbyGetDTO);
     }
 
     @PostMapping("/lobbies/advanced")
     public ResponseEntity createAdvancedLobby(@RequestBody AdvancedLobbyCreateDTO advancedLobbyCreateDTO,
                                               @RequestHeader("Authorization") String playerToken) {
-    
+
         playerservice.checkIfPlayerIsAlreadyInLobby(playerToken);
 
         Lobby advancedLobbyInput = DTOMapper.INSTANCE.convertAdvancedLobbyCreateDTOtoEntity(advancedLobbyCreateDTO);
@@ -108,6 +111,7 @@ public class LobbyController {
                           @RequestHeader("Authorization") String playerToken,
                           @RequestParam(value = "privateLobbyKey", required = false) String privateLobbyKey) {
 
+        log.info("PrivateLobbyKey received: " + privateLobbyKey);
         lobbyService.checkIfLobbyIsJoinable(lobbyId, privateLobbyKey);
         playerservice.checkIfPlayerIsAlreadyInLobby(playerToken);
         authenticationService.addToAuthenticatedJoins(playerToken, lobbyId);

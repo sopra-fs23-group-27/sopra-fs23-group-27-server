@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
 import ch.uzh.ifi.hase.soprafs23.entity.*;
+import ch.uzh.ifi.hase.soprafs23.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.LobbyGetDTO;
@@ -245,6 +246,10 @@ public class LobbyService {
 
         // send updated lobby to all players in lobby
         this.gameService.sendLobbySettings(lobby.getLobbyId().intValue());
+        Game game = GameRepository.findByLobbyId(lobby.getLobbyId());
+        if (game != null) {
+            game.resendStatsToLobby();
+        }
 
         // delete lobby if no players are left in the lobby and the lobby is not waiting for a re-match
         if (lobby.getJoinedPlayerNames().size() == 0 && !lobby.isCollectingPlayAgains()) {
@@ -376,8 +381,9 @@ public class LobbyService {
         }
         // if no valid continents are given, return all continents
         if (lobby.getContinent() == null || continentsInGame.size() == 0) {
-             lobby.setContinent(allContinents);
-        } else{
+            lobby.setContinent(allContinents);
+        }
+        else {
             lobby.setContinent(continentsInGame);
         }
     }

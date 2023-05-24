@@ -187,6 +187,9 @@ public class Game {
     }
 
     public void startRound() {
+        // RESET all the current scores in the ScoreBoard
+        this.scoreBoard.resetAllCurrentScores();
+
         // guesses are accepted again for new round
         this.isAcceptingGuesses = true;
 
@@ -302,8 +305,6 @@ public class Game {
         // this.scoreBoard.updateTotalScores();
         this.resetCorrectGuess();
 
-        // RESET all the current scores in the ScoreBoard
-        this.scoreBoard.resetAllCurrentScores();
 
         // reset the timer
         this.resetStartTime();
@@ -648,6 +649,10 @@ public class Game {
             webSocketService.sendToPlayerInLobby(player.getWsConnectionId(), "/score-board", this.gameId.toString(), gameStatsDTO);
         }
 
+    }
+
+    public void resendStatsToLobby() {
+        this.sendStatsToLobby();
     }
 
     private void sendRoundToLobby() {
