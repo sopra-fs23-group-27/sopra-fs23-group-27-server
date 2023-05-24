@@ -15,6 +15,7 @@ import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 
 
@@ -50,7 +51,7 @@ public class Game {
     private int numSeconds;
     private Timer timer;
     private boolean isAcceptingGuesses;
-    private Map<String, Boolean> playerHasGuessed = new HashMap<String, Boolean>();
+    private Map<String, Integer> playerHasGuessed = new HashMap<String, Integer>();
     private Timer playAgainTimer;
     private int numSecondsUntilHint;
     private int hintInterval;
@@ -197,7 +198,7 @@ public class Game {
         }
         // set playerHasGuessed to false for all players
         for (String playerName : this.playerNames) {
-            this.playerHasGuessed.put(playerName, false);
+            this.playerHasGuessed.put(playerName, 0);
         }
         startTimer(this.numSeconds, this);
         webSocketService.sendToLobby(this.gameId, "/round-start", "{}");
@@ -346,7 +347,7 @@ public class Game {
         }
 
         // log that the player has submitted a guess in the round
-        this.playerHasGuessed.put(playerName, true);
+        this.playerHasGuessed.put(playerName, 1);
 
         // clean the guess: remove all whitespaces and make it lowercase
         String cleanedGuess = guess.toLowerCase();
@@ -604,7 +605,7 @@ public class Game {
     private void sendStatsToLobby() {
 
         // Init Arrays for the mapping into a JSON object
-        ArrayList<Boolean> playerHasGuessed = new ArrayList<Boolean>();
+        ArrayList<Integer> playerHasGuessed = new ArrayList<Integer>();
         ArrayList<Integer> TotalGameScores = new ArrayList<Integer>();
         ArrayList<Integer> TotalCorrectGuesses = new ArrayList<Integer>();
         ArrayList<Integer> CurrentTimeUntilCorrectGuess = new ArrayList<Integer>();
