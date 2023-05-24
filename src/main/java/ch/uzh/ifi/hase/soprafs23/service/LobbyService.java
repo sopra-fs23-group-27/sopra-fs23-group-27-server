@@ -185,7 +185,7 @@ public class LobbyService {
         // check if lobby is collecting Play-Agains
         if (lobby.isCollectingPlayAgains()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Lobby is still collecting players for a re-match. Once the re-collecting time of 10 seconds" +
+                    "Lobby is still collecting players for a re-match. Once the re-collecting time of 20 seconds" +
                             " is over, the lobby creator can start the game again.");
         }
 
