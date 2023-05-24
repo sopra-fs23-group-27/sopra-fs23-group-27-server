@@ -10,8 +10,6 @@ import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +23,6 @@ public class LobbyController {
     private final LobbyService lobbyService;
     private final AuthenticationService authenticationService;
     private final PlayerService playerservice;
-    private final Logger log = LoggerFactory.getLogger(LobbyController.class);
 
     public LobbyController(LobbyService lobbyService, AuthenticationService authenticationService, PlayerService playerservice) {
         this.lobbyService = lobbyService;

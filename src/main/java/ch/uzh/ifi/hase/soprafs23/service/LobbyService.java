@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.security.SecureRandom;
 import java.util.*;
 
 @Service
@@ -104,7 +105,10 @@ public class LobbyService {
     }
 
     private Lobby setPrivateLobbyKey(Lobby lobby) {
-        String privateLobbyKey = Base64.getEncoder().encodeToString(lobby.getLobbyId().toString().getBytes());
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] keyBytes = new byte[32];
+        secureRandom.nextBytes(keyBytes);
+        String privateLobbyKey = Base64.getUrlEncoder().withoutPadding().encodeToString(keyBytes);
         lobby.setPrivateLobbyKey(privateLobbyKey);
         lobby = this.lobbyRepository.save(lobby);
         this.lobbyRepository.flush();
