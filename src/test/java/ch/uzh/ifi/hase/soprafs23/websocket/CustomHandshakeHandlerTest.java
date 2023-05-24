@@ -38,28 +38,28 @@ public class CustomHandshakeHandlerTest {
         when(request.getURI()).thenReturn(URI.create("http://example.com"));
         when(webSocketHandler.toString()).thenReturn("MockWebSocketHandler");
         when(request.getHeaders()).thenReturn(new HttpHeaders());
-        
+
         // Act
         Principal result = handshakeHandler.determineUser(request, webSocketHandler, attributes);
-        
+
         // Assert
         // Verify that the returned object is an instance of StompPrincipal
         assertTrue(result instanceof StompPrincipal);
     }
-    
+
     @Test
     public void determineUser_ShouldGenerateUniqueId() {
         // Arrange
         when(request.getURI()).thenReturn(URI.create("http://example.com"));
         when(webSocketHandler.toString()).thenReturn("MockWebSocketHandler");
         when(request.getHeaders()).thenReturn(new HttpHeaders());
-        
+
         // Act
         Principal result = handshakeHandler.determineUser(request, webSocketHandler, attributes);
-        
+
         // Assert
         // Verify that the StompPrincipal has a unique ID
         assertNotNull(result);
-        assertNotEquals("", result);
+        assertNotEquals("", result.getName());
     }
 }

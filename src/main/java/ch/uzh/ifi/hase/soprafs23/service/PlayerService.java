@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Player Service
@@ -195,15 +196,15 @@ public class PlayerService {
         checkIfPlayerTokenIsValid(token, playerToBeUpdated);
 
         // update password if provided password is not null
-        if (playerUpdateRequest.getPassword() != null && playerUpdateRequest.getPassword() != "") {
+        if (playerUpdateRequest.getPassword() != null && !Objects.equals(playerUpdateRequest.getPassword(), "")) {
             playerToBeUpdated.setPassword(playerUpdateRequest.getPassword());
         }
 
         // update playerName if provided playerName is not null
         if (
-            playerUpdateRequest.getPlayerName() != null && 
-            playerUpdateRequest.getPlayerName() != "" &&
-            !playerUpdateRequest.getPlayerName().equals(playerToBeUpdated.getPlayerName())) {
+                playerUpdateRequest.getPlayerName() != null &&
+                        !Objects.equals(playerUpdateRequest.getPlayerName(), "") &&
+                        !playerUpdateRequest.getPlayerName().equals(playerToBeUpdated.getPlayerName())) {
             checkIfPlayerNameExists(playerUpdateRequest.getPlayerName());
             playerToBeUpdated.setPlayerName(playerUpdateRequest.getPlayerName());
         }
