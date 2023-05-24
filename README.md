@@ -33,7 +33,6 @@ Speaking of APIs, we have integrated two exceptional sources to bring the User o
 Additionally, we have integrated the Country API from API Ninjas (https://api-ninjas.com/api/country) to provide the user of our application with fascinating facts surrounding each country. This API allows us to enrich the gameplay by helping the user guessing the flag with hints ranging from interesting trivia to helpful insights about the nations behind the flags.
 
 ### Backend specific technologies
-
 The powerful [Java Spring Boot](https://spring.io/projects/spring-boot) framework dives the backend. Spring Boot provides a solid foundation for building high-performance web applications, while maintaining a simple and versatile Development Environment. 
 
 One technology we want to point out from the backend side is the use of Javas Jaro-Winkler distance algorithm. This algorithm is used to calculate the similarity between two strings. In our case, we use it to calculate the similarity between the user's guess and the correct answer. This allows users to submit answers with spelling errors. The Jaro-Winkler distance algorithm assigns a similarity score between 0 and 1, with 0 indicating no similarity and 1 indicating an exact match. In order to accept an "incorrect" answer, the user must submit a string that has a Jaro-Winkler similarity above 0.93. The algorithm is implemented in the [JaroWinklerDistance class](https://mvnrepository.com/artifact/info.debatty/java-string-similarity/2.0.0) from the java-string-similarity library. 
