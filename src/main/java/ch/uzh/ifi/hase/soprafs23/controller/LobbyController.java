@@ -111,7 +111,6 @@ public class LobbyController {
                           @RequestHeader("Authorization") String playerToken,
                           @RequestParam(value = "privateLobbyKey", required = false) String privateLobbyKey) {
 
-        log.info("PrivateLobbyKey received: " + privateLobbyKey);
         lobbyService.checkIfLobbyIsJoinable(lobbyId, privateLobbyKey);
         playerservice.checkIfPlayerIsAlreadyInLobby(playerToken);
         authenticationService.addToAuthenticatedJoins(playerToken, lobbyId);

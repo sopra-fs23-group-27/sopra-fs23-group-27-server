@@ -59,7 +59,10 @@ public class PlayerController {
     }
 
     @PostMapping("/players")
-    @CrossOrigin(exposedHeaders = "*")
+    //@CrossOrigin(exposedHeaders = "*")
+    @CrossOrigin(origins = {"http://localhost:3000",
+            "https://sopra-fs23-group-27-client.oa.r.appspot.com",
+            "http://sopra-fs23-group-27-client.oa.r.appspot.com"}, exposedHeaders = "*")
     public ResponseEntity createPlayer(@RequestBody PlayerPostDTO playerPostDTO) {
         // convert API player to internal representation
         Player playerInput = DTOMapper.INSTANCE.convertPlayerPostDTOtoEntity(playerPostDTO);
@@ -77,7 +80,10 @@ public class PlayerController {
     }
 
     @PostMapping("/registration")
-    @CrossOrigin(exposedHeaders = "*")
+    //@CrossOrigin(exposedHeaders = "*")
+    @CrossOrigin(origins = {"http://localhost:3000",
+            "https://sopra-fs23-group-27-client.oa.r.appspot.com",
+            "http://sopra-fs23-group-27-client.oa.r.appspot.com"}, exposedHeaders = "*")
     public ResponseEntity registerPlayer(@RequestBody PlayerPostDTO playerPostDTO) {
         // convert API player to internal representation
         Player playerInput = DTOMapper.INSTANCE.convertPlayerPostDTOtoEntity(playerPostDTO);
@@ -95,7 +101,10 @@ public class PlayerController {
     }
 
     @PostMapping("/login")
-    @CrossOrigin(exposedHeaders = "*")
+    //@CrossOrigin(exposedHeaders = "*")
+    @CrossOrigin(origins = {"http://localhost:3000",
+            "https://sopra-fs23-group-27-client.oa.r.appspot.com",
+            "http://sopra-fs23-group-27-client.oa.r.appspot.com"}, exposedHeaders = "*")
     public ResponseEntity loginPlayer(@RequestBody PlayerPostDTO playerPostDTO) {
         // convert API player to internal representation
         Player playerInput = DTOMapper.INSTANCE.convertPlayerPostDTOtoEntity(playerPostDTO);
@@ -114,10 +123,13 @@ public class PlayerController {
     }
 
     @PostMapping("/players/{playerId}/logout")
-    @CrossOrigin(exposedHeaders = "*")
+    //@CrossOrigin(exposedHeaders = "*")
+    @CrossOrigin(origins = {"http://localhost:3000",
+            "https://sopra-fs23-group-27-client.oa.r.appspot.com",
+            "http://sopra-fs23-group-27-client.oa.r.appspot.com"}, exposedHeaders = "*")
     public ResponseEntity logoutPlayer(@PathVariable Long playerId,
                                        @RequestHeader("Authorization") String token) {
- 
+
         // prepare logout player (check if player exists and is authorized)
         playerService.prepareLogoutPlayer(playerId, token);
 
@@ -139,7 +151,10 @@ public class PlayerController {
     }
 
     @PutMapping("/players/{playerId}")
-    @CrossOrigin(exposedHeaders = "*")
+    //@CrossOrigin(exposedHeaders = "*")
+    @CrossOrigin(origins = {"http://localhost:3000",
+            "https://sopra-fs23-group-27-client.oa.r.appspot.com",
+            "http://sopra-fs23-group-27-client.oa.r.appspot.com"}, exposedHeaders = "*")
     public ResponseEntity updatePlayer(@PathVariable Long playerId,
                                        @RequestBody PlayerPutDTO playerPutDTO,
                                        @RequestHeader("Authorization") String token) {
@@ -159,7 +174,10 @@ public class PlayerController {
     }
 
     @DeleteMapping("/players/{playerId}")
-    @CrossOrigin(exposedHeaders = "*")
+    //@CrossOrigin(exposedHeaders = "*")
+    @CrossOrigin(origins = {"http://localhost:3000",
+            "https://sopra-fs23-group-27-client.oa.r.appspot.com",
+            "http://sopra-fs23-group-27-client.oa.r.appspot.com"}, exposedHeaders = "*")
     public ResponseEntity deletePlayer(
             @PathVariable Long playerId, @RequestHeader("Authorization") String token) {
 
