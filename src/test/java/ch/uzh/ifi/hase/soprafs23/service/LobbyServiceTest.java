@@ -1,14 +1,12 @@
 package ch.uzh.ifi.hase.soprafs23.service;
 
-import ch.uzh.ifi.hase.soprafs23.entity.AdvancedLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.BasicLobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs23.entity.Player;
+import ch.uzh.ifi.hase.soprafs23.entity.*;
 import ch.uzh.ifi.hase.soprafs23.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs23.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.AdvancedLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.dto.BasicLobbyCreateDTO;
 import ch.uzh.ifi.hase.soprafs23.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.RemoveDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -274,5 +272,117 @@ public class LobbyServiceTest {
 
         // then
         assertEquals(allFoundPublicAndJoinableLobbies.size(), 2);
+    }
+
+    @Test
+    void testStartGameValidInput() {
+        basicLobby.setLobbyId(0L);
+        basicLobby.addPlayerToLobby("testPlayer2");
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+
+        lobbyService.startGame(basicLobby.getLobbyId(), basicLobby.getLobbyCreatorPlayerToken());
+
+        assertFalse(basicLobby.isJoinable());
+        Mockito.verify(gameService, Mockito.times(1)).startGame(Mockito.any());
+    }
+
+    @Test
+    void testStartGameNotEnoughPlayersInLobby() {
+        basicLobby.setLobbyId(0L);
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.startGame(basicLobby.getLobbyId(), basicLobby.getLobbyCreatorPlayerToken()));
+        assertTrue(basicLobby.isJoinable());
+
+    }
+
+    @Test
+    void testStartGameNotInitiatedByLobbyOwner() {
+        basicLobby.setLobbyId(0L);
+        basicLobby.addPlayerToLobby("testPlayer2");
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.startGame(basicLobby.getLobbyId(), "SomeWrongPlayerToken"));
+        assertTrue(basicLobby.isJoinable());
+
+    }
+
+    @Test
+    void testStartGameIsCollectingPlayAgains() {
+        basicLobby.setLobbyId(0L);
+        basicLobby.addPlayerToLobby("testPlayer2");
+        basicLobby.setCollectingPlayAgains(true);
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.startGame(basicLobby.getLobbyId(), basicLobby.getLobbyCreatorPlayerToken()));
+        assertTrue(basicLobby.isJoinable());
+
+    }
+
+    @Test
+    void testKickPlayerFromLobby_KickNotRequestedByLobbyOwner() {
+        // create player to be kicked
+        Player testPlayer2 = new Player();
+        testPlayer2.setPlayerName("testPlayer2");
+        testPlayer2.setToken("testToken2");
+        testPlayer2.setWsConnectionId("testWsConnectionId2");
+
+        RemoveDTO removeDTO = new RemoveDTO();
+        removeDTO.setPlayerName(testPlayer2.getPlayerName());
+
+        // create 3rd player which tries to request the kick (but is not admin)
+        Player testPlayer3 = new Player();
+        testPlayer3.setPlayerName("testPlayer3");
+        testPlayer3.setToken("testToken3");
+        testPlayer3.setWsConnectionId("testWsConnectionId3");
+
+        basicLobby.setLobbyId(0L);
+        basicLobby.addPlayerToLobby(testPlayer2.getPlayerName());
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+        Mockito.when(playerService.getPlayerByWsConnectionId(Mockito.any())).thenReturn(testPlayer3);
+        Mockito.when(playerRepository.findByPlayerName(Mockito.any())).thenReturn(testPlayer2);
+
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.kickPlayerFromLobby(basicLobby.getLobbyId().intValue(), removeDTO, testPlayer3.getWsConnectionId()));
+
+    }
+
+    @Test
+    void testKickPlayerFromLobby_Success() {
+        // create player to be kicked
+        Player testPlayer2 = new Player();
+        testPlayer2.setPlayerName("testPlayer2");
+        testPlayer2.setToken("testToken2");
+        testPlayer2.setWsConnectionId("testWsConnectionId2");
+        testPlayer2.setLobbyId(0L);
+
+        RemoveDTO removeDTO = new RemoveDTO();
+        removeDTO.setPlayerName(testPlayer2.getPlayerName());
+
+        lobbyService = Mockito.spy(new LobbyService(lobbyRepository, playerRepository, playerService, gameService));
+
+
+        basicLobby.setLobbyId(0L);
+        basicLobby.addPlayerToLobby(testPlayer2.getPlayerName());
+
+        Mockito.when(lobbyRepository.findByLobbyId(Mockito.any())).thenReturn(basicLobby);
+        Mockito.when(playerService.getPlayerByWsConnectionId(Mockito.any())).thenReturn(testPlayer1);
+        Mockito.when(playerRepository.findByPlayerName(Mockito.any())).thenReturn(testPlayer2);
+        Mockito.when(playerService.getPlayerByToken(testPlayer2.getToken())).thenReturn(testPlayer2);
+        Mockito.doNothing().when(gameService).sendLobbySettings(Mockito.any());
+        Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(basicLobby);
+        Mockito.doNothing().when(playerService).clearLobbyConfigFromPlayer(Mockito.any());
+        Mockito.doReturn(basicLobby).when(lobbyService).leaveLobby(basicLobby, testPlayer2.getToken());
+
+        // call method to test
+        String actualReturnedValue = lobbyService.kickPlayerFromLobby(basicLobby.getLobbyId().intValue(), removeDTO, testPlayer1.getWsConnectionId());
+
+        // then
+        assertEquals(actualReturnedValue, testPlayer2.getWsConnectionId());
     }
 }
