@@ -20,10 +20,9 @@ Whether you're a beginner or a dedicated flag enthusiast, FlagMania offers an im
 So, what are you waiting for? Unleash your inner adventurer and test your flag knowledge. Get ready to explore the fascinating world of flags and become the ultimate FlagMania champion!
 
 ## Requirements
-
 1. **Stable Internet Connection**: FlagMania is an online game, players will need a stable internet connection to play. We recommend a minimum internet speed of 5 Mbps for a smooth and seamless gameplay experience.
 2. **Web Browser**: FlagMania is a web-based game, so players will need a web browser to play. We recommend using the latest version of Google Chrome or Mozilla Firefox for the best experience.
-3. **Devices**: FlagMania is a web-based game, so players will need a device to play. We recommend using a laptop or desktop computer for the best experience. Smartphone and tablet devices may lead to a suboptimal experience.
+3. **Devices**: FlagMania is a web-based game, so players will need a device to play. We recommend using a laptop or desktop computer for the best experience. The use of smartphone and tablet devices is discouraged and may lead to a suboptimal experience.  If a user still chooses to play on a smartphone, playing in side view is recommended!
 
 ## Technologies
 To establish a seamless connection between the frontend and backend, we have employed REST and [Stomp-Websockets](https://spring.io/guides/gs/messaging-stomp-websocket/) protocols. [REST (Representational State Transfer)](https://en.wikipedia.org/wiki/Representational_state_transfer) enables smooth communication and data transfer, allowing the frontend to interact with the backend effortlessly. [Stomp-Websockets](https://spring.io/guides/gs/messaging-stomp-websocket/), a subprotocol of WebSocket, adds a layer of real-time communication, ensuring instant updates and an immersive gameplay experience.
@@ -137,7 +136,7 @@ Further, we extend our appreciation to the providers of the FLAGCDN API (https:/
 ## License
 This project is licensed under the MIT License.
 
-Copyright (c) 2023 Dominic Tobler
+Copyright (c) 2023
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
