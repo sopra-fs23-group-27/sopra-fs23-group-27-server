@@ -61,7 +61,7 @@ in week 1 and 3.
 |       30       |    Richard     | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/63 |
 |       31       | Elias, Richard | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/67 |
 |       32       |     Kilian     | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/pull/61   |
-|       33       |     Kilian     | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/70 |
+|       33       |     Kilian     | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/45 |
 |       34       |    Richard     | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/71 |
 |       35       |    Richard     | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/73 |                                	 |
 |       36       |      Noah      | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/9  |                              	 |
