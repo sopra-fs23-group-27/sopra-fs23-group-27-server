@@ -76,7 +76,7 @@ in week 1 and 3.
 | Contribution # |  Name   | GitHub Issue                                                                                                                                                    |
 |:--------------:|:-------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |       39       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/20                                                                                     |                                   	 
-|       40       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/20                                                                                     |                                   	 
+|       40       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/21                                                                                     |                                   	 
 |       41       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/23                                                                                     |                                    	 |
 |       42       | Richard | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/74                                                                                     |                                	 |
 |       43       | Richard | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/92                                                                                     |                                	 |
@@ -108,7 +108,7 @@ in week 1 and 3.
 |       61       |      Noah       | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/19                                                                                       |                                   	 
 |       62       |      Noah       | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/56                                                                                       |                                   	 
 |       63       |      Noah       | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/72                                                                                       |                                        	 
-|       64       |      Noah       | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/19                                                                                       |                                            	 |
+|       64       |      Noah       | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/66                                                                                       |                                            	 |
 |       65       |      Elias      | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/85           	                                                                           |
 |       66       |      Elias      | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/109           	                                                                          |
 |       67       |     Richard     | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/102              	                                                                       |
@@ -146,9 +146,7 @@ in week 1 and 3.
 |       91       | Richard | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/137                                          	    |
 |       92       | Richard | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/148                                          	    |
 |       93       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/97                                          	     |                                          	 
-|       94       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/98                                          	     |
-|       94       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/98                                          	     |
-|       94       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/98                                          	     |
+|       94       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/98                                         	       |
 |       95       |  Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/85                                          	     |
 |       96       |  Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/135                                          	     |
 |       97       |  Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/147                                          	     |
@@ -175,6 +173,9 @@ in week 1 and 3.
 |      109       | Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/160                                               |
 |      110       | Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/161                                               |
 |      111       | Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/122                                               |
-|      111       | Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/173                                               |
-|      111       | Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/174                                               |
+|      112       | Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/173                                               |
+|      113       | Kilian | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/174                                               |
+|       114       |  Noah, Elias   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-server/issues/155                                               |
+|       115       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/124                                               |
+|       116       |  Noah   | https://github.com/sopra-fs23-group-27/sopra-fs23-group-27-client/issues/127                                               |
 </details>
