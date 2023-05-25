@@ -1,7 +1,9 @@
 package ch.uzh.ifi.hase.soprafs23.controller;
 
+import ch.uzh.ifi.hase.soprafs23.entity.Player;
 import ch.uzh.ifi.hase.soprafs23.service.AuthenticationService;
 import ch.uzh.ifi.hase.soprafs23.service.LobbyService;
+import ch.uzh.ifi.hase.soprafs23.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs23.service.WebSocketService;
 import ch.uzh.ifi.hase.soprafs23.websocket.dto.incoming.AuthenticateDTO;
 import org.slf4j.Logger;
@@ -24,18 +26,20 @@ public class WebSocketController {
 
     private final AuthenticationService authenticationService;
     private final WebSocketService webSocketService;
-
+    private final PlayerService playerService;
 
     public WebSocketController(AuthenticationService authenticationService,
-                               WebSocketService webSocketService) {
+                               WebSocketService webSocketService,
+                               PlayerService playerService) {
         this.authenticationService = authenticationService;
         this.webSocketService = webSocketService;
+        this.playerService = playerService;
     }
 
     @MessageMapping("/authentication")
     public synchronized void authenticatePlayer(SimpMessageHeaderAccessor smha, AuthenticateDTO dto) {
-
-        if (this.webSocketService.isPlayerReconnecting(dto.getPlayerToken())) {
+        Player player = playerService.getPlayerByToken(dto.getPlayerToken());
+        if (player.getLobbyId() != null && this.webSocketService.isPlayerReconnecting(dto.getPlayerToken())) {
             log.info("Authentication Event: Previous Player (token: " + dto.getPlayerToken() + ") is reconnecting with" +
                     " new websocketId: " + webSocketService.getIdentity(smha));
             this.webSocketService.initReconnectionProcedure(webSocketService.getIdentity(smha), dto.getPlayerToken());
