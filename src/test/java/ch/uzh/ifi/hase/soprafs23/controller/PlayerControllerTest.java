@@ -20,6 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -67,6 +69,39 @@ public class PlayerControllerTest {
         // then
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$.playerName", is(player.getPlayerName())));
+    }
+
+    @Test
+    public void givenPlayers_whenGetPlayers_thenReturnJsonArray() throws Exception {
+        // given
+        Player player = new Player();
+        player.setPassword("password");
+        player.setPlayerName("firstname@lastname");
+        player.setToken("validToken");
+
+        // given
+        Player player2 = new Player();
+        player2.setPassword("password2");
+        player2.setPlayerName("firstname@lastname2");
+        player2.setToken("validToken2");
+
+        List<Player> allPlayers = new ArrayList<Player>();
+        allPlayers.add(player);
+        allPlayers.add(player2);
+
+        // this mocks the PlayerService -> we define above what the playerService should
+        // return when getPlayerById() is called
+        given(playerService.getPlayers(anyString())).willReturn(allPlayers);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/players")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "validToken");
+
+        // then
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].playerName", is(player.getPlayerName())))
+                .andExpect(jsonPath("$[1].playerName", is(player2.getPlayerName())));
     }
 
     @Test
@@ -434,7 +469,7 @@ public class PlayerControllerTest {
         playerPutDTO.setPlayerName("someTakenPlayerName");
 
         String errorMessage = "The playerName provided is already taken and cannot be used. " +
-        "Please select another playerName!";
+                "Please select another playerName!";
 
         ResponseStatusException conflictException = new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
 
