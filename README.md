@@ -18,7 +18,7 @@ But wait, if you're feeling extra adventurous and want to take your flag-guessin
 
 Whether you're a beginner or a dedicated flag enthusiast, FlagMania offers an immersive and entertaining experience that will keep you engaged for hours. With its user-friendly interface and diverse range of flags from all over the world, this game is the perfect choice to expand your cultural knowledge and become a master at identifying flags.
 
-So, what are you waiting for? Unleash your inner adventurer and test your flag knowledge. Get ready to explore the fascinating world of flags and become the ultimate FlagMania champion!
+So, what are you waiting for? Unleash your inner adventurer and test your flag knowledge [here](https://sopra-fs23-group-27-client.oa.r.appspot.com/). Get ready to explore the fascinating world of flags and become the ultimate FlagMania champion!
 
 ## Requirements
 1. **Stable Internet Connection**: FlagMania is an online game, players will need a stable internet connection to play. We recommend a minimum internet speed of 5 Mbps for a smooth and seamless gameplay experience.
